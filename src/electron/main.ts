@@ -661,3 +661,44 @@ ipcMain.handle('add-withdrawal', async (event, withdrawalData: any) => {
     await queryRunner.release();
   }
 });
+
+ipcMain.handle('return-withdrawal', async (event, { id, date }) => {
+  const queryRunner = AppDataSource.createQueryRunner();
+  await queryRunner.connect();
+  await queryRunner.startTransaction();
+
+  try {
+    const withdrawalRepository = queryRunner.manager.getRepository(Withdrawal);
+    const withdrawal = await withdrawalRepository.findOne({
+      where: { id },
+      relations: ['batch'],
+    });
+
+    if (!withdrawal) {
+      throw new Error('Withdrawal not found');
+    }
+
+    if (withdrawal.return_date) {
+      throw new Error('Withdrawal already returned');
+    }
+
+    // Update return date
+    withdrawal.return_date = new Date(date);
+    await queryRunner.manager.save(withdrawal);
+
+    // Increment batch quantity
+    const batch = withdrawal.batch;
+    if (batch) {
+      batch.quantity += withdrawal.quantity;
+      await queryRunner.manager.save(batch);
+    }
+
+    await queryRunner.commitTransaction();
+    return withdrawal;
+  } catch (err) {
+    await queryRunner.rollbackTransaction();
+    throw err;
+  } finally {
+    await queryRunner.release();
+  }
+});

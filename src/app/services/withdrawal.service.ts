@@ -18,4 +18,11 @@ export class WithdrawalService {
   async create(withdrawal: any): Promise<any> {
     return await this.electronService.invoke('add-withdrawal', withdrawal);
   }
+
+  async return(withdrawalId: number, returnDate: Date): Promise<any> {
+    return await this.electronService.invoke('return-withdrawal', {
+      id: withdrawalId,
+      date: returnDate,
+    });
+  }
 }

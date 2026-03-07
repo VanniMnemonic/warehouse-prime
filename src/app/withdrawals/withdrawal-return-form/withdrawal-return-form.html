@@ -1,0 +1,59 @@
+<div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
+        <div class="flex items-center gap-4">
+            <p-avatar [image]="withdrawal().batch?.asset?.image_path" shape="square" size="xlarge" icon="pi pi-box" />
+            <div class="flex flex-col">
+                <span class="text-xl font-bold">{{ withdrawal().batch?.asset?.denomination }}</span>
+                <span class="text-muted-color">{{ withdrawal().batch?.denomination }}</span>
+                <span class="text-sm">S/N: {{ withdrawal().batch?.serial_number }}</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+            <p-avatar [image]="withdrawal().user?.image_path" shape="circle" size="large" />
+            <div class="flex flex-col">
+                <span class="font-bold">{{ withdrawal().user?.first_name }} {{ withdrawal().user?.last_name }}</span>
+                <span class="text-sm text-muted-color">{{ withdrawal().user?.email }}</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mt-2">
+            <div class="flex flex-col">
+                <span class="text-sm text-muted-color">Quantity to Return</span>
+                <span class="font-medium text-lg">{{ withdrawal().quantity }}</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-sm text-muted-color">Withdrawal Date</span>
+                <span class="font-medium">{{ withdrawal().date | date:'mediumDate' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+        <label for="returnDate">Return Date</label>
+        <p-datepicker 
+            id="returnDate" 
+            [(ngModel)]="returnDate" 
+            [showIcon]="true" 
+            [showTime]="true"
+            dateFormat="yy-mm-dd"
+            class="w-full"
+        />
+    </div>
+
+    <div class="flex pt-4 justify-end gap-2">
+        <p-button 
+            label="Cancel" 
+            icon="pi pi-times" 
+            (onClick)="cancel()" 
+            severity="secondary" 
+            [disabled]="loading"
+        />
+        <p-button 
+            label="Confirm Return" 
+            icon="pi pi-check" 
+            (onClick)="submit()" 
+            [loading]="loading"
+        />
+    </div>
+</div>
