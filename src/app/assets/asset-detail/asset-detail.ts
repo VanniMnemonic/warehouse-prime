@@ -14,6 +14,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { LocationDisplay } from '../../shared/components/location-display';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-asset-detail',
@@ -42,6 +43,7 @@ export class AssetDetail {
   messageService = inject(MessageService);
   batchService = inject(BatchService);
   cdr = inject(ChangeDetectorRef);
+  sanitizer = inject(DomSanitizer);
 
   batches: any[] = [];
   loading: boolean = true;
@@ -58,6 +60,11 @@ export class AssetDetail {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  getSafeUrl(path: string) {
+    if (!path) return null;
+    return this.sanitizer.bypassSecurityTrustUrl(path);
   }
 
   async loadBatches(assetId: number) {

@@ -1,19 +1,21 @@
 <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
   <div class="flex flex-col items-center gap-2">
-    <p-avatar
-      [image]="imagePath() || ''"
-      shape="square"
-      size="xlarge"
-      [style]="{ width: '100px', height: '100px' }"
-      icon="pi pi-box"
-      styleClass="rounded-xl"
-    />
+    <div class="relative w-[100px] h-[100px]">
+        @if (imagePath()) {
+            <img [src]="imagePath()" class="w-full h-full object-cover rounded-xl border border-surface-200 dark:border-surface-700" alt="Asset Image" />
+        } @else {
+            <div class="w-full h-full rounded-xl bg-surface-100 dark:bg-surface-800 flex items-center justify-center border border-surface-200 dark:border-surface-700">
+                <i class="pi pi-box text-4xl text-surface-400 dark:text-surface-500"></i>
+            </div>
+        }
+    </div>
+    
     <p-fileupload
       mode="basic"
       chooseLabel="Upload Image"
       chooseIcon="pi pi-upload"
       accept="image/*"
-      maxFileSize="1000000"
+      [maxFileSize]="1000000"
       (onSelect)="onImageSelect($event)"
       [auto]="true"
       [customUpload]="true"

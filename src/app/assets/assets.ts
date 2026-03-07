@@ -17,6 +17,7 @@ import { AssetForm } from './asset-form/asset-form';
 import { AssetBatchForm } from './asset-batch-form/asset-batch-form';
 import { LocationDisplay } from '../shared/components/location-display';
 import { TagModule } from 'primeng/tag';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-assets',
@@ -44,6 +45,7 @@ export class Assets implements OnInit {
   assetService = inject(AssetService);
   batchService = inject(BatchService);
   cdr = inject(ChangeDetectorRef);
+  sanitizer = inject(DomSanitizer);
 
   assets: any[] = [];
   loading: boolean = true;
@@ -87,6 +89,11 @@ export class Assets implements OnInit {
 
   ngOnInit() {
     this.loadAssets();
+  }
+
+  getSafeUrl(path: string) {
+    if (!path) return null;
+    return this.sanitizer.bypassSecurityTrustUrl(path);
   }
 
   isExpired(date: string): boolean {

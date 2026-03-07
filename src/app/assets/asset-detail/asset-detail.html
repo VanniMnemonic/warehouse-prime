@@ -3,7 +3,7 @@
     <p-toast />
     <div class="flex items-center gap-4">
       <p-avatar
-        [image]="asset().image_path"
+        [image]="$any(getSafeUrl(asset().image_path) || '')"
         shape="square"
         size="xlarge"
         [style]="{ width: '7rem', height: '7rem' }"

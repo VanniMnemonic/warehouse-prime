@@ -1,4 +1,4 @@
-import { Component, inject, input, output, effect, signal } from '@angular/core';
+import { Component, inject, input, output, effect, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -35,6 +35,20 @@ export class AssetForm {
   onCancel = output<void>();
 
   imagePath = signal<any>(null);
+  
+  // Create a computed signal or effect to handle the image path update?
+  // No, the signal set() should trigger update.
+  // The issue might be that PrimeNG Avatar doesn't support SafeUrl object directly in [image] input
+  // if it expects a string. But DomSanitizer.bypassSecurityTrustUrl returns a SafeUrlImpl object.
+  // Angular handles SafeUrl in standard bindings like [src], but PrimeNG components might treat it differently.
+  // However, UserForm works with the same logic.
+  
+  // Let's verify what happens if we force string conversion or use a different approach.
+  // Wait, local-resource:// protocol is custom. Maybe we need to ensure the sanitizer trusts it properly.
+  // The log shows: local-resource:///...
+  
+  // Let's inject ChangeDetectorRef just in case
+  cdr = inject(ChangeDetectorRef);
 
   form = this.fb.group({
     id: [null],
@@ -63,23 +77,42 @@ export class AssetForm {
     });
   }
 
-  onImageSelect(event: any) {
+  async onImageSelect(event: any) {
     const file = event.files[0];
     if (file) {
-      // In a real app, you would upload the file here
-      // For this electron app, we'll use the file path or a dummy URL
-      // Since the browser can't access local files directly without proper handling
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePath.set(e.target.result);
-        // We'll store the base64 or path in the form
-        // In a real electron app with the backend handler we set up:
-        // window.electronAPI.uploadImage(file.path) -> returns local-resource://...
-        // For now, let's assume we get a path back. 
-        // We'll just simulate setting the path for now or use the base64 for display
-        this.form.patchValue({ image_path: file.path || e.target.result });
-      };
-      reader.readAsDataURL(file);
+      // Use AssetService (which uses ElectronService) to get the file path safely
+      const filePath = this.assetService.getFilePath(file);
+
+      if (filePath) {
+        try {
+          const uploadedPath = await this.assetService.uploadImage(filePath);
+          console.log('Uploaded image path:', uploadedPath);
+          
+          // Force change detection or signal update
+          // When bypassing security, we get a SafeUrl object
+          const safeUrl = this.sanitizer.bypassSecurityTrustUrl(uploadedPath);
+          this.imagePath.set(safeUrl);
+          this.form.patchValue({ image_path: uploadedPath });
+          
+          // Trigger change detection manually
+          this.cdr.detectChanges();
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Image uploaded successfully',
+          });
+        } catch (error) {
+          console.error('Image upload failed:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to upload image',
+          });
+        }
+      } else {
+        console.warn('Could not get file path from selected file');
+      }
     }
   }
 

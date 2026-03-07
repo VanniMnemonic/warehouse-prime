@@ -18,4 +18,12 @@ export class AssetService {
   async update(asset: any): Promise<any> {
     return await this.electronService.invoke('update-asset', asset);
   }
+
+  async uploadImage(filePath: string): Promise<string> {
+    return await this.electronService.invoke('upload-image', filePath);
+  }
+
+  getFilePath(file: File): string {
+    return this.electronService.getFilePath(file);
+  }
 }

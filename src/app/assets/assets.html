@@ -71,7 +71,12 @@
           />
         </td>
         <td>
-          <p-avatar [image]="asset.image_path" shape="square" size="large" icon="pi pi-box" />
+          <p-avatar
+            [image]="$any(getSafeUrl(asset.image_path) || '')"
+            shape="square"
+            size="large"
+            icon="pi pi-box"
+          />
         </td>
         <td class="font-bold">{{ asset.denomination }}</td>
         <td>{{ asset.part_number }}</td>
