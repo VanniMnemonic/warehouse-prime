@@ -17,6 +17,8 @@ import { CommonModule } from '@angular/common';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { LocationDisplay } from '../shared/components/location-display';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-users',
@@ -37,6 +39,8 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
     UserForm,
     SplitButtonModule,
     ScrollPanelModule,
+    LocationDisplay,
+    TagModule,
   ],
   templateUrl: './users.html',
   styleUrl: './users.css',

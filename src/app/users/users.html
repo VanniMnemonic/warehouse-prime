@@ -36,7 +36,10 @@
         <th pSortableColumn="location.denomination">
           Location <p-sortIcon field="location.denomination" />
         </th>
-        <th></th>
+        <th pSortableColumn="active_withdrawals">
+          <i class="pi pi-shopping-cart text-lg"></i>
+          &nbsp;<p-sortIcon field="active_withdrawals" />
+        </th>
         <th pSortableColumn="barcode">Barcode <p-sortIcon field="barcode" /></th>
         <th style="width: 4rem"></th>
       </tr>
@@ -51,23 +54,12 @@
         <td>{{ user.last_name }}</td>
         <td>{{ user.email }}</td>
         <td>
-          @if (user.location?.parent) {
-            <span
-              >{{ user.location.parent.denomination }} <i class="pi pi-angle-double-right"></i>
-            </span>
-          }
-          {{ user.location?.denomination }}
+          <app-location-display [location]="user.location" />
         </td>
         <td>
-          <div>
-            @if (user.active_withdrawals > 0) {
-              <p-chip
-                [label]="user.active_withdrawals.toString()"
-                icon="pi pi-shopping-cart"
-                class="bg-red-500 text-white"
-              />
-            }
-          </div>
+          @if (user.active_withdrawals > 0) {
+            <p-tag [value]="user.active_withdrawals.toString()" severity="warn" />
+          }
         </td>
         <td>{{ user.barcode }}</td>
         <td class="relative">

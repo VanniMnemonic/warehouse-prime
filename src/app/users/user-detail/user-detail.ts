@@ -13,6 +13,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
+import { LocationDisplay } from '../../shared/components/location-display';
 
 @Component({
   selector: 'app-user-detail',
@@ -29,6 +30,7 @@ import { DividerModule } from 'primeng/divider';
     InputIconModule,
     InputTextModule,
     DividerModule,
+    LocationDisplay,
   ],
   templateUrl: './user-detail.html',
   styleUrl: './user-detail.css',

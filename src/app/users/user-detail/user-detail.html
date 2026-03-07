@@ -24,12 +24,7 @@
           />
         </span>
         <span>
-          @if (user().location?.parent) {
-            <span
-              >{{ user().location.parent.denomination }} <i class="pi pi-angle-double-right"></i>
-            </span>
-          }
-          {{ user().location?.denomination }}
+          <app-location-display [location]="user().location" />
         </span>
       </div>
       <p-button

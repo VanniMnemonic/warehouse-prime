@@ -306,6 +306,10 @@ app.on('ready', () => {
           { denomination: 'Projector Epson', part_number: 'EPSON-PROJ-4K', min_stock: 1 },
           { denomination: 'Whiteboard', part_number: 'WB-180x120', min_stock: 3 },
           { denomination: 'Coffee Machine', part_number: 'NESPRESSO-PRO', min_stock: 1 },
+          // Test items
+          { denomination: 'Expired Milk', part_number: 'MILK-EXP', min_stock: 10 },
+          { denomination: 'Near Expiry Bread', part_number: 'BREAD-SOON', min_stock: 10 },
+          { denomination: 'Low Stock Pens', part_number: 'PEN-LOW', min_stock: 100 },
         ];
 
         for (const data of assetsData) {
@@ -317,6 +321,46 @@ app.on('ready', () => {
           asset.barcode = `AST-${Math.floor(1000 + Math.random() * 9000)}`;
 
           const savedAsset = await assetRepository.save(asset);
+
+          // Specific logic for test items
+          if (data.part_number === 'MILK-EXP') {
+            const batch = new Batch();
+            batch.denomination = `Batch 1 - Expired`;
+            batch.asset = savedAsset;
+            batch.serial_number = `SN-EXP-001`;
+            batch.quantity = 20;
+            const date = new Date();
+            date.setDate(date.getDate() - 10); // 10 days ago
+            batch.expiration_date = date;
+            batch.location = locations[0];
+            createdBatches.push(await batchRepository.save(batch));
+            continue;
+          }
+
+          if (data.part_number === 'BREAD-SOON') {
+            const batch = new Batch();
+            batch.denomination = `Batch 1 - Near Expiry`;
+            batch.asset = savedAsset;
+            batch.serial_number = `SN-NEAR-001`;
+            batch.quantity = 20;
+            const date = new Date();
+            date.setDate(date.getDate() + 5); // In 5 days
+            batch.expiration_date = date;
+            batch.location = locations[0];
+            createdBatches.push(await batchRepository.save(batch));
+            continue;
+          }
+
+          if (data.part_number === 'PEN-LOW') {
+            const batch = new Batch();
+            batch.denomination = `Batch 1 - Low Stock`;
+            batch.asset = savedAsset;
+            batch.serial_number = `SN-LOW-001`;
+            batch.quantity = 5; // Below min_stock of 100
+            batch.location = locations[0];
+            createdBatches.push(await batchRepository.save(batch));
+            continue;
+          }
 
           // Create batches for each asset
           const numBatches = Math.floor(Math.random() * 3) + 1; // 1 to 3 batches per asset
@@ -472,6 +516,14 @@ ipcMain.handle('get-locations', async () => {
   });
 });
 
+ipcMain.handle('get-withdrawals', async () => {
+  const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
+  return await withdrawalRepository.find({
+    relations: ['user', 'batch', 'batch.asset'],
+    order: { date: 'DESC' },
+  });
+});
+
 ipcMain.handle('get-withdrawals-by-user', async (event, userId: number) => {
   const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
   return await withdrawalRepository.find({
@@ -509,20 +561,38 @@ ipcMain.handle('upload-image', async (event, filePath: string) => {
 
 ipcMain.handle('get-assets', async () => {
   const assetRepository = AppDataSource.getRepository(Asset);
-  // Get all assets
   const assets = await assetRepository.find();
-
-  // For each asset, calculate total quantity from batches
   const batchRepository = AppDataSource.getRepository(Batch);
-  const assetsWithQty = await Promise.all(
+
+  const assetsWithDetails = await Promise.all(
     assets.map(async (asset) => {
       const batches = await batchRepository.find({ where: { asset: { id: asset.id } } });
       const totalQty = batches.reduce((sum, batch) => sum + batch.quantity, 0);
-      return { ...asset, total_quantity: totalQty };
+
+      const now = new Date();
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(now.getDate() + 30);
+
+      const hasExpired = batches.some(
+        (b) => b.expiration_date && new Date(b.expiration_date) < now,
+      );
+      const hasNearExpiry = batches.some((b) => {
+        if (!b.expiration_date) return false;
+        const exp = new Date(b.expiration_date);
+        return exp > now && exp <= thirtyDaysFromNow;
+      });
+
+      return {
+        ...asset,
+        total_quantity: totalQty,
+        is_below_min_stock: totalQty < asset.min_stock,
+        has_expired_batches: hasExpired,
+        has_near_expiry_batches: hasNearExpiry,
+      };
     }),
   );
 
-  return assetsWithQty;
+  return assetsWithDetails;
 });
 
 ipcMain.handle('add-asset', async (event, assetData: Partial<Asset>) => {

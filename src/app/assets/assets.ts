@@ -14,6 +14,8 @@ import { MenuItem } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { AssetDetail } from './asset-detail/asset-detail';
 import { AssetForm } from './asset-form/asset-form';
+import { LocationDisplay } from '../shared/components/location-display';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-assets',
@@ -30,6 +32,8 @@ import { AssetForm } from './asset-form/asset-form';
     DrawerModule,
     AssetDetail,
     AssetForm,
+    LocationDisplay,
+    TagModule,
   ],
   templateUrl: './assets.html',
   styleUrl: './assets.css',
@@ -73,6 +77,35 @@ export class Assets implements OnInit {
 
   ngOnInit() {
     this.loadAssets();
+  }
+
+  isExpired(date: string): boolean {
+    if (!date) return false;
+    return new Date(date) < new Date();
+  }
+
+  isNearExpiry(date: string): boolean {
+    if (!date) return false;
+    const expiry = new Date(date);
+    const now = new Date();
+    // Consider expired items as not "near expiry" (they are already expired)
+    if (expiry < now) return false;
+
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(now.getDate() + 30);
+    return expiry <= thirtyDaysFromNow;
+  }
+
+  getQuantitySeverity(
+    asset: any,
+  ): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
+    if (asset.total_quantity < asset.min_stock) {
+      return 'danger';
+    }
+    if (asset.total_quantity < asset.min_stock * 1.25) {
+      return 'warn';
+    }
+    return 'success';
   }
 
   onRowExpand(event: any) {

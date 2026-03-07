@@ -1,4 +1,89 @@
-<div>
-  <h2>Withdrawals</h2>
-  <p>Welcome to the Withdrawals!</p>
+<div class="card">
+  <p-table
+    #dt
+    stripedRows
+    size="large"
+    [value]="withdrawals"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['user.first_name', 'user.last_name', 'batch.asset.denomination', 'batch.serial_number']"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    dataKey="id"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex items-center gap-2">
+        <p-iconfield iconPosition="left" class="ml-auto">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="searchValue"
+            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Search keyword"
+          />
+        </p-iconfield>
+        <p-button label="Add Withdrawal" icon="pi pi-plus" (onClick)="openAddWithdrawal()" />
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
+        <th style="width: 4rem"></th>
+        <th pSortableColumn="user.last_name">User <p-sortIcon field="user.last_name" /></th>
+        <th style="width: 4rem"></th>
+        <th pSortableColumn="batch.asset.denomination">Asset <p-sortIcon field="batch.asset.denomination" /></th>
+        <th pSortableColumn="batch.serial_number">Batch S/N <p-sortIcon field="batch.serial_number" /></th>
+        <th pSortableColumn="quantity">Qty <p-sortIcon field="quantity" /></th>
+        <th pSortableColumn="must_return">Status <p-sortIcon field="must_return" /></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-withdrawal>
+      <tr>
+        <td>{{ withdrawal.date | date: 'shortDate' }}</td>
+        <td>
+          <p-avatar [image]="withdrawal.user?.image_path" shape="circle" size="normal" />
+        </td>
+        <td>
+          <div class="flex flex-col">
+            <span class="font-bold">{{ withdrawal.user?.first_name }} {{ withdrawal.user?.last_name }}</span>
+            <span class="text-sm text-muted-color">{{ withdrawal.user?.email }}</span>
+          </div>
+        </td>
+        <td>
+          <p-avatar [image]="withdrawal.batch?.asset?.image_path" shape="square" size="normal" icon="pi pi-box" />
+        </td>
+        <td class="font-bold">{{ withdrawal.batch?.asset?.denomination }}</td>
+        <td>{{ withdrawal.batch?.serial_number }}</td>
+        <td>{{ withdrawal.quantity }}</td>
+        <td>
+          @if (!withdrawal.must_return) {
+            <p-tag value="Consumed" severity="success" />
+          } @else if (withdrawal.return_date) {
+            <p-tag value="Returned" severity="info" />
+          } @else {
+            <p-tag value="Active" severity="warn" />
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>
+
+<p-drawer
+  [(visible)]="formDrawerVisible"
+  header="Add Withdrawal"
+  position="right"
+  [style]="{ width: '55rem' }"
+  [modal]="true"
+  [dismissible]="true"
+>
+  <ng-template pTemplate="content">
+    @if (formDrawerVisible) {
+      <app-withdrawal-form (onSave)="onFormSave($event)" (onCancel)="onFormCancel()" />
+    }
+  </ng-template>
+</p-drawer>

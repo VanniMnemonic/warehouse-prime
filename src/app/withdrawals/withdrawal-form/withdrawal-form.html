@@ -1,0 +1,184 @@
+<div class="card flex justify-center">
+    <p-stepper [value]="1" class="w-full">
+        <p-step-list>
+            <p-step [value]="1">Select User</p-step>
+            <p-step [value]="2">Select Asset</p-step>
+            <p-step [value]="3">Details</p-step>
+        </p-step-list>
+        <p-step-panels>
+            <p-step-panel [value]="1">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="flex flex-col gap-4 min-h-[300px]">
+                        <div class="flex flex-col gap-2">
+                            <label for="userBarcode">User Barcode</label>
+                            <p-iconfield iconPosition="left">
+                                <p-inputicon styleClass="pi pi-barcode" />
+                                <input 
+                                    pInputText 
+                                    id="userBarcode" 
+                                    [(ngModel)]="userBarcode" 
+                                    (keydown.enter)="searchUser()"
+                                    placeholder="Scan user barcode..." 
+                                    autofocus
+                                    class="w-full"
+                                />
+                            </p-iconfield>
+                            <small class="text-muted-color">Press Enter to search</small>
+                        </div>
+
+                        @if (selectedUser) {
+                            <div class="flex items-center gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
+                                <p-avatar [image]="selectedUser.image_path" shape="circle" size="xlarge" />
+                                <div class="flex flex-col">
+                                    <span class="text-xl font-bold">{{ selectedUser.first_name }} {{ selectedUser.last_name }}</span>
+                                    <span class="text-muted-color">{{ selectedUser.email }}</span>
+                                    <span class="text-sm">Role: {{ selectedUser.role }}</span>
+                                </div>
+                                <div class="ml-auto">
+                                    <i class="pi pi-check-circle text-green-500 text-2xl"></i>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="flex pt-6 justify-end">
+                        <p-button 
+                            label="Next" 
+                            icon="pi pi-arrow-right" 
+                            iconPos="right" 
+                            (onClick)="activateCallback(2)" 
+                            [disabled]="!selectedUser"
+                        />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="2">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="flex flex-col gap-4 min-h-[300px]">
+                        <div class="flex flex-col gap-2">
+                            <label for="assetBarcode">Asset/Batch Barcode</label>
+                            <p-iconfield iconPosition="left">
+                                <p-inputicon styleClass="pi pi-barcode" />
+                                <input 
+                                    pInputText 
+                                    id="assetBarcode" 
+                                    [(ngModel)]="assetBarcode" 
+                                    (keydown.enter)="searchAsset()"
+                                    placeholder="Scan asset or batch barcode..." 
+                                    class="w-full"
+                                />
+                            </p-iconfield>
+                            <small class="text-muted-color">Press Enter to search</small>
+                        </div>
+
+                        @if (selectedBatch) {
+                            <div class="flex flex-col gap-2 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
+                                <div class="flex items-center gap-4">
+                                    <p-avatar [image]="selectedBatch.asset.image_path" shape="square" size="xlarge" icon="pi pi-box" />
+                                    <div class="flex flex-col">
+                                        <span class="text-xl font-bold">{{ selectedBatch.asset.denomination }}</span>
+                                        <span class="text-muted-color">{{ selectedBatch.denomination }}</span>
+                                        <span class="text-sm">S/N: {{ selectedBatch.serial_number }}</span>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <i class="pi pi-check-circle text-green-500 text-2xl"></i>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 mt-2">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm text-muted-color">Current Location</span>
+                                        <span class="font-medium">{{ selectedBatch.location?.denomination || 'Unknown' }}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm text-muted-color">Available Quantity</span>
+                                        <span class="font-medium">{{ selectedBatch.quantity }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="flex pt-6 justify-between">
+                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="activateCallback(1)" severity="secondary" />
+                        <p-button 
+                            label="Next" 
+                            icon="pi pi-arrow-right" 
+                            iconPos="right" 
+                            (onClick)="activateCallback(3)" 
+                            [disabled]="!selectedBatch"
+                        />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+
+            <p-step-panel [value]="3">
+                <ng-template #content let-activateCallback="activateCallback">
+                    <div class="flex flex-col gap-4 min-h-[300px]">
+                        <div class="flex flex-col gap-2">
+                            <label for="quantity">Quantity</label>
+                            <p-inputnumber 
+                                id="quantity" 
+                                [(ngModel)]="quantity" 
+                                [min]="1" 
+                                [max]="selectedBatch?.quantity || 1" 
+                                [showButtons]="true"
+                                buttonLayout="horizontal"
+                                inputId="horizontal"
+                                spinnerMode="horizontal"
+                                [step]="1"
+                                decrementButtonClass="p-button-secondary"
+                                incrementButtonClass="p-button-secondary"
+                                incrementButtonIcon="pi pi-plus"
+                                decrementButtonIcon="pi pi-minus"
+                                class="w-full"
+                            />
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="date">Date</label>
+                            <p-datepicker 
+                                id="date" 
+                                [(ngModel)]="date" 
+                                [showIcon]="true" 
+                                [showTime]="true" 
+                                dateFormat="yy-mm-dd"
+                                class="w-full"
+                            />
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <p-checkbox 
+                                id="mustReturn" 
+                                [(ngModel)]="mustReturn" 
+                                [binary]="true" 
+                                inputId="mustReturn" 
+                            />
+                            <label for="mustReturn">Must Return</label>
+                        </div>
+
+                        @if (mustReturn) {
+                            <div class="flex flex-col gap-2">
+                                <label for="returnDate">Expected Return Date</label>
+                                <p-datepicker 
+                                    id="returnDate" 
+                                    [(ngModel)]="returnDate" 
+                                    [showIcon]="true" 
+                                    dateFormat="yy-mm-dd"
+                                    class="w-full"
+                                />
+                            </div>
+                        }
+                    </div>
+                    <div class="flex pt-6 justify-between">
+                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="activateCallback(2)" severity="secondary" />
+                        <p-button 
+                            label="Confirm Withdrawal" 
+                            icon="pi pi-check" 
+                            (onClick)="submit()" 
+                            severity="success"
+                        />
+                    </div>
+                </ng-template>
+            </p-step-panel>
+        </p-step-panels>
+    </p-stepper>
+</div>

@@ -10,4 +10,8 @@ export class WithdrawalService {
   async getByUser(userId: number): Promise<any[]> {
     return await this.electronService.invoke('get-withdrawals-by-user', userId);
   }
+
+  async getAll(): Promise<any[]> {
+    return await this.electronService.invoke('get-withdrawals');
+  }
 }

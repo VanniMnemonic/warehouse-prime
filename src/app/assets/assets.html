@@ -6,7 +6,6 @@
     size="large"
     [value]="assets"
     [loading]="loading"
-    [paginator]="true"
     [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50]"
     [globalFilterFields]="['denomination', 'part_number', 'barcode']"
@@ -43,6 +42,18 @@
         <th pSortableColumn="barcode">Barcode <p-sortIcon field="barcode" /></th>
         <th pSortableColumn="min_stock">Min Stock <p-sortIcon field="min_stock" /></th>
         <th pSortableColumn="total_quantity">Quantity <p-sortIcon field="total_quantity" /></th>
+        <th pSortableColumn="is_below_min_stock">
+          <i class="pi pi-angle-double-down font-bold"></i>
+          &nbsp;<p-sortIcon field="is_below_min_stock" />
+        </th>
+        <th pSortableColumn="has_near_expiry_batches">
+          <i class="pi pi-clock font-bold"></i>
+          &nbsp;<p-sortIcon field="has_near_expiry_batches" />
+        </th>
+        <th pSortableColumn="has_expired_batches">
+          <i class="pi pi-calendar-times font-bold"></i>
+          &nbsp;<p-sortIcon field="has_expired_batches" />
+        </th>
         <th style="width: 4rem"></th>
       </tr>
     </ng-template>
@@ -67,13 +78,25 @@
         <td>{{ asset.barcode }}</td>
         <td>{{ asset.min_stock }}</td>
         <td>
-          <span
-            class="font-bold"
-            [class.text-red-500]="asset.total_quantity < asset.min_stock"
-            [class.text-green-500]="asset.total_quantity >= asset.min_stock"
-          >
-            {{ asset.total_quantity }}
-          </span>
+          <p-tag
+            [value]="asset.total_quantity.toString()"
+            [severity]="getQuantitySeverity(asset)"
+          />
+        </td>
+        <td class="text-center">
+          @if (asset.is_below_min_stock) {
+            <i class="pi pi-angle-double-down text-red-500 font-bold"></i>
+          }
+        </td>
+        <td class="text-center">
+          @if (asset.has_near_expiry_batches) {
+            <i class="pi pi-clock text-orange-500 font-bold"></i>
+          }
+        </td>
+        <td class="text-center">
+          @if (asset.has_expired_batches) {
+            <i class="pi pi-calendar-times text-red-500 font-bold"></i>
+          }
         </td>
         <td class="relative">
           <p-splitButton
@@ -82,7 +105,8 @@
             (onClick)="openDetail(asset)"
             [model]="items"
             (onDropdownClick)="setMenuAsset(asset)"
-            severity="secondary"
+            outlined
+            severity="primary"
             size="small"
             appendTo="body"
           />
@@ -91,9 +115,15 @@
     </ng-template>
     <ng-template #expandedrow let-asset>
       <tr>
-        <td colspan="8">
+        <td></td>
+        <td colspan="10">
           <div class="p-4">
-            <p-table [value]="assetBatches[asset.id]" [loading]="loadingBatches[asset.id]" size="small" styleClass="p-datatable-sm">
+            <p-table
+              [value]="assetBatches[asset.id]"
+              [loading]="loadingBatches[asset.id]"
+              size="small"
+              class="p-datatable-sm border border-primary rounded-xl overflow-hidden"
+            >
               <ng-template pTemplate="header">
                 <tr>
                   <th>Batch</th>
@@ -108,17 +138,28 @@
                   <td class="font-bold">{{ batch.denomination }}</td>
                   <td>{{ batch.serial_number }}</td>
                   <td>
-                    @if (batch.location?.parent) {
-                      <span class="text-xs text-muted-color">
-                        {{ batch.location.parent.denomination }} <i class="pi pi-angle-right"></i>
-                      </span>
-                    }
-                    {{ batch.location?.denomination }}
+                    <app-location-display [location]="batch.location" />
                   </td>
                   <td>{{ batch.quantity }}</td>
                   <td>
                     @if (batch.expiration_date) {
-                      {{ batch.expiration_date | date: 'shortDate' }}
+                      <p-tag
+                        [value]="(batch.expiration_date | date: 'fullDate') ?? ''"
+                        [severity]="
+                          isExpired(batch.expiration_date)
+                            ? 'danger'
+                            : isNearExpiry(batch.expiration_date)
+                              ? 'warn'
+                              : 'success'
+                        "
+                        [icon]="
+                          isExpired(batch.expiration_date)
+                            ? 'pi pi-exclamation-circle'
+                            : isNearExpiry(batch.expiration_date)
+                              ? 'pi pi-exclamation-triangle'
+                              : ''
+                        "
+                      />
                     } @else {
                       -
                     }
@@ -164,11 +205,8 @@
   [dismissible]="true"
 >
   <ng-template pTemplate="content">
-    <app-asset-form
-      *ngIf="formDrawerVisible"
-      [asset]="editingAsset"
-      (onSave)="onFormSave()"
-      (onCancel)="onFormCancel()"
-    />
+    @if (formDrawerVisible) {
+      <app-asset-form [asset]="editingAsset" (onSave)="onFormSave()" (onCancel)="onFormCancel()" />
+    }
   </ng-template>
 </p-drawer>

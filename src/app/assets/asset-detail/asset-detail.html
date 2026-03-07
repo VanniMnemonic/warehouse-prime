@@ -87,12 +87,7 @@
             <td class="font-bold">{{ batch.denomination }}</td>
             <td>{{ batch.serial_number }}</td>
             <td>
-              @if (batch.location?.parent) {
-                <span class="text-xs text-muted-color">
-                  {{ batch.location.parent.denomination }} <i class="pi pi-angle-right"></i>
-                </span>
-              }
-              {{ batch.location?.denomination }}
+              <app-location-display [location]="batch.location" />
             </td>
             <td>{{ batch.quantity }}</td>
             <td>
