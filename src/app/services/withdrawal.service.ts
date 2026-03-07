@@ -19,10 +19,17 @@ export class WithdrawalService {
     return await this.electronService.invoke('add-withdrawal', withdrawal);
   }
 
-  async return(withdrawalId: number, returnDate: Date): Promise<any> {
+  async return(
+    withdrawalId: number,
+    returnDate: Date,
+    returnedQuantity: number,
+    inefficientQuantity: number,
+  ): Promise<any> {
     return await this.electronService.invoke('return-withdrawal', {
       id: withdrawalId,
       date: returnDate,
+      returnedQuantity,
+      inefficientQuantity,
     });
   }
 }

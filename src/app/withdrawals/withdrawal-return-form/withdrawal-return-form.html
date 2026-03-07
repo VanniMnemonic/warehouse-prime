@@ -19,15 +19,65 @@
 
         <div class="grid grid-cols-2 gap-4 mt-2">
             <div class="flex flex-col">
-                <span class="text-sm text-muted-color">Quantity to Return</span>
+                <span class="text-sm text-muted-color">Total Withdrawn</span>
                 <span class="font-medium text-lg">{{ withdrawal().quantity }}</span>
             </div>
             <div class="flex flex-col">
-                <span class="text-sm text-muted-color">Withdrawal Date</span>
-                <span class="font-medium">{{ withdrawal().date | date:'mediumDate' }}</span>
+                <span class="text-sm text-muted-color">Already Returned</span>
+                <span class="font-medium text-lg">{{ withdrawal().returned_quantity || 0 }}</span>
             </div>
         </div>
     </div>
+
+    <div class="flex flex-col gap-2">
+        <label for="returnedQuantity" class="font-medium">Quantity to Return</label>
+        <div class="flex items-center gap-4">
+            <div class="flex-grow">
+                <p-slider 
+                    [(ngModel)]="returnedQuantity" 
+                    [min]="1" 
+                    [max]="maxReturnQuantity()" 
+                    class="w-full" 
+                />
+            </div>
+            <p-inputNumber 
+                [(ngModel)]="returnedQuantity" 
+                [min]="1" 
+                [max]="maxReturnQuantity()" 
+                [showButtons]="true" 
+                buttonLayout="horizontal" 
+                spinnerMode="horizontal" 
+                decrementButtonClass="p-button-secondary"
+                incrementButtonClass="p-button-secondary"
+                incrementButtonIcon="pi pi-plus"
+                decrementButtonIcon="pi pi-minus"
+                inputId="returnedQuantity"
+                class="w-[8rem]"
+            />
+        </div>
+        <small class="text-muted-color">Max returnable: {{ maxReturnQuantity() }}</small>
+    </div>
+
+    @if (returnedQuantity > 0) {
+        <div class="flex flex-col gap-2">
+            <label for="inefficientQuantity" class="font-medium">Inefficient Quantity (Damaged/Lost)</label>
+            <p-inputNumber 
+                id="inefficientQuantity"
+                [(ngModel)]="inefficientQuantity" 
+                [min]="0" 
+                [max]="returnedQuantity" 
+                [showButtons]="true" 
+                buttonLayout="horizontal" 
+                spinnerMode="horizontal" 
+                decrementButtonClass="p-button-secondary"
+                incrementButtonClass="p-button-secondary"
+                incrementButtonIcon="pi pi-plus"
+                decrementButtonIcon="pi pi-minus"
+                class="w-full"
+            />
+            <small class="text-muted-color">How many of the returned items are inefficient?</small>
+        </div>
+    }
 
     <div class="flex flex-col gap-2">
         <label for="returnDate">Return Date</label>

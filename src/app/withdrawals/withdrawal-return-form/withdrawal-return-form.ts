@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -6,10 +6,20 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { WithdrawalService } from '../../services/withdrawal.service';
 import { MessageService } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
+import { SliderModule } from 'primeng/slider';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-withdrawal-return-form',
-  imports: [CommonModule, FormsModule, ButtonModule, DatePickerModule, AvatarModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    DatePickerModule,
+    AvatarModule,
+    SliderModule,
+    InputNumberModule,
+  ],
   templateUrl: './withdrawal-return-form.html',
   styleUrl: './withdrawal-return-form.css',
   providers: [MessageService],
@@ -23,12 +33,33 @@ export class WithdrawalReturnForm {
   onCancel = output<void>();
 
   returnDate: Date = new Date();
+  returnedQuantity: number = 0;
+  inefficientQuantity: number = 0;
   loading = false;
+
+  maxReturnQuantity = computed(() => {
+    const w = this.withdrawal();
+    return w.quantity - (w.returned_quantity || 0);
+  });
+
+  constructor() {
+    // Initialize returnedQuantity when input is available (using effect or just default logic)
+    // Since we use computed for max, let's just default to max in ngOnInit or effect
+  }
+
+  ngOnInit() {
+    this.returnedQuantity = this.maxReturnQuantity();
+  }
 
   async submit() {
     try {
       this.loading = true;
-      await this.withdrawalService.return(this.withdrawal().id, this.returnDate);
+      await this.withdrawalService.return(
+        this.withdrawal().id,
+        this.returnDate,
+        this.returnedQuantity,
+        this.inefficientQuantity,
+      );
       this.messageService.add({
         severity: 'success',
         summary: 'Success',

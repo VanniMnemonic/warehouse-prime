@@ -40,6 +40,9 @@ export class Withdrawal {
   @Column({ nullable: true })
   expected_return_date?: Date;
 
+  @Column({ type: 'int', default: 0 })
+  returned_quantity!: number;
+
   @Column({ nullable: true })
   return_date?: Date;
 

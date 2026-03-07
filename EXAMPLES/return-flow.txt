@@ -1,0 +1,5 @@
+The return form must ask the returned quantity in a slider (max withdrawn amount)
+and updates the relative batch quantity back (adds it).
+It also asks how many are inefficient then it updates the inefficient_quantity.
+If the returned quantity is equal to the withdrawn quantity the withdrawal is marked
+as closed.

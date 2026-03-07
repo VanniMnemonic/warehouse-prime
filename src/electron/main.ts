@@ -662,43 +662,66 @@ ipcMain.handle('add-withdrawal', async (event, withdrawalData: any) => {
   }
 });
 
-ipcMain.handle('return-withdrawal', async (event, { id, date }) => {
-  const queryRunner = AppDataSource.createQueryRunner();
-  await queryRunner.connect();
-  await queryRunner.startTransaction();
+ipcMain.handle(
+  'return-withdrawal',
+  async (event, { id, date, returnedQuantity, inefficientQuantity }) => {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-  try {
-    const withdrawalRepository = queryRunner.manager.getRepository(Withdrawal);
-    const withdrawal = await withdrawalRepository.findOne({
-      where: { id },
-      relations: ['batch'],
-    });
+    try {
+      const withdrawalRepository = queryRunner.manager.getRepository(Withdrawal);
+      const withdrawal = await withdrawalRepository.findOne({
+        where: { id },
+        relations: ['batch'],
+      });
 
-    if (!withdrawal) {
-      throw new Error('Withdrawal not found');
+      if (!withdrawal) {
+        throw new Error('Withdrawal not found');
+      }
+
+      if (withdrawal.return_date) {
+        throw new Error('Withdrawal already returned');
+      }
+
+      const currentReturned = withdrawal.returned_quantity || 0;
+      const remaining = withdrawal.quantity - currentReturned;
+
+      if (returnedQuantity > remaining) {
+        throw new Error('Returned quantity exceeds remaining withdrawn quantity');
+      }
+
+      if (inefficientQuantity > returnedQuantity) {
+        throw new Error('Inefficient quantity cannot exceed returned quantity');
+      }
+
+      // Update returned quantity
+      withdrawal.returned_quantity = currentReturned + returnedQuantity;
+      withdrawal.inefficient_quantity =
+        (withdrawal.inefficient_quantity || 0) + inefficientQuantity;
+
+      // If fully returned, set return_date
+      if (withdrawal.returned_quantity >= withdrawal.quantity) {
+        withdrawal.return_date = new Date(date);
+      }
+
+      await queryRunner.manager.save(withdrawal);
+
+      // Increment batch quantity and inefficient quantity
+      const batch = withdrawal.batch;
+      if (batch) {
+        batch.quantity += returnedQuantity;
+        batch.inefficient_quantity = (batch.inefficient_quantity || 0) + inefficientQuantity;
+        await queryRunner.manager.save(batch);
+      }
+
+      await queryRunner.commitTransaction();
+      return withdrawal;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
-
-    if (withdrawal.return_date) {
-      throw new Error('Withdrawal already returned');
-    }
-
-    // Update return date
-    withdrawal.return_date = new Date(date);
-    await queryRunner.manager.save(withdrawal);
-
-    // Increment batch quantity
-    const batch = withdrawal.batch;
-    if (batch) {
-      batch.quantity += withdrawal.quantity;
-      await queryRunner.manager.save(batch);
-    }
-
-    await queryRunner.commitTransaction();
-    return withdrawal;
-  } catch (err) {
-    await queryRunner.rollbackTransaction();
-    throw err;
-  } finally {
-    await queryRunner.release();
-  }
-});
+  },
+);
