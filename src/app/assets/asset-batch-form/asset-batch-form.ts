@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -31,6 +31,7 @@ export class AssetBatchForm {
   batchService = inject(BatchService);
   locationService = inject(LocationService);
   messageService = inject(MessageService);
+  cdr = inject(ChangeDetectorRef);
 
   asset = input.required<any>();
   onSave = output<void>();
@@ -55,6 +56,7 @@ export class AssetBatchForm {
   async loadLocations() {
     try {
       this.locations = await this.locationService.getAll();
+      this.cdr.detectChanges(); // Manually trigger change detection after data load
     } catch (error) {
       console.error('Error loading locations:', error);
     }

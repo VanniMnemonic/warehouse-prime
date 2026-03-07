@@ -122,8 +122,8 @@ export class Assets implements OnInit {
     this.loadAssetBatches(event.data.id);
   }
 
-  async loadAssetBatches(assetId: number) {
-    if (this.assetBatches[assetId]) {
+  async loadAssetBatches(assetId: number, forceReload: boolean = false) {
+    if (this.assetBatches[assetId] && !forceReload) {
       return; // Already loaded
     }
 
@@ -174,9 +174,19 @@ export class Assets implements OnInit {
     this.loadAssets();
   }
 
-  onBatchFormSave() {
+  async onBatchFormSave() {
     this.batchFormDrawerVisible = false;
-    this.loadAssets();
+    await this.loadAssets();
+
+    // Invalidate and reload batches for the selected asset
+    if (this.selectedAsset) {
+      // Force reload batches
+      await this.loadAssetBatches(this.selectedAsset.id, true);
+
+      // Auto-expand the row
+      this.expandedRows = { ...this.expandedRows, [this.selectedAsset.id]: true };
+      this.cdr.detectChanges();
+    }
   }
 
   onFormCancel() {

@@ -1,4 +1,12 @@
-import { Component, inject, output, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  output,
+  signal,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
 import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -36,7 +44,7 @@ import { SliderModule } from 'primeng/slider';
   styleUrl: './withdrawal-form.css',
   providers: [MessageService],
 })
-export class WithdrawalForm {
+export class WithdrawalForm implements AfterViewInit {
   userService = inject(UserService);
   batchService = inject(BatchService);
   assetService = inject(AssetService);
@@ -44,6 +52,9 @@ export class WithdrawalForm {
 
   onSave = output<any>();
   onCancel = output<void>();
+
+  @ViewChild('userBarcodeInput') userBarcodeInput!: ElementRef;
+  @ViewChild('assetBarcodeInput') assetBarcodeInput!: ElementRef;
 
   // Step 1: User Selection
   userBarcode = '';
@@ -59,6 +70,15 @@ export class WithdrawalForm {
   mustReturn = false;
   expectedReturnDate: Date | null = null;
 
+  ngAfterViewInit() {
+    // Small delay to ensure the drawer animation/rendering is complete
+    setTimeout(() => {
+      if (this.userBarcodeInput) {
+        this.userBarcodeInput.nativeElement.focus();
+      }
+    }, 300);
+  }
+
   async searchUser() {
     if (!this.userBarcode) return;
 
@@ -73,6 +93,13 @@ export class WithdrawalForm {
           summary: 'User Found',
           detail: `${user.first_name} ${user.last_name}`,
         });
+
+        // Focus on asset barcode input after a short delay to allow DOM update
+        setTimeout(() => {
+          if (this.assetBarcodeInput) {
+            this.assetBarcodeInput.nativeElement.focus();
+          }
+        }, 100);
       } else {
         this.selectedUser = null;
         this.messageService.add({
@@ -123,6 +150,46 @@ export class WithdrawalForm {
             severity: 'warn',
             summary: 'Out of Stock',
             detail: 'Asset found but no stock available',
+          });
+          return;
+        }
+      }
+
+      // 2. Check if it matches a batch serial number
+      // We need to search across all batches or fetch all batches?
+      // Or maybe implement a search method in batch service.
+      // For now, let's assume we can fetch all batches (inefficient but works for small app) or search by serial.
+      // Let's iterate over assets and their batches? No, that's too slow.
+      // Let's try to search via batch service directly if we had a method.
+      // Assuming we don't have a global search, we might need to rely on what we have.
+      // However, we can fetch all batches if needed or add a search endpoint.
+      // Let's add a search endpoint or just fetch all assets and their batches.
+
+      // Since we don't have a direct search endpoint, let's try to match against fetched assets' batches?
+      // No, batches are fetched by asset ID.
+      // Let's try to find a batch by serial number via a new service method or just assume the user scans an asset barcode.
+      // But the user asked if it finds serial_number.
+
+      // Let's implement searching by serial number.
+      // We will need to fetch all batches or search on the server side.
+      // Since this is electron with sqlite, we can add an IPC handler for searching batch by serial.
+
+      const batch = await this.batchService.getBySerial(this.assetBarcode);
+      if (batch) {
+        if (batch.quantity > 0) {
+          this.selectedBatch = batch;
+          this.quantity = 1;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Batch Found',
+            detail: `${batch.asset.denomination} (S/N: ${batch.serial_number})`,
+          });
+          return;
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Out of Stock',
+            detail: 'Batch found but no stock available',
           });
           return;
         }

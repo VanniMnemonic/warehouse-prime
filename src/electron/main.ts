@@ -620,6 +620,14 @@ ipcMain.handle('add-batch', async (event, batchData: any) => {
   return await batchRepository.save(batch);
 });
 
+ipcMain.handle('get-batch-by-serial', async (event, serialNumber: string) => {
+  const batchRepository = AppDataSource.getRepository(Batch);
+  return await batchRepository.findOne({
+    where: { serial_number: serialNumber },
+    relations: ['asset', 'location'],
+  });
+});
+
 ipcMain.handle('add-withdrawal', async (event, withdrawalData: any) => {
   const queryRunner = AppDataSource.createQueryRunner();
   await queryRunner.connect();

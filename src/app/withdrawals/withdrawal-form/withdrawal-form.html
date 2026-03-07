@@ -17,6 +17,7 @@
                 <p-iconfield iconPosition="left">
                   <p-inputicon class="pi pi-barcode" />
                   <input
+                    #userBarcodeInput
                     pInputText
                     id="userBarcode"
                     [(ngModel)]="userBarcode"
@@ -99,12 +100,14 @@
                 <p-iconfield iconPosition="left">
                   <p-inputicon styleClass="pi pi-barcode" />
                   <input
+                    #assetBarcodeInput
                     pInputText
                     id="assetBarcode"
                     [(ngModel)]="assetBarcode"
                     (keydown.enter)="searchAsset(); activateCallback(3)"
                     placeholder="Scan asset or batch barcode..."
                     class="w-full"
+                    autofocus
                   />
                 </p-iconfield>
                 <small class="text-muted-color">Press Enter to search</small>
