@@ -108,7 +108,7 @@ export class WithdrawalForm {
         const availableBatch = batches.find((b: any) => b.quantity > 0);
 
         if (availableBatch) {
-          this.selectedBatch = availableBatch;
+          this.selectedBatch = { ...availableBatch, asset };
           this.quantity = 1;
           this.messageService.add({
             severity: 'success',
