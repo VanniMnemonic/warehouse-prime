@@ -1,109 +1,122 @@
 <div class="flex flex-col gap-6">
-    <div class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
-        <div class="flex items-center gap-4">
-            <p-avatar [image]="withdrawal().batch?.asset?.image_path" shape="square" size="xlarge" icon="pi pi-box" />
-            <div class="flex flex-col">
-                <span class="text-xl font-bold">{{ withdrawal().batch?.asset?.denomination }}</span>
-                <span class="text-muted-color">{{ withdrawal().batch?.denomination }}</span>
-                <span class="text-sm">S/N: {{ withdrawal().batch?.serial_number }}</span>
-            </div>
-        </div>
-        
-        <div class="flex items-center gap-4 pt-4 border-t border-surface-200 dark:border-surface-700">
-            <p-avatar [image]="withdrawal().user?.image_path" shape="circle" size="large" />
-            <div class="flex flex-col">
-                <span class="font-bold">{{ withdrawal().user?.first_name }} {{ withdrawal().user?.last_name }}</span>
-                <span class="text-sm text-muted-color">{{ withdrawal().user?.email }}</span>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 mt-2">
-            <div class="flex flex-col">
-                <span class="text-sm text-muted-color">Total Withdrawn</span>
-                <span class="font-medium text-lg">{{ withdrawal().quantity }}</span>
-            </div>
-            <div class="flex flex-col">
-                <span class="text-sm text-muted-color">Already Returned</span>
-                <span class="font-medium text-lg">{{ withdrawal().returned_quantity || 0 }}</span>
-            </div>
-        </div>
+  <div
+    class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950"
+  >
+    <div class="flex items-center gap-4">
+      <app-image-display
+        [image]="withdrawal().batch?.asset?.image_path"
+        width="64px"
+        height="64px"
+        shape="square"
+        icon="pi pi-box"
+      />
+      <div class="flex flex-col">
+        <span class="text-xl font-bold">{{ withdrawal().batch?.asset?.denomination }}</span>
+        <span class="text-muted-color">{{ withdrawal().batch?.denomination }}</span>
+        <span class="text-sm">S/N: {{ withdrawal().batch?.serial_number }}</span>
+      </div>
     </div>
 
+    <div class="flex items-center gap-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+      <app-image-display
+        [image]="withdrawal().user?.image_path"
+        width="50px"
+        height="50px"
+        shape="circle"
+        icon="pi pi-user"
+      />
+      <div class="flex flex-col">
+        <span class="font-bold"
+          >{{ withdrawal().user?.first_name }} {{ withdrawal().user?.last_name }}</span
+        >
+        <span class="text-sm text-muted-color">{{ withdrawal().user?.email }}</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mt-2">
+      <div class="flex flex-col">
+        <span class="text-sm text-muted-color">Total Withdrawn</span>
+        <span class="font-medium text-lg">{{ withdrawal().quantity }}</span>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-sm text-muted-color">Already Returned</span>
+        <span class="font-medium text-lg">{{ withdrawal().returned_quantity || 0 }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="returnedQuantity" class="font-medium">Quantity to Return</label>
+    <div class="flex items-center gap-4">
+      <div class="flex-grow">
+        <p-slider
+          [(ngModel)]="returnedQuantity"
+          [min]="1"
+          [max]="maxReturnQuantity()"
+          class="w-full"
+        />
+      </div>
+      <p-inputNumber
+        [(ngModel)]="returnedQuantity"
+        [min]="1"
+        [max]="maxReturnQuantity()"
+        [showButtons]="true"
+        buttonLayout="horizontal"
+        spinnerMode="horizontal"
+        decrementButtonClass="p-button-secondary"
+        incrementButtonClass="p-button-secondary"
+        incrementButtonIcon="pi pi-plus"
+        decrementButtonIcon="pi pi-minus"
+        inputId="returnedQuantity"
+        class="w-[8rem]"
+      />
+    </div>
+    <small class="text-muted-color">Max returnable: {{ maxReturnQuantity() }}</small>
+  </div>
+
+  @if (returnedQuantity > 0) {
     <div class="flex flex-col gap-2">
-        <label for="returnedQuantity" class="font-medium">Quantity to Return</label>
-        <div class="flex items-center gap-4">
-            <div class="flex-grow">
-                <p-slider 
-                    [(ngModel)]="returnedQuantity" 
-                    [min]="1" 
-                    [max]="maxReturnQuantity()" 
-                    class="w-full" 
-                />
-            </div>
-            <p-inputNumber 
-                [(ngModel)]="returnedQuantity" 
-                [min]="1" 
-                [max]="maxReturnQuantity()" 
-                [showButtons]="true" 
-                buttonLayout="horizontal" 
-                spinnerMode="horizontal" 
-                decrementButtonClass="p-button-secondary"
-                incrementButtonClass="p-button-secondary"
-                incrementButtonIcon="pi pi-plus"
-                decrementButtonIcon="pi pi-minus"
-                inputId="returnedQuantity"
-                class="w-[8rem]"
-            />
-        </div>
-        <small class="text-muted-color">Max returnable: {{ maxReturnQuantity() }}</small>
+      <label for="inefficientQuantity" class="font-medium"
+        >Inefficient Quantity (Damaged/Lost)</label
+      >
+      <p-inputNumber
+        id="inefficientQuantity"
+        [(ngModel)]="inefficientQuantity"
+        [min]="0"
+        [max]="returnedQuantity"
+        [showButtons]="true"
+        buttonLayout="horizontal"
+        spinnerMode="horizontal"
+        decrementButtonClass="p-button-secondary"
+        incrementButtonClass="p-button-secondary"
+        incrementButtonIcon="pi pi-plus"
+        decrementButtonIcon="pi pi-minus"
+        class="w-full"
+      />
+      <small class="text-muted-color">How many of the returned items are inefficient?</small>
     </div>
+  }
 
-    @if (returnedQuantity > 0) {
-        <div class="flex flex-col gap-2">
-            <label for="inefficientQuantity" class="font-medium">Inefficient Quantity (Damaged/Lost)</label>
-            <p-inputNumber 
-                id="inefficientQuantity"
-                [(ngModel)]="inefficientQuantity" 
-                [min]="0" 
-                [max]="returnedQuantity" 
-                [showButtons]="true" 
-                buttonLayout="horizontal" 
-                spinnerMode="horizontal" 
-                decrementButtonClass="p-button-secondary"
-                incrementButtonClass="p-button-secondary"
-                incrementButtonIcon="pi pi-plus"
-                decrementButtonIcon="pi pi-minus"
-                class="w-full"
-            />
-            <small class="text-muted-color">How many of the returned items are inefficient?</small>
-        </div>
-    }
+  <div class="flex flex-col gap-2">
+    <label for="returnDate">Return Date</label>
+    <p-datepicker
+      id="returnDate"
+      [(ngModel)]="returnDate"
+      [showIcon]="true"
+      [showTime]="true"
+      dateFormat="yy-mm-dd"
+      class="w-full"
+    />
+  </div>
 
-    <div class="flex flex-col gap-2">
-        <label for="returnDate">Return Date</label>
-        <p-datepicker 
-            id="returnDate" 
-            [(ngModel)]="returnDate" 
-            [showIcon]="true" 
-            [showTime]="true"
-            dateFormat="yy-mm-dd"
-            class="w-full"
-        />
-    </div>
-
-    <div class="flex pt-4 justify-end gap-2">
-        <p-button 
-            label="Cancel" 
-            icon="pi pi-times" 
-            (onClick)="cancel()" 
-            severity="secondary" 
-            [disabled]="loading"
-        />
-        <p-button 
-            label="Confirm Return" 
-            icon="pi pi-check" 
-            (onClick)="submit()" 
-            [loading]="loading"
-        />
-    </div>
+  <div class="flex pt-4 justify-end gap-2">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      (onClick)="cancel()"
+      severity="secondary"
+      [disabled]="loading"
+    />
+    <p-button label="Confirm Return" icon="pi pi-check" (onClick)="submit()" [loading]="loading" />
+  </div>
 </div>

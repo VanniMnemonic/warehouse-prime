@@ -24,11 +24,6 @@ export class Home implements OnInit {
       icon: 'pi pi-user',
     },
     {
-      route: 'locations',
-      label: 'Locations',
-      icon: 'pi pi-map-marker',
-    },
-    {
       route: 'assets',
       label: 'Assets',
       icon: 'pi pi-box',
@@ -37,6 +32,11 @@ export class Home implements OnInit {
       route: 'withdrawals',
       label: 'Withdrawals',
       icon: 'pi pi-upload',
+    },
+    {
+      route: 'locations',
+      label: 'Locations',
+      icon: 'pi pi-map-marker',
     },
     {
       route: 'settings',
@@ -54,7 +54,7 @@ export class Home implements OnInit {
         }
       }
     });
-    
+
     // Set initial tab
     const url = this.router.url.split('/')[1];
     if (this.tabs.some((t) => t.route === url)) {

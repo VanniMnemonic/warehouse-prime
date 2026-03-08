@@ -1,13 +1,15 @@
 <div class="card">
   <p-table
     #dt
-    stripedRows
+    [stripedRows]="true"
     size="large"
     [value]="users"
     [loading]="loading"
     [globalFilterFields]="['title', 'first_name', 'last_name', 'email', 'role']"
     [tableStyle]="{ 'min-width': '50rem' }"
     dataKey="id"
+    [scrollable]="true"
+    scrollHeight="calc(100vh - 12rem)"
   >
     <ng-template pTemplate="caption">
       <div class="flex items-center gap-2">
@@ -69,16 +71,24 @@
         </td>
         <td>{{ user.barcode }}</td>
         <td class="relative">
-          <p-splitButton
-            label="Detail"
-            icon="pi pi-eye"
-            (onClick)="openDetail(user)"
-            [model]="items"
-            (onDropdownClick)="setMenuUser(user)"
-            severity="secondary"
-            size="small"
-            appendTo="body"
-          />
+          <div class="flex items-center gap-2">
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              severity="secondary"
+              (onClick)="openDetail(user)"
+            />
+            <p-splitButton
+              label="Actions"
+              icon="pi pi-cog"
+              [model]="items"
+              (onDropdownClick)="setMenuUser(user)"
+              outlined
+              severity="secondary"
+              size="small"
+              appendTo="body"
+            />
+          </div>
         </td>
       </tr>
     </ng-template>

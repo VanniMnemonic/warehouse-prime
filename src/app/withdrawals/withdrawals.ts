@@ -6,15 +6,15 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
-import { DrawerModule } from 'primeng/drawer';
+import { DialogModule } from 'primeng/dialog';
 import { WithdrawalForm } from './withdrawal-form/withdrawal-form';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
 import { WithdrawalReturnForm } from './withdrawal-return-form/withdrawal-return-form';
 import { DomSanitizer } from '@angular/platform-browser';
+import { ImageDisplay } from '../shared/components/image-display/image-display';
 
 @Component({
   selector: 'app-withdrawals',
@@ -25,13 +25,13 @@ import { DomSanitizer } from '@angular/platform-browser';
     InputIconModule,
     InputTextModule,
     FormsModule,
-    AvatarModule,
     TagModule,
     ButtonModule,
-    DrawerModule,
+    DialogModule,
     WithdrawalForm,
     SplitButtonModule,
     WithdrawalReturnForm,
+    ImageDisplay,
   ],
   templateUrl: './withdrawals.html',
   styleUrl: './withdrawals.css',

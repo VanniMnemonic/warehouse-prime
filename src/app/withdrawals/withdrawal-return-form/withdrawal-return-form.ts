@@ -5,9 +5,9 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { WithdrawalService } from '../../services/withdrawal.service';
 import { MessageService } from 'primeng/api';
-import { AvatarModule } from 'primeng/avatar';
-import { SliderModule } from 'primeng/slider';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { SliderModule } from 'primeng/slider';
+import { ImageDisplay } from '../../shared/components/image-display/image-display';
 
 @Component({
   selector: 'app-withdrawal-return-form',
@@ -16,9 +16,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
     FormsModule,
     ButtonModule,
     DatePickerModule,
-    AvatarModule,
     SliderModule,
     InputNumberModule,
+    ImageDisplay,
   ],
   templateUrl: './withdrawal-return-form.html',
   styleUrl: './withdrawal-return-form.css',

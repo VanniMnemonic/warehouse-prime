@@ -14,7 +14,6 @@ import { FormsModule } from '@angular/forms';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { AvatarModule } from 'primeng/avatar';
 import { UserService } from '../../services/user.service';
 import { BatchService } from '../../services/batch.service';
 import { AssetService } from '../../services/asset.service';
@@ -23,6 +22,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SliderModule } from 'primeng/slider';
+import { ToastModule } from 'primeng/toast';
+import { ImageDisplay } from '../../shared/components/image-display/image-display';
 
 @Component({
   selector: 'app-withdrawal-form',
@@ -34,11 +35,12 @@ import { SliderModule } from 'primeng/slider';
     IconFieldModule,
     InputIconModule,
     InputTextModule,
-    AvatarModule,
     InputNumberModule,
     DatePickerModule,
     CheckboxModule,
     SliderModule,
+    ToastModule,
+    ImageDisplay,
   ],
   templateUrl: './withdrawal-form.html',
   styleUrl: './withdrawal-form.css',

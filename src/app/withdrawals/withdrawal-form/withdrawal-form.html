@@ -33,7 +33,13 @@
               <div
                 class="flex items-center gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950"
               >
-                <p-avatar [image]="selectedUser.image_path" shape="circle" size="xlarge" />
+                <app-image-display
+                  [image]="selectedUser.image_path"
+                  width="64px"
+                  height="64px"
+                  shape="circle"
+                  icon="pi pi-user"
+                />
                 <div class="flex flex-col">
                   <span class="text-xl font-bold"
                     >{{ selectedUser.first_name }} {{ selectedUser.last_name }}</span
@@ -75,7 +81,13 @@
               <div
                 class="flex items-center gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950 opacity-75"
               >
-                <p-avatar [image]="selectedUser.image_path" shape="circle" size="large" />
+                <app-image-display
+                  [image]="selectedUser.image_path"
+                  width="50px"
+                  height="50px"
+                  shape="circle"
+                  icon="pi pi-user"
+                />
                 <div class="flex flex-col">
                   <span class="font-bold"
                     >{{ selectedUser.first_name }} {{ selectedUser.last_name }}</span
@@ -118,17 +130,19 @@
               >
                 <div class="flex items-center gap-4">
                   @if (selectedBatch) {
-                    <p-avatar
+                    <app-image-display
                       [image]="selectedBatch.asset?.image_path"
+                      width="64px"
+                      height="64px"
                       shape="square"
-                      size="xlarge"
                       icon="pi pi-box"
                     />
                   } @else {
-                    <p-avatar
+                    <app-image-display
                       [image]="selectedAsset?.image_path"
+                      width="64px"
+                      height="64px"
                       shape="square"
-                      size="xlarge"
                       icon="pi pi-box"
                     />
                   }
@@ -208,7 +222,13 @@
                 <div
                   class="flex items-center gap-3 p-3 border rounded-lg border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950 opacity-75"
                 >
-                  <p-avatar [image]="selectedUser.image_path" shape="circle" />
+                  <app-image-display
+                    [image]="selectedUser.image_path"
+                    width="40px"
+                    height="40px"
+                    shape="circle"
+                    icon="pi pi-user"
+                  />
                   <div class="flex flex-col overflow-hidden">
                     <span class="font-bold truncate"
                       >{{ selectedUser.first_name }} {{ selectedUser.last_name }}</span
@@ -230,8 +250,10 @@
                 <div
                   class="flex items-center gap-3 p-3 border rounded-lg border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950 opacity-75"
                 >
-                  <p-avatar
+                  <app-image-display
                     [image]="selectedBatch?.asset?.image_path || selectedAsset?.image_path"
+                    width="40px"
+                    height="40px"
                     shape="square"
                     icon="pi pi-box"
                   />
