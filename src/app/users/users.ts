@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { TableModule } from 'primeng/table';
-import { AvatarModule } from 'primeng/avatar';
-import { DrawerModule } from 'primeng/drawer';
+import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -19,14 +18,14 @@ import { MenuItem } from 'primeng/api';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { LocationDisplay } from '../shared/components/location-display';
 import { TagModule } from 'primeng/tag';
+import { ImageDisplay } from '../shared/components/image-display/image-display';
 
 @Component({
   selector: 'app-users',
   imports: [
     CommonModule,
     TableModule,
-    AvatarModule,
-    DrawerModule,
+    DialogModule,
     FormsModule,
     IconFieldModule,
     InputIconModule,
@@ -41,6 +40,7 @@ import { TagModule } from 'primeng/tag';
     ScrollPanelModule,
     LocationDisplay,
     TagModule,
+    ImageDisplay,
   ],
   templateUrl: './users.html',
   styleUrl: './users.css',

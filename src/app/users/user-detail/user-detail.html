@@ -2,12 +2,21 @@
   <div class="flex flex-col gap-4">
     <p-toast />
     <div class="flex items-center gap-4">
-      <p-avatar
-        [image]="user().image_path"
-        shape="circle"
-        size="xlarge"
-        [style]="{ width: '7rem', height: '7rem' }"
-      />
+      @if (user().image_path) {
+        <p-image
+          [src]="user().image_path"
+          [preview]="true"
+          width="112"
+          styleClass="rounded-full overflow-hidden"
+          [imageStyle]="{ 'object-fit': 'cover', height: '112px', width: '112px' }"
+        />
+      } @else {
+        <div
+          class="w-[7rem] h-[7rem] bg-surface-100 dark:bg-surface-800 rounded-full flex items-center justify-center text-muted-color border border-surface-200 dark:border-surface-700"
+        >
+          <i class="pi pi-user text-5xl"></i>
+        </div>
+      }
       <div class="flex flex-col">
         <span class="text-muted-color">{{ user().title?.title }}</span>
         <span class="text-xl font-bold">{{ user().first_name }} {{ user().last_name }}</span>
@@ -83,12 +92,21 @@
         <ng-template pTemplate="body" let-withdrawal>
           <tr>
             <td>
-              <p-avatar
-                [image]="withdrawal.batch?.asset?.image_path"
-                shape="square"
-                size="large"
-                icon="pi pi-image"
-              />
+              @if (withdrawal.batch?.asset?.image_path) {
+                <p-image
+                  [src]="withdrawal.batch?.asset?.image_path"
+                  [preview]="true"
+                  width="50"
+                  styleClass="rounded-md overflow-hidden"
+                  [imageStyle]="{ 'object-fit': 'cover', height: '50px', width: '50px' }"
+                />
+              } @else {
+                <div
+                  class="w-[50px] h-[50px] bg-surface-100 dark:bg-surface-800 rounded-md flex items-center justify-center text-muted-color border border-surface-200 dark:border-surface-700"
+                >
+                  <i class="pi pi-image text-2xl"></i>
+                </div>
+              }
             </td>
             <td>{{ withdrawal.date | date: 'shortDate' }}</td>
             <td>

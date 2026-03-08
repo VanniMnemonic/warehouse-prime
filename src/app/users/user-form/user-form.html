@@ -1,12 +1,21 @@
 <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
   <div class="flex flex-col items-center gap-2">
-    <p-avatar
-      [image]="imagePath()"
-      shape="circle"
-      size="xlarge"
-      [style]="{ width: '100px', height: '100px' }"
-      [icon]="imagePath() ? '' : 'pi pi-user'"
-    />
+    @if (imagePath()) {
+      <p-image
+        [src]="imagePath()"
+        [preview]="true"
+        width="100"
+        height="100"
+        styleClass="rounded-full overflow-hidden block"
+        [imageStyle]="{ 'object-fit': 'cover' }"
+      />
+    } @else {
+      <div
+        class="w-[100px] h-[100px] bg-surface-100 dark:bg-surface-800 rounded-full flex items-center justify-center text-muted-color border border-surface-200 dark:border-surface-700"
+      >
+        <i class="pi pi-user text-4xl"></i>
+      </div>
+    }
     <p-fileupload
       mode="basic"
       chooseLabel="Upload Image"

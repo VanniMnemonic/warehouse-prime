@@ -7,9 +7,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { BatchService } from '../../services/batch.service';
 import { LocationService } from '../../services/location.service';
-import { MessageService } from 'primeng/api';
+import { MessageService, TreeNode } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
-import { SelectModule } from 'primeng/select';
+import { TreeSelectModule } from 'primeng/treeselect';
 
 @Component({
   selector: 'app-asset-batch-form',
@@ -21,7 +21,7 @@ import { SelectModule } from 'primeng/select';
     InputNumberModule,
     DatePickerModule,
     AvatarModule,
-    SelectModule,
+    TreeSelectModule,
   ],
   templateUrl: './asset-batch-form.html',
   styleUrl: './asset-batch-form.css',
@@ -45,7 +45,7 @@ export class AssetBatchForm {
   expirationDate: Date | null = null;
   selectedLocation: any = null;
 
-  locations: any[] = [];
+  locations: TreeNode[] = [];
   loading = false;
 
   async ngOnInit() {
@@ -60,8 +60,11 @@ export class AssetBatchForm {
       this.expirationDate = b.expiration_date ? new Date(b.expiration_date) : null;
       // Find matching location object
       if (b.location) {
-        this.selectedLocation =
-          this.locations.find((l: any) => l.id === b.location.id) || b.location;
+        this.selectedLocation = {
+          label: b.location.denomination,
+          data: b.location,
+          key: b.location.id.toString(),
+        };
       }
     } else {
       // Create mode default
@@ -71,11 +74,45 @@ export class AssetBatchForm {
 
   async loadLocations() {
     try {
-      this.locations = await this.locationService.getAll();
+      const locations = await this.locationService.getAll();
+      this.locations = this.transformToTree(locations);
       this.cdr.detectChanges();
     } catch (error) {
       console.error('Error loading locations:', error);
     }
+  }
+
+  transformToTree(locations: any[]): TreeNode[] {
+    const map = new Map<number, TreeNode>();
+    const roots: TreeNode[] = [];
+
+    // First pass: create nodes
+    locations.forEach((loc) => {
+      map.set(loc.id, {
+        label: loc.denomination,
+        data: loc,
+        key: loc.id.toString(),
+        children: [],
+        expanded: true,
+      });
+    });
+
+    // Second pass: build hierarchy
+    locations.forEach((loc) => {
+      const node = map.get(loc.id);
+      if (node) {
+        if (loc.parent) {
+          const parentNode = map.get(loc.parent.id);
+          if (parentNode) {
+            parentNode.children?.push(node);
+          }
+        } else {
+          roots.push(node);
+        }
+      }
+    });
+
+    return roots;
   }
 
   cancel() {
@@ -100,7 +137,7 @@ export class AssetBatchForm {
         serial_number: this.serialNumber,
         quantity: this.quantity,
         expiration_date: this.expirationDate,
-        location: this.selectedLocation,
+        location: this.selectedLocation ? this.selectedLocation.data : null,
       };
 
       if (this.batch()) {

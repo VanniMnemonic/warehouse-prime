@@ -1,5 +1,5 @@
 import { Component, input, inject, ChangeDetectorRef, effect, output } from '@angular/core';
-import { AvatarModule } from 'primeng/avatar';
+import { ImageModule } from 'primeng/image';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
@@ -18,7 +18,7 @@ import { LocationDisplay } from '../../shared/components/location-display';
 @Component({
   selector: 'app-user-detail',
   imports: [
-    AvatarModule,
+    ImageModule,
     ButtonModule,
     TooltipModule,
     ToastModule,

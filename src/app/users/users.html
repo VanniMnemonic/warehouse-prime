@@ -28,7 +28,7 @@
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 4rem"></th>
+        <th></th>
         <th pSortableColumn="title.title">Title <p-sortIcon field="title.title" /></th>
         <th pSortableColumn="first_name">First Name <p-sortIcon field="first_name" /></th>
         <th pSortableColumn="last_name">Last Name <p-sortIcon field="last_name" /></th>
@@ -38,7 +38,7 @@
         </th>
         <th pSortableColumn="active_withdrawals">
           <i class="pi pi-shopping-cart text-lg"></i>
-          &nbsp;<p-sortIcon field="active_withdrawals" />
+          <p-sortIcon field="active_withdrawals" />
         </th>
         <th pSortableColumn="barcode">Barcode <p-sortIcon field="barcode" /></th>
         <th style="width: 4rem"></th>
@@ -47,7 +47,13 @@
     <ng-template pTemplate="body" let-user>
       <tr>
         <td>
-          <p-avatar [image]="user.image_path" shape="circle" size="large" />
+          <app-image-display
+            [image]="user.image_path"
+            width="60px"
+            height="60px"
+            shape="square"
+            icon="pi pi-user"
+          />
         </td>
         <td>{{ user.title?.title }}</td>
         <td>{{ user.first_name }}</td>
@@ -79,22 +85,24 @@
   </p-table>
 </div>
 
-<p-drawer
+<p-dialog
   [(visible)]="drawerVisible"
   [header]="(selectedUser?.first_name || '') + ' ' + (selectedUser?.last_name || '')"
-  position="right"
+  [modal]="true"
+  [dismissableMask]="true"
   [style]="{ width: '40rem' }"
+  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
   <app-user-detail [user]="selectedUser" (onEdit)="openEditUser($event)" />
-</p-drawer>
+</p-dialog>
 
-<p-drawer
+<p-dialog
   [(visible)]="formDrawerVisible"
   [header]="editingUser ? 'Edit User' : 'Add User'"
-  position="right"
-  [style]="{ width: '40rem' }"
   [modal]="true"
-  [dismissible]="true"
+  [dismissableMask]="true"
+  [style]="{ width: '40rem' }"
+  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
   <ng-template pTemplate="content">
     <app-user-form
@@ -104,4 +112,4 @@
       (onCancel)="onFormCancel()"
     />
   </ng-template>
-</p-drawer>
+</p-dialog>

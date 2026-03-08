@@ -1,11 +1,13 @@
-import { Component, input, inject, ChangeDetectorRef, effect, output } from '@angular/core';
-import { AvatarModule } from 'primeng/avatar';
+import { Component, input, inject, ChangeDetectorRef, effect, output, computed } from '@angular/core';
+import { ImageModule } from 'primeng/image';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { SplitButtonModule } from 'primeng/splitbutton';
 import { BatchService } from '../../services/batch.service';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,12 +21,13 @@ import { DomSanitizer } from '@angular/platform-browser';
 @Component({
   selector: 'app-asset-detail',
   imports: [
-    AvatarModule,
+    ImageModule,
     ButtonModule,
     TooltipModule,
     ToastModule,
     TableModule,
     TagModule,
+    SplitButtonModule,
     DatePipe,
     FormsModule,
     IconFieldModule,
@@ -40,6 +43,9 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class AssetDetail {
   asset = input.required<any>();
   onEdit = output<any>();
+  onEditBatch = output<any>();
+  onWithdrawBatch = output<any>();
+  
   messageService = inject(MessageService);
   batchService = inject(BatchService);
   cdr = inject(ChangeDetectorRef);
@@ -48,6 +54,32 @@ export class AssetDetail {
   batches: any[] = [];
   loading: boolean = true;
   searchValue: string | undefined;
+  selectedBatch: any;
+
+  // Computed signal for image URL to ensure immediate updates
+  imageUrl = computed(() => {
+    const a = this.asset();
+    if (!a?.image_path) return null;
+    return this.sanitizer.bypassSecurityTrustUrl(a.image_path);
+  });
+
+  batchItems: MenuItem[] = [
+    {
+      label: 'Edit',
+      icon: 'pi pi-pencil',
+      command: () => {
+        this.onEditBatch.emit(this.selectedBatch);
+      },
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-trash',
+      command: () => {
+        // TODO: Implement delete logic or emit event
+        console.log('Delete batch', this.selectedBatch);
+      },
+    },
+  ];
 
   constructor() {
     effect(() => {
@@ -62,9 +94,28 @@ export class AssetDetail {
     });
   }
 
+  setMenuBatch(batch: any) {
+    this.selectedBatch = batch;
+  }
+
   getSafeUrl(path: string) {
     if (!path) return null;
     return this.sanitizer.bypassSecurityTrustUrl(path);
+  }
+
+  isExpired(date: string): boolean {
+    if (!date) return false;
+    return new Date(date) < new Date();
+  }
+
+  isNearExpiry(date: string): boolean {
+    if (!date) return false;
+    const expiry = new Date(date);
+    const now = new Date();
+    if (expiry < now) return false;
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(now.getDate() + 30);
+    return expiry <= thirtyDaysFromNow;
   }
 
   async loadBatches(assetId: number) {

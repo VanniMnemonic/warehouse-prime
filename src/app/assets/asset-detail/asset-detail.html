@@ -1,75 +1,103 @@
 @if (asset()) {
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-6">
     <p-toast />
-    <div class="flex items-center gap-4">
-      <p-avatar
-        [image]="$any(getSafeUrl(asset().image_path))"
-        shape="square"
-        size="xlarge"
-        [style]="{ width: '7rem', height: '7rem' }"
-        [icon]="asset().image_path ? '' : 'pi pi-box'"
-        styleClass="rounded-xl"
-      />
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Left Column: Image -->
       <div class="flex flex-col">
-        <span class="text-xl font-bold">{{ asset().denomination }}</span>
-        <span class="text-muted-color flex items-center gap-2">
-          PN: {{ asset().part_number }}
-          <p-button
-            icon="pi pi-copy"
-            [text]="true"
-            [rounded]="true"
-            severity="secondary"
-            pTooltip="Copy Part Number"
-            tooltipPosition="top"
-            (onClick)="copyToClipboard(asset().part_number)"
+        @if (imageUrl()) {
+          <p-image
+            [src]="$any(imageUrl())"
+            [preview]="true"
+            width="100%"
+            class="w-full rounded-xl overflow-hidden border border-surface-200 dark:border-surface-700 block"
+            [imageStyle]="{
+              width: '100%',
+              height: 'auto',
+              'aspect-ratio': '1/1',
+              'object-fit': 'cover',
+            }"
           />
-        </span>
-        <span class="text-muted-color flex items-center gap-2">
-          BC: {{ asset().barcode }}
-          <p-button
-            icon="pi pi-copy"
-            [text]="true"
-            [rounded]="true"
-            severity="secondary"
-            pTooltip="Copy Barcode"
-            tooltipPosition="top"
-            (onClick)="copyToClipboard(asset().barcode)"
-          />
-        </span>
-        <span class="text-sm">
-          Min Stock: <span class="font-bold">{{ asset().min_stock }}</span>
-        </span>
-        <span class="text-sm">
-          Total Quantity:
-          <span
-            class="font-bold"
-            [class.text-red-500]="asset().total_quantity < asset().min_stock"
-            [class.text-green-500]="asset().total_quantity >= asset().min_stock"
+        } @else {
+          <div
+            class="w-full aspect-square bg-surface-100 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 flex items-center justify-center text-muted-color"
           >
-            {{ asset().total_quantity }}
-          </span>
-        </span>
+            <i class="pi pi-box text-8xl"></i>
+          </div>
+        }
       </div>
-      <p-button
-        icon="pi pi-pencil"
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        class="ml-auto"
-        (onClick)="edit()"
-      />
+
+      <!-- Right Column: Details -->
+      <div class="md:col-span-2 flex flex-col gap-4">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-surface-50 dark:bg-surface-900 p-4 rounded-xl border border-surface-200 dark:border-surface-700"
+        >
+          <div class="flex flex-col gap-1">
+            <span class="text-muted-color text-sm">Part Number</span>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-lg">{{ asset().part_number }}</span>
+              <p-button
+                icon="pi pi-copy"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                size="small"
+                pTooltip="Copy"
+                tooltipPosition="top"
+                (onClick)="copyToClipboard(asset().part_number)"
+              />
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <span class="text-muted-color text-sm">Barcode</span>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-lg">{{ asset().barcode }}</span>
+              <p-button
+                icon="pi pi-copy"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                size="small"
+                pTooltip="Copy"
+                tooltipPosition="top"
+                (onClick)="copyToClipboard(asset().barcode)"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col">
+          <p-button
+            label="Edit Asset"
+            icon="pi pi-pencil"
+            [outlined]="true"
+            severity="secondary"
+            class="w-full max-w-[300px]"
+            class="w-full"
+            (onClick)="edit()"
+          />
+          <div class="flex flex-wrap gap-2 mt-2">
+            <p-tag
+              [value]="asset().total_quantity >= asset().min_stock ? 'In Stock' : 'Low Stock'"
+              [severity]="asset().total_quantity >= asset().min_stock ? 'success' : 'danger'"
+            />
+            <p-tag [value]="'Total: ' + asset().total_quantity" severity="info" />
+            <p-tag [value]="'Min: ' + asset().min_stock" severity="secondary" />
+          </div>
+        </div>
+      </div>
     </div>
 
     <p-divider />
-    <div class="-mx-5">
+
+    <div class="-mx-6">
       <p-table
         #dt
         [value]="batches"
         [loading]="loading"
-        size="small"
+        size="large"
         stripedRows
         [globalFilterFields]="['denomination', 'serial_number', 'location.denomination']"
-        styleClass="p-datatable-sm"
+        class="p-datatable-sm"
       >
         <ng-template pTemplate="header">
           <tr>
@@ -79,7 +107,10 @@
               Location <p-sortIcon field="location.denomination" />
             </th>
             <th pSortableColumn="quantity">Qty <p-sortIcon field="quantity" /></th>
-            <th pSortableColumn="expiration_date">Exp. Date <p-sortIcon field="expiration_date" /></th>
+            <th pSortableColumn="expiration_date">
+              Exp. Date <p-sortIcon field="expiration_date" />
+            </th>
+            <th style="width: 4rem"></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-batch>
@@ -92,10 +123,38 @@
             <td>{{ batch.quantity }}</td>
             <td>
               @if (batch.expiration_date) {
-                {{ batch.expiration_date | date: 'shortDate' }}
+                <p-tag
+                  [value]="(batch.expiration_date | date: 'fullDate') ?? ''"
+                  [severity]="
+                    isExpired(batch.expiration_date)
+                      ? 'danger'
+                      : isNearExpiry(batch.expiration_date)
+                        ? 'warn'
+                        : 'success'
+                  "
+                  [icon]="
+                    isExpired(batch.expiration_date)
+                      ? 'pi pi-exclamation-circle'
+                      : isNearExpiry(batch.expiration_date)
+                        ? 'pi pi-exclamation-triangle'
+                        : ''
+                  "
+                />
               } @else {
                 -
               }
+            </td>
+            <td class="relative">
+              <p-splitButton
+                label="Withdraw"
+                icon="pi pi-minus-circle"
+                (onClick)="onWithdrawBatch.emit(batch)"
+                [model]="batchItems"
+                (onDropdownClick)="setMenuBatch(batch)"
+                severity="secondary"
+                size="small"
+                appendTo="body"
+              />
             </td>
           </tr>
         </ng-template>

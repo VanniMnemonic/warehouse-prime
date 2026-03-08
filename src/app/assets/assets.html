@@ -2,19 +2,14 @@
   <p-table
     #dt
     [stripedRows]="true"
-    [rowHover]="true"
     size="large"
     [value]="assets"
     [loading]="loading"
-    [rows]="10"
-    [rowsPerPageOptions]="[10, 25, 50]"
     [globalFilterFields]="['denomination', 'part_number', 'barcode']"
     [tableStyle]="{ 'min-width': '50rem' }"
     dataKey="id"
     [scrollable]="true"
     scrollHeight="calc(100vh - 12rem)"
-    [expandedRowKeys]="expandedRows"
-    (onRowExpand)="onRowExpand($event)"
   >
     <ng-template pTemplate="caption">
       <div class="flex items-center gap-2">
@@ -35,177 +30,97 @@
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 4rem"></th>
-        <th style="width: 4rem"></th>
-        <th pSortableColumn="denomination">
-          Denomination &nbsp;<p-sortIcon field="denomination" />
-        </th>
-        <th pSortableColumn="part_number">Part Number &nbsp;<p-sortIcon field="part_number" /></th>
-        <th pSortableColumn="barcode">Barcode &nbsp;<p-sortIcon field="barcode" /></th>
-        <th pSortableColumn="min_stock">Min Stock &nbsp;<p-sortIcon field="min_stock" /></th>
-        <th pSortableColumn="withdrawn_quantity" class="text-right">
-          Withdrawn &nbsp;<p-sortIcon field="withdrawn_quantity" />
+        <th></th>
+        <th pSortableColumn="denomination">Denomination<p-sortIcon field="denomination" /></th>
+        <th pSortableColumn="part_number">Part Number<p-sortIcon field="part_number" /></th>
+        <th pSortableColumn="barcode">Barcode<p-sortIcon field="barcode" /></th>
+        <th pSortableColumn="min_stock" class="text-right">
+          <p-sortIcon field="min_stock" class="mr-2" />
+          Min Stock
         </th>
         <th pSortableColumn="total_quantity" class="text-right">
-          Quantity &nbsp;<p-sortIcon field="total_quantity" />
+          <p-sortIcon field="total_quantity" class="mr-2" />
+          Quantity
         </th>
-        <th pSortableColumn="is_below_min_stock" class="text-center">
-          <i class="pi pi-angle-double-down font-bold text-xl"></i>
-          &nbsp;<p-sortIcon field="is_below_min_stock" />
+        <th pSortableColumn="withdrawn_quantity" class="text-right" style="width: 6rem">
+          <i class="pi pi-cart-arrow-down font-bold text-xl pt-1"></i>
         </th>
-        <th pSortableColumn="has_near_expiry_batches" class="text-center">
-          <i class="pi pi-clock font-bold text-xl"></i>
-          &nbsp;<p-sortIcon field="has_near_expiry_batches" />
+        <th pSortableColumn="is_below_min_stock" class="text-center" style="width: 6rem">
+          <i class="pi pi-angle-double-down font-bold text-xl pt-1"></i>
         </th>
-        <th pSortableColumn="has_expired_batches" class="text-center">
-          <i class="pi pi-calendar-times font-bold text-xl"></i>
-          &nbsp;<p-sortIcon field="has_expired_batches" />
+        <th pSortableColumn="has_near_expiry_batches" class="text-center" style="width: 6rem">
+          <i class="pi pi-clock font-bold text-xl pt-1"></i>
+        </th>
+        <th pSortableColumn="has_expired_batches" class="text-center" style="width: 6rem">
+          <i class="pi pi-calendar-times font-bold text-xl pt-1"></i>
         </th>
         <th style="width: 4rem"></th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-asset let-expanded="expanded">
+    <ng-template pTemplate="body" let-asset>
       <tr>
         <td>
-          <p-button
-            type="button"
-            pRipple
-            [pRowToggler]="asset"
-            [text]="true"
-            [rounded]="true"
-            [plain]="true"
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-          />
-        </td>
-        <td>
-          <p-avatar
-            [image]="$any(getSafeUrl(asset.image_path) || '')"
+          <app-image-display
+            [image]="$any(getSafeUrl(asset.image_path))"
+            width="60px"
+            height="60px"
             shape="square"
-            size="large"
-            [icon]="asset.image_path ? '' : 'pi pi-box'"
+            icon="pi pi-box"
           />
         </td>
         <td class="font-bold">{{ asset.denomination }}</td>
         <td>{{ asset.part_number }}</td>
         <td>{{ asset.barcode }}</td>
-        <td>{{ asset.min_stock }}</td>
-        <td class="text-right font-bold">{{ asset.withdrawn_quantity }}</td>
+        <td class="text-right">{{ asset.min_stock }}</td>
         <td class="text-right">
           <p-tag
             [value]="asset.total_quantity.toString()"
             [severity]="getQuantitySeverity(asset)"
           />
         </td>
+        <td class="text-right font-bold text-muted-color">
+          {{ asset.withdrawn_quantity }}
+        </td>
         <td class="text-center">
           @if (asset.is_below_min_stock) {
-            <p-tag value="Low Stock" severity="danger" />
+            <p-tag severity="danger" class="p-2 pr-1">
+              <i class="pi pi-angle-double-down font-bold text-xl"></i>
+            </p-tag>
           }
         </td>
         <td class="text-center">
           @if (asset.has_near_expiry_batches) {
-            <p-tag value="Near Expiry" severity="warn" />
+            <p-tag severity="warn" class="p-2 pr-1">
+              <i class="pi pi-clock font-bold text-xl"></i>
+            </p-tag>
           }
         </td>
         <td class="text-center">
           @if (asset.has_expired_batches) {
-            <p-tag value="Expired" severity="danger" />
+            <p-tag severity="danger" class="p-2 pr-1">
+              <i class="pi pi-calendar-times font-bold text-xl"></i>
+            </p-tag>
           }
         </td>
         <td class="relative">
-          <p-splitButton
-            label="Batch"
-            icon="pi pi-plus"
-            (onClick)="openAddBatch(asset)"
-            [model]="items"
-            (onDropdownClick)="setMenuAsset(asset)"
-            outlined
-            severity="secondary"
-            size="small"
-            appendTo="body"
-          />
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="rowexpansion" let-asset>
-      <tr>
-        <td></td>
-        <td colspan="11">
-          <div class="p-4">
-            <p-table
-              [value]="assetBatches[asset.id]"
-              [loading]="loadingBatches[asset.id]"
+          <div class="flex items-center gap-2">
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              severity="secondary"
+              (onClick)="openDetail(asset)"
+            />
+            <p-splitButton
+              label="Batch"
+              icon="pi pi-plus"
+              (onClick)="openAddBatch(asset)"
+              [model]="items"
+              (onDropdownClick)="setMenuAsset(asset)"
+              outlined
+              severity="secondary"
               size="small"
-              class="p-datatable-sm border border-primary rounded-xl overflow-hidden"
-            >
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Batch</th>
-                  <th>Serial Number</th>
-                  <th>Location</th>
-                  <th>Quantity</th>
-                  <th>Exp. Date</th>
-                  <th style="width: 4rem"></th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-batch>
-                <tr>
-                  <td class="font-bold">{{ batch.denomination }}</td>
-                  <td>{{ batch.serial_number }}</td>
-                  <td>
-                    <app-location-display [location]="batch.location" />
-                  </td>
-                  <td>{{ batch.quantity }}</td>
-                  <td>
-                    @if (batch.expiration_date) {
-                      <p-tag
-                        [value]="(batch.expiration_date | date: 'fullDate') ?? ''"
-                        [severity]="
-                          isExpired(batch.expiration_date)
-                            ? 'danger'
-                            : isNearExpiry(batch.expiration_date)
-                              ? 'warn'
-                              : 'success'
-                        "
-                        [icon]="
-                          isExpired(batch.expiration_date)
-                            ? 'pi pi-exclamation-circle'
-                            : isNearExpiry(batch.expiration_date)
-                              ? 'pi pi-exclamation-triangle'
-                              : ''
-                        "
-                      />
-                    } @else {
-                      -
-                    }
-                  </td>
-                  <td class="relative">
-                    <p-splitButton
-                      label="Withdraw"
-                      icon="pi pi-minus-circle"
-                      (onClick)="withdrawBatch(batch)"
-                      [model]="batchItems"
-                      (onDropdownClick)="setMenuBatch(batch, asset)"
-                      severity="secondary"
-                      size="small"
-                      appendTo="body"
-                    />
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="emptymessage">
-                <tr>
-                  <td colspan="5" class="text-center">
-                    @if (loadingBatches[asset.id]) {
-                      <div class="flex items-center justify-center gap-2">
-                        <i class="pi pi-spin pi-spinner"></i> Loading batches...
-                      </div>
-                    } @else {
-                      No batches found for this asset.
-                    }
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+              appendTo="body"
+            />
           </div>
         </td>
       </tr>
@@ -213,40 +128,47 @@
   </p-table>
 </div>
 
-<p-drawer
+<p-dialog
   [(visible)]="drawerVisible"
   [header]="selectedAsset?.denomination || 'Asset Detail'"
-  position="right"
-  [style]="{ width: '40rem' }"
+  [modal]="true"
+  [dismissableMask]="true"
+  [style]="{ width: '70vw' }"
+  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
-  <app-asset-detail [asset]="selectedAsset" (onEdit)="openEditAsset($event)" />
-</p-drawer>
+  <app-asset-detail
+    [asset]="selectedAsset"
+    (onEdit)="openEditAsset($event)"
+    (onEditBatch)="openEditBatch($event)"
+    (onWithdrawBatch)="withdrawBatch($event)"
+  />
+</p-dialog>
 
-<p-drawer
+<p-dialog
   [(visible)]="formDrawerVisible"
   [header]="editingAsset ? 'Edit Asset' : 'Add Asset'"
-  position="right"
-  [style]="{ width: '40rem' }"
   [modal]="true"
-  [dismissible]="true"
+  [dismissableMask]="true"
+  [style]="{ width: '40rem' }"
+  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
   <ng-template pTemplate="content">
     @if (formDrawerVisible) {
       <app-asset-form [asset]="editingAsset" (onSave)="onFormSave()" (onCancel)="onFormCancel()" />
     }
   </ng-template>
-</p-drawer>
+</p-dialog>
 
-<p-drawer
+<p-dialog
   [(visible)]="batchFormDrawerVisible"
   [header]="
     (selectedBatch ? 'Edit Batch for ' : 'Add Batch for ') +
     (selectedAsset?.denomination || 'Asset')
   "
-  position="right"
-  [style]="{ width: '40rem' }"
   [modal]="true"
-  [dismissible]="true"
+  [dismissableMask]="true"
+  [style]="{ width: '40rem' }"
+  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
   <ng-template pTemplate="content">
     @if (batchFormDrawerVisible) {
@@ -258,4 +180,4 @@
       />
     }
   </ng-template>
-</p-drawer>
+</p-dialog>

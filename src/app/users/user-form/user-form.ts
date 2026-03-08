@@ -10,7 +10,7 @@ import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { TreeNode } from 'primeng/api';
-import { AvatarModule } from 'primeng/avatar';
+import { ImageModule } from 'primeng/image';
 import { FileUploadModule } from 'primeng/fileupload';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
@@ -24,7 +24,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
     DialogModule,
     FormsModule,
     TreeSelectModule,
-    AvatarModule,
+    ImageModule,
     FileUploadModule,
   ],
   templateUrl: './user-form.html',

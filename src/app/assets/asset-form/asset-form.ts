@@ -4,7 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AssetService } from '../../services/asset.service';
 import { MessageService } from 'primeng/api';
-import { AvatarModule } from 'primeng/avatar';
+import { ImageModule } from 'primeng/image';
 import { FileUploadModule } from 'primeng/fileupload';
 import { DomSanitizer } from '@angular/platform-browser';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -16,7 +16,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
     ButtonModule,
     InputTextModule,
     FormsModule,
-    AvatarModule,
+    ImageModule,
     FileUploadModule,
     InputNumberModule,
   ],
