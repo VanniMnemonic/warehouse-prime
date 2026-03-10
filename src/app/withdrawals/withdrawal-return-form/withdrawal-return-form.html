@@ -1,21 +1,22 @@
-<div class="flex flex-col gap-6">
-  <div
-    class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950"
-  >
-    <div class="flex items-center gap-4">
-      <app-image-display
-        [image]="withdrawal().batch?.asset?.image_path"
-        width="64px"
-        height="64px"
-        shape="square"
-        icon="pi pi-box"
-      />
-      <div class="flex flex-col">
-        <span class="text-xl font-bold">{{ withdrawal().batch?.asset?.denomination }}</span>
-        <span class="text-muted-color">{{ withdrawal().batch?.denomination }}</span>
-        <span class="text-sm">S/N: {{ withdrawal().batch?.serial_number }}</span>
+@if (withdrawal()) {
+  <div class="flex flex-col gap-6">
+    <div
+      class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950"
+    >
+      <div class="flex items-center gap-4">
+        <app-image-display
+          [image]="withdrawal().batch?.asset?.image_path"
+          width="64px"
+          height="64px"
+          shape="square"
+          icon="pi pi-box"
+        />
+        <div class="flex flex-col">
+          <span class="text-xl font-bold">{{ withdrawal().batch?.asset?.denomination }}</span>
+          <span class="text-muted-color">{{ withdrawal().batch?.denomination }}</span>
+          <span class="text-sm">S/N: {{ withdrawal().batch?.serial_number }}</span>
+        </div>
       </div>
-    </div>
 
     <div class="flex items-center gap-4 pt-4 border-t border-surface-200 dark:border-surface-700">
       <app-image-display
@@ -109,14 +110,22 @@
     />
   </div>
 
-  <div class="flex pt-4 justify-end gap-2">
-    <p-button
-      label="Cancel"
-      icon="pi pi-times"
-      (onClick)="cancel()"
-      severity="secondary"
-      [disabled]="loading"
-    />
-    <p-button label="Confirm Return" icon="pi pi-check" (onClick)="submit()" [loading]="loading" />
+    <div class="flex pt-4 justify-end gap-2">
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        (onClick)="cancel()"
+        severity="secondary"
+        [disabled]="loading"
+      />
+      <p-button
+        label="Confirm Return"
+        icon="pi pi-check"
+        (onClick)="submit()"
+        [loading]="loading"
+      />
+    </div>
   </div>
-</div>
+} @else {
+  <div class="p-6 text-center text-muted-color">No withdrawal selected.</div>
+}

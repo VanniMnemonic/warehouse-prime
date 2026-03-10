@@ -8,7 +8,7 @@ export class UserService {
   private electronService = inject(ElectronService);
 
   async getAll(): Promise<any[]> {
-    return await this.electronService.invoke('get-users');
+    return (await this.electronService.invoke('get-users')) ?? [];
   }
 
   async create(user: any): Promise<any> {

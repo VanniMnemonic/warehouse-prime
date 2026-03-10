@@ -16,7 +16,9 @@
       }
     </p-tablist>
   </p-tabs>
-  <div class="">
-    <router-outlet></router-outlet>
+  <div class="route-container">
+    <div [@routeAnimations]="prepareRoute(outlet)" class="route-viewport">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
   </div>
 </div>

@@ -13,6 +13,8 @@ describe('AssetBatchForm', () => {
 
     fixture = TestBed.createComponent(AssetBatchForm);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('asset', { id: 1, denomination: 'Test Asset' });
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 

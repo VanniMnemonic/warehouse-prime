@@ -8,7 +8,7 @@ export class TitleService {
   private electronService = inject(ElectronService);
 
   async getAll(): Promise<any[]> {
-    return await this.electronService.invoke('get-titles');
+    return (await this.electronService.invoke('get-titles')) ?? [];
   }
 
   async create(title: any): Promise<any> {

@@ -28,7 +28,7 @@ export class WithdrawalReturnForm {
   withdrawalService = inject(WithdrawalService);
   messageService = inject(MessageService);
 
-  withdrawal = input.required<any>();
+  withdrawal = input<any | null>(null);
   onSave = output<void>();
   onCancel = output<void>();
 
@@ -39,6 +39,7 @@ export class WithdrawalReturnForm {
 
   maxReturnQuantity = computed(() => {
     const w = this.withdrawal();
+    if (!w) return 0;
     return w.quantity - (w.returned_quantity || 0);
   });
 
@@ -52,10 +53,13 @@ export class WithdrawalReturnForm {
   }
 
   async submit() {
+    const w = this.withdrawal();
+    if (!w) return;
+
     try {
       this.loading = true;
       await this.withdrawalService.return(
-        this.withdrawal().id,
+        w.id,
         this.returnDate,
         this.returnedQuantity,
         this.inefficientQuantity,

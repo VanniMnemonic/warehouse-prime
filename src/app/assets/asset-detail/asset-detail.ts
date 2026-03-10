@@ -45,7 +45,7 @@ import { AccordionModule } from 'primeng/accordion';
   providers: [MessageService],
 })
 export class AssetDetail {
-  asset = input.required<any>();
+  asset = input<any | null>(null);
   onEdit = output<any>();
   onEditBatch = output<any>();
   onWithdrawBatch = output<any>();

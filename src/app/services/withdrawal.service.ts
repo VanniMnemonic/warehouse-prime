@@ -8,11 +8,11 @@ export class WithdrawalService {
   private electronService = inject(ElectronService);
 
   async getByUser(userId: number): Promise<any[]> {
-    return await this.electronService.invoke('get-withdrawals-by-user', userId);
+    return (await this.electronService.invoke('get-withdrawals-by-user', userId)) ?? [];
   }
 
   async getAll(): Promise<any[]> {
-    return await this.electronService.invoke('get-withdrawals');
+    return (await this.electronService.invoke('get-withdrawals')) ?? [];
   }
 
   async create(withdrawal: any): Promise<any> {

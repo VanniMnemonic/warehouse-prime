@@ -129,22 +129,6 @@
 </div>
 
 <p-dialog
-  [(visible)]="drawerVisible"
-  [header]="selectedAsset?.denomination || 'Asset Detail'"
-  [modal]="true"
-  [dismissableMask]="true"
-  [style]="{ width: '90vw' }"
-  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
->
-  <app-asset-detail
-    [asset]="selectedAsset"
-    (onEdit)="openEditAsset($event)"
-    (onEditBatch)="openEditBatch($event)"
-    (onWithdrawBatch)="withdrawBatch($event)"
-  />
-</p-dialog>
-
-<p-dialog
   [(visible)]="formDrawerVisible"
   [header]="editingAsset ? 'Edit Asset' : 'Add Asset'"
   [modal]="true"

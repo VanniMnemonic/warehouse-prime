@@ -8,7 +8,7 @@ export class AssetService {
   private electronService = inject(ElectronService);
 
   async getAll(): Promise<any[]> {
-    return await this.electronService.invoke('get-assets');
+    return (await this.electronService.invoke('get-assets')) ?? [];
   }
 
   async create(asset: any): Promise<any> {

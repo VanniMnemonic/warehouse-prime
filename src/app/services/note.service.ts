@@ -8,7 +8,7 @@ export class NoteService {
   private electronService = inject(ElectronService);
 
   async getByEntity(entityType: string, entityId: number): Promise<any[]> {
-    return await this.electronService.invoke('get-notes', entityType, entityId);
+    return (await this.electronService.invoke('get-notes', entityType, entityId)) ?? [];
   }
 
   async create(note: any): Promise<any> {

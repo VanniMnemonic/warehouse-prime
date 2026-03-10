@@ -8,7 +8,7 @@ export class LocationService {
   private electronService = inject(ElectronService);
 
   async getAll(): Promise<any[]> {
-    return await this.electronService.invoke('get-locations');
+    return (await this.electronService.invoke('get-locations')) ?? [];
   }
 
   async create(location: any): Promise<any> {

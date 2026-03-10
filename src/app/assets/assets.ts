@@ -12,12 +12,12 @@ import { ImageModule } from 'primeng/image';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { MenuItem } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
-import { AssetDetail } from './asset-detail/asset-detail';
 import { AssetForm } from './asset-form/asset-form';
 import { AssetBatchForm } from './asset-batch-form/asset-batch-form';
 import { TagModule } from 'primeng/tag';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ImageDisplay } from '../shared/components/image-display/image-display';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-assets',
@@ -32,7 +32,6 @@ import { ImageDisplay } from '../shared/components/image-display/image-display';
     ImageModule,
     SplitButtonModule,
     DialogModule,
-    AssetDetail,
     AssetForm,
     AssetBatchForm,
     TagModule,
@@ -46,12 +45,12 @@ export class Assets implements OnInit {
   batchService = inject(BatchService);
   cdr = inject(ChangeDetectorRef);
   sanitizer = inject(DomSanitizer);
+  router = inject(Router);
 
   assets: any[] = [];
   loading: boolean = true;
   searchValue: string | undefined;
   selectedAsset: any;
-  drawerVisible: boolean = false;
   formDrawerVisible: boolean = false;
   batchFormDrawerVisible: boolean = false;
   editingAsset: any = null;
@@ -143,7 +142,7 @@ export class Assets implements OnInit {
 
   openDetail(asset: any) {
     this.selectedAsset = asset;
-    this.drawerVisible = true;
+    this.router.navigate(['/assets', asset.id], { state: { asset } });
   }
 
   openAddAsset() {

@@ -39,7 +39,7 @@ import { NotesComponent } from '../../shared/components/notes/notes';
   providers: [MessageService],
 })
 export class UserDetail {
-  user = input.required<any>();
+  user = input<any | null>(null);
   onEdit = output<any>();
   messageService = inject(MessageService);
   withdrawalService = inject(WithdrawalService);
