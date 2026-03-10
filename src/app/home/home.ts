@@ -13,6 +13,52 @@ import { animate, group, query, style, transition, trigger } from '@angular/anim
   providers: [MessageService],
   animations: [
     trigger('routeAnimations', [
+      transition('usersList => usersDetail', [
+        query(':enter, :leave', style({ position: 'absolute', top: 0, left: 0, width: '100%' }), {
+          optional: true,
+        }),
+        group([
+          query(
+            ':leave',
+            [
+              style({ opacity: 1, transform: 'translateX(0)' }),
+              animate('180ms ease', style({ opacity: 0, transform: 'translateX(-24px)' })),
+            ],
+            { optional: true },
+          ),
+          query(
+            ':enter',
+            [
+              style({ opacity: 1, transform: 'translateX(100%)' }),
+              animate('280ms cubic-bezier(0.2, 0, 0, 1)', style({ opacity: 1, transform: 'translateX(0)' })),
+            ],
+            { optional: true },
+          ),
+        ]),
+      ]),
+      transition('usersDetail => usersList', [
+        query(':enter, :leave', style({ position: 'absolute', top: 0, left: 0, width: '100%' }), {
+          optional: true,
+        }),
+        group([
+          query(
+            ':leave',
+            [
+              style({ opacity: 1, transform: 'translateX(0)' }),
+              animate('220ms ease', style({ opacity: 0, transform: 'translateX(100%)' })),
+            ],
+            { optional: true },
+          ),
+          query(
+            ':enter',
+            [
+              style({ opacity: 0, transform: 'translateX(-24px)' }),
+              animate('240ms ease', style({ opacity: 1, transform: 'translateX(0)' })),
+            ],
+            { optional: true },
+          ),
+        ]),
+      ]),
       transition('assetsList => assetsDetail', [
         query(':enter, :leave', style({ position: 'absolute', top: 0, left: 0, width: '100%' }), {
           optional: true,

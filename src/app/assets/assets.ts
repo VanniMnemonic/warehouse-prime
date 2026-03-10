@@ -18,6 +18,7 @@ import { TagModule } from 'primeng/tag';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ImageDisplay } from '../shared/components/image-display/image-display';
 import { Router } from '@angular/router';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'app-assets',
@@ -36,6 +37,7 @@ import { Router } from '@angular/router';
     AssetBatchForm,
     TagModule,
     ImageDisplay,
+    ToolbarModule,
   ],
   templateUrl: './assets.html',
   styleUrl: './assets.css',

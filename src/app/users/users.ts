@@ -6,7 +6,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { UserService } from '../services/user.service';
-import { UserDetail } from './user-detail/user-detail';
 import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ChipModule } from 'primeng/chip';
@@ -19,6 +18,8 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { LocationDisplay } from '../shared/components/location-display';
 import { TagModule } from 'primeng/tag';
 import { ImageDisplay } from '../shared/components/image-display/image-display';
+import { Router } from '@angular/router';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'app-users',
@@ -30,7 +31,6 @@ import { ImageDisplay } from '../shared/components/image-display/image-display';
     IconFieldModule,
     InputIconModule,
     InputTextModule,
-    UserDetail,
     BadgeModule,
     OverlayBadgeModule,
     ChipModule,
@@ -41,6 +41,7 @@ import { ImageDisplay } from '../shared/components/image-display/image-display';
     LocationDisplay,
     TagModule,
     ImageDisplay,
+    ToolbarModule,
   ],
   templateUrl: './users.html',
   styleUrl: './users.css',
@@ -48,12 +49,12 @@ import { ImageDisplay } from '../shared/components/image-display/image-display';
 export class Users implements OnInit {
   userService = inject(UserService);
   cdr = inject(ChangeDetectorRef);
+  router = inject(Router);
 
   selectedUser: any;
   searchValue: string | undefined;
   users: any[] = [];
   loading: boolean = true;
-  drawerVisible: boolean = false;
   formDrawerVisible: boolean = false;
   editingUser: any = null;
 
@@ -95,7 +96,7 @@ export class Users implements OnInit {
 
   openDetail(user: any) {
     this.selectedUser = user;
-    this.drawerVisible = true;
+    this.router.navigate(['/users', user.id], { state: { user } });
   }
 
   openAddUser(event: Event) {

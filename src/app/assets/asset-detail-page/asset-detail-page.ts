@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { AssetService } from '../../services/asset.service';
@@ -10,7 +10,7 @@ import { AssetBatchForm } from '../asset-batch-form/asset-batch-form';
 
 @Component({
   selector: 'app-asset-detail-page',
-  imports: [CommonModule, ButtonModule, DialogModule, AssetDetail, AssetForm, AssetBatchForm, RouterLink],
+  imports: [CommonModule, ButtonModule, DialogModule, AssetDetail, AssetForm, AssetBatchForm],
   templateUrl: './asset-detail-page.html',
   styleUrl: './asset-detail-page.css',
 })

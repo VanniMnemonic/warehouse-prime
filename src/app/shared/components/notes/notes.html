@@ -1,15 +1,17 @@
 <div class="flex flex-col gap-2 h-full">
   <p-scrollPanel [style]="{ width: '100%', height: '200px' }">
-    <div class="flex flex-col gap-2 p-1">
+    <div class="flex flex-col gap-1">
       @if (notes().length === 0) {
         <div class="text-center text-muted-color p-4">No notes yet.</div>
       }
       @for (note of notes(); track note.id) {
         <div
-          class="p-3bg-surface-0 dark:bg-surface-900 flex justify-between items-start group"
+          class="bg-surface-0 dark:bg-surface-900 flex justify-between items-start group p-2 rounded"
         >
-          <div class="flex flex-col gap-1">
-            <span class="break-words">{{ note.content }}</span>
+          <div class="flex flex-col gap-1 flex-1 min-w-0">
+            <div class="max-h-24 overflow-y-auto pr-2">
+              <span class="break-words">{{ note.content }}</span>
+            </div>
             <span class="text-xs text-muted-color">{{ note.created_at | date: 'medium' }}</span>
           </div>
           <p-button
@@ -29,7 +31,7 @@
       pInputText
       [(ngModel)]="newNoteContent"
       (keydown.enter)="addNote()"
-      placeholder="Add a note... (Press Enter)"
+      placeholder="Add a note..."
       class="flex-1 w-full"
     />
   </div>

@@ -1,73 +1,64 @@
 @if (user()) {
   <div class="flex flex-col gap-4">
     <p-toast />
-    <div class="flex items-center gap-4">
-      @if (user().image_path) {
-        <p-image
-          [src]="user().image_path"
-          [preview]="true"
-          width="112"
-          styleClass="rounded-full overflow-hidden"
-          [imageStyle]="{ 'object-fit': 'cover', height: '112px', width: '112px' }"
-        />
-      } @else {
-        <div
-          class="w-[7rem] h-[7rem] bg-surface-100 dark:bg-surface-800 rounded-full flex items-center justify-center text-muted-color border border-surface-200 dark:border-surface-700"
-        >
-          <i class="pi pi-user text-5xl"></i>
-        </div>
-      }
-      <div class="flex flex-col">
-        <span class="text-muted-color">{{ user().title?.title }}</span>
-        <span class="text-xl font-bold">{{ user().first_name }} {{ user().last_name }}</span>
-        <span class="text-muted-color flex items-center gap-2">
-          {{ user().email }}
-          <p-button
-            icon="pi pi-copy"
-            [text]="true"
-            [rounded]="true"
-            severity="secondary"
-            pTooltip="Copy email"
-            tooltipPosition="top"
-            (onClick)="copyToClipboard(user().email)"
+    <div class="flex flex-wrap gap-6 px-6">
+      <div class="flex-none">
+        @if (user().image_path) {
+          <p-image
+            [src]="user().image_path"
+            [preview]="true"
+            width="240"
+            class="rounded-xl overflow-hidden"
+            [imageStyle]="{ 'object-fit': 'cover', height: '240px', width: '240px' }"
           />
-        </span>
-        <span>
-          <app-location-display [location]="user().location" />
-        </span>
+        } @else {
+          <div
+            class="w-[240px] aspect-square bg-surface-100 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 flex items-center justify-center text-muted-color"
+          >
+            <i class="pi pi-user text-6xl"></i>
+          </div>
+        }
       </div>
-      <p-button
-        icon="pi pi-pencil"
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        class="ml-auto"
-        (onClick)="edit()"
-      />
+
+      <div class="flex-1 min-w-[250px] flex flex-col gap-4">
+        <div class="flex flex-col">
+          <span class="text-muted-color">{{ user().title?.title }}</span>
+          <span class="text-xl font-bold">{{ user().first_name }} {{ user().last_name }}</span>
+          <span class="text-muted-color flex items-center gap-2">
+            {{ user().email }}
+            <p-button
+              icon="pi pi-copy"
+              [text]="true"
+              [rounded]="true"
+              severity="secondary"
+              pTooltip="Copy email"
+              tooltipPosition="top"
+              (onClick)="copyToClipboard(user().email)"
+            />
+          </span>
+          <span>
+            <app-location-display [location]="user().location" />
+          </span>
+        </div>
+      </div>
+
+      <div class="flex-1 min-w-[300px] flex flex-col">
+        <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 h-full">
+          <h3 class="text-lg font-bold mb-2">Notes</h3>
+          <app-notes entityType="user" [entityId]="user().id" />
+        </div>
+      </div>
     </div>
 
-    <!-- <div class="grid grid-cols-2 gap-4">
-      <div class="flex flex-col">
-
-      </div>
-    </div> -->
-    
-    <p-divider />
-
-    <div class="mb-4">
-      <h3 class="text-lg font-bold mb-2">Notes</h3>
-      <app-notes entityType="user" [entityId]="user().id" />
-    </div>
-
-    <div class="-mx-5">
+    <div>
       <p-table
         #dt
         [value]="withdrawals"
         [loading]="loading"
-        size="small"
+        size="large"
         stripedRows
         [globalFilterFields]="['batch.asset.denomination', 'batch.serial_number']"
-        styleClass="p-datatable-sm"
+        class="p-datatable-sm"
       >
         <!-- <ng-template pTemplate="caption">
           <div class="flex">
@@ -94,6 +85,7 @@
             </th>
             <th pSortableColumn="quantity">Qty <p-sortIcon field="quantity" /></th>
             <th>Status</th>
+            <th style="width: 4rem"></th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-withdrawal>
@@ -104,8 +96,8 @@
                   [src]="withdrawal.batch?.asset?.image_path"
                   [preview]="true"
                   width="50"
-                  styleClass="rounded-md overflow-hidden"
-                  [imageStyle]="{ 'object-fit': 'cover', height: '50px', width: '50px' }"
+                  class="rounded-md overflow-hidden"
+                  [imageStyle]="{ 'object-fit': 'cover', height: '60px', width: '60px' }"
                 />
               } @else {
                 <div
@@ -115,7 +107,7 @@
                 </div>
               }
             </td>
-            <td>{{ withdrawal.date | date: 'shortDate' }}</td>
+            <td>{{ withdrawal.date | date: 'fullDate' }}</td>
             <td>
               <div class="flex flex-col">
                 <span class="font-bold">{{ withdrawal.batch?.asset?.denomination }}</span>
@@ -134,14 +126,55 @@
                 <p-tag severity="info" value="Consumed" />
               }
             </td>
+            <td class="relative">
+              <div class="flex items-center gap-2">
+                <p-button
+                  icon="pi pi-undo"
+                  [rounded]="true"
+                  severity="secondary"
+                  (onClick)="openReturn(withdrawal)"
+                  [disabled]="!withdrawal.must_return || !!withdrawal.return_date"
+                  pTooltip="Return Asset"
+                />
+                <p-splitButton
+                  label="Actions"
+                  icon="pi pi-cog"
+                  [model]="items"
+                  (onDropdownClick)="setMenuWithdrawal(withdrawal)"
+                  outlined
+                  severity="secondary"
+                  size="small"
+                  appendTo="body"
+                />
+              </div>
+            </td>
           </tr>
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="5" class="text-center">No withdrawals found.</td>
+            <td colspan="6" class="text-center">No withdrawals found.</td>
           </tr>
         </ng-template>
       </p-table>
     </div>
+
+    <p-dialog
+      [(visible)]="returnDrawerVisible"
+      header="Return Asset"
+      [modal]="true"
+      [dismissableMask]="true"
+      [style]="{ width: '40rem' }"
+      [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
+    >
+      <ng-template pTemplate="content">
+        @if (returnDrawerVisible && selectedWithdrawal) {
+          <app-withdrawal-return-form
+            [withdrawal]="selectedWithdrawal"
+            (onSave)="onReturnSave()"
+            (onCancel)="onReturnCancel()"
+          />
+        }
+      </ng-template>
+    </p-dialog>
   </div>
 }

@@ -12,21 +12,25 @@
     scrollHeight="calc(100vh - 12rem)"
   >
     <ng-template pTemplate="caption">
-      <div class="flex items-center gap-2">
-        <p-iconfield iconPosition="left" class="ml-auto">
-          <p-inputicon>
-            <i class="pi pi-search"></i>
-          </p-inputicon>
-          <input
-            pInputText
-            type="text"
-            [(ngModel)]="searchValue"
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-            placeholder="Search keyword"
-          />
-        </p-iconfield>
-        <p-button label="Add Withdrawal" icon="pi pi-plus" (onClick)="openAddWithdrawal()" />
-      </div>
+      <p-toolbar>
+        <ng-template pTemplate="start">
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchValue"
+              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+              placeholder="Search keyword"
+            />
+          </p-iconfield>
+        </ng-template>
+        <ng-template pTemplate="end">
+          <p-button label="Add Withdrawal" icon="pi pi-plus" (onClick)="openAddWithdrawal()" />
+        </ng-template>
+      </p-toolbar>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>

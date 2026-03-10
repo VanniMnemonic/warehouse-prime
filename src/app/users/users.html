@@ -12,21 +12,25 @@
     scrollHeight="calc(100vh - 12rem)"
   >
     <ng-template pTemplate="caption">
-      <div class="flex items-center gap-2">
-        <p-iconfield iconPosition="left" class="ml-auto">
-          <p-inputicon>
-            <i class="pi pi-search"></i>
-          </p-inputicon>
-          <input
-            pInputText
-            type="text"
-            [(ngModel)]="searchValue"
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-            placeholder="Search keyword"
-          />
-        </p-iconfield>
-        <p-button label="Add User" icon="pi pi-plus" (onClick)="openAddUser($event)" />
-      </div>
+      <p-toolbar>
+        <ng-template pTemplate="start">
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchValue"
+              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+              placeholder="Search keyword"
+            />
+          </p-iconfield>
+        </ng-template>
+        <ng-template pTemplate="end">
+          <p-button label="Add User" icon="pi pi-plus" (onClick)="openAddUser($event)" />
+        </ng-template>
+      </p-toolbar>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
@@ -96,17 +100,6 @@
 </div>
 
 <p-dialog
-  [(visible)]="drawerVisible"
-  [header]="(selectedUser?.first_name || '') + ' ' + (selectedUser?.last_name || '')"
-  [modal]="true"
-  [dismissableMask]="true"
-  [style]="{ width: '40rem' }"
-  [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
->
-  <app-user-detail [user]="selectedUser" (onEdit)="openEditUser($event)" />
-</p-dialog>
-
-<p-dialog
   [(visible)]="formDrawerVisible"
   [header]="editingUser ? 'Edit User' : 'Add User'"
   [modal]="true"
@@ -115,11 +108,8 @@
   [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
   <ng-template pTemplate="content">
-    <app-user-form
-      *ngIf="formDrawerVisible"
-      [user]="editingUser"
-      (onSave)="onFormSave()"
-      (onCancel)="onFormCancel()"
-    />
+    @if (formDrawerVisible) {
+      <app-user-form [user]="editingUser" (onSave)="onFormSave()" (onCancel)="onFormCancel()" />
+    }
   </ng-template>
 </p-dialog>

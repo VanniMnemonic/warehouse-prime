@@ -15,6 +15,7 @@ import { MenuItem } from 'primeng/api';
 import { WithdrawalReturnForm } from './withdrawal-return-form/withdrawal-return-form';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ImageDisplay } from '../shared/components/image-display/image-display';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'app-withdrawals',
@@ -32,6 +33,7 @@ import { ImageDisplay } from '../shared/components/image-display/image-display';
     SplitButtonModule,
     WithdrawalReturnForm,
     ImageDisplay,
+    ToolbarModule,
   ],
   templateUrl: './withdrawals.html',
   styleUrl: './withdrawals.css',
