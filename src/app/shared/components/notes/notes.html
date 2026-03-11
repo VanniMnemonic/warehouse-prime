@@ -2,7 +2,7 @@
   <p-scrollPanel [style]="{ width: '100%', height: '200px' }">
     <div class="flex flex-col gap-1">
       @if (notes().length === 0) {
-        <div class="text-center text-muted-color p-4">No notes yet.</div>
+        <div class="text-center text-muted-color p-4" i18n="@@noNotesYet">No notes yet.</div>
       }
       @for (note of notes(); track note.id) {
         <div
@@ -32,6 +32,7 @@
       [(ngModel)]="newNoteContent"
       (keydown.enter)="addNote()"
       placeholder="Add a note..."
+      i18n-placeholder="@@addNotePlaceholder"
       class="flex-1 w-full"
     />
   </div>

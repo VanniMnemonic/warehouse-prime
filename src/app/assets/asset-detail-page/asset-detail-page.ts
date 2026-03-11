@@ -28,6 +28,15 @@ export class AssetDetailPage {
   editingAsset: any = null;
   selectedBatch: any = null;
 
+  get pageTitle() {
+    return this.asset?.denomination ?? $localize`:@@assetDetailTitle:Asset Detail`;
+  }
+
+  get batchDialogHeader() {
+    const assetName = this.asset?.denomination ?? $localize`:@@assetLabel:Asset`;
+    return $localize`:@@editBatchForHeader:Edit Batch for ${assetName}:assetName:`;
+  }
+
   constructor() {
     const navigationAsset = this.router.getCurrentNavigation()?.extras.state?.['asset'];
     if (navigationAsset) {

@@ -3,9 +3,7 @@
     <div class="flex items-center gap-3">
       <p-button icon="pi pi-arrow-left" rounded="true" severity="secondary" (onClick)="goBack()" />
       <div class="flex flex-col">
-        <h2 class="text-2xl font-bold m-0">
-          {{ (user?.first_name || '') + ' ' + (user?.last_name || '') || 'User Detail' }}
-        </h2>
+        <h2 class="text-2xl font-bold m-0">{{ pageTitle }}</h2>
         @if (user?.email) {
           <span class="text-muted-color">{{ user.email }}</span>
         }
@@ -23,12 +21,12 @@
   </div>
 
   @if (loading) {
-    <div class="p-6 text-center text-muted-color">Loading...</div>
+    <div class="p-6 text-center text-muted-color" i18n="@@loading">Loading...</div>
   } @else {
     @if (user) {
       <app-user-detail [user]="user" (onEdit)="openEditUser($event)" />
     } @else {
-      <div class="p-6 text-center text-muted-color">User not found.</div>
+      <div class="p-6 text-center text-muted-color" i18n="@@userNotFound">User not found.</div>
     }
   }
 </div>
@@ -36,6 +34,7 @@
 <p-dialog
   [(visible)]="formDrawerVisible"
   header="Edit User"
+  i18n-header="@@editUserDialogHeader"
   [modal]="true"
   [dismissableMask]="true"
   [style]="{ width: '40rem' }"

@@ -47,7 +47,9 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label for="returnedQuantity" class="font-medium">Quantity to Return</label>
+      <label for="returnedQuantity" class="font-medium" i18n="@@quantityToReturnLabel"
+        >Quantity to Return</label
+      >
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
         <p-inputNumber
           [(ngModel)]="returnedQuantity"
@@ -64,14 +66,16 @@
           class="w-full"
         />
       </div>
-      <small class="text-muted-color">Max returnable: {{ maxReturnQuantity() }}</small>
+      <small class="text-muted-color" i18n="@@maxReturnableText"
+        >Max returnable: {{ maxReturnQuantity() }}</small
+      >
     </div>
 
     @if (returnedQuantity > 0) {
       <div class="flex flex-col gap-2">
-        <label for="inefficientQuantity" class="font-medium"
-          >Inefficient Quantity (Damaged/Lost)</label
-        >
+        <label for="inefficientQuantity" class="font-medium" i18n="@@inefficientQuantityLabel">
+          Inefficient Quantity (Damaged/Lost)
+        </label>
         <p-inputNumber
           id="inefficientQuantity"
           [(ngModel)]="inefficientQuantity"
@@ -86,12 +90,14 @@
           decrementButtonIcon="pi pi-minus"
           class="w-full"
         />
-        <small class="text-muted-color">How many of the returned items are inefficient?</small>
+        <small class="text-muted-color" i18n="@@inefficientQuantityHelp">
+          How many of the returned items are inefficient?
+        </small>
       </div>
     }
 
     <div class="flex flex-col gap-2">
-      <label for="returnDate">Return Date</label>
+      <label for="returnDate" i18n="@@returnDateLabel">Return Date</label>
       <p-datepicker
         id="returnDate"
         [(ngModel)]="returnDate"
@@ -105,6 +111,7 @@
     <div class="flex pt-4 justify-end gap-2">
       <p-button
         label="Cancel"
+        i18n-label="@@cancelButton"
         icon="pi pi-times"
         (onClick)="cancel()"
         severity="secondary"
@@ -112,6 +119,7 @@
       />
       <p-button
         label="Confirm Return"
+        i18n-label="@@confirmReturnButton"
         icon="pi pi-check"
         (onClick)="submit()"
         [loading]="loading"
@@ -119,5 +127,7 @@
     </div>
   </div>
 } @else {
-  <div class="p-6 text-center text-muted-color">No withdrawal selected.</div>
+  <div class="p-6 text-center text-muted-color" i18n="@@noWithdrawalSelected">
+    No withdrawal selected.
+  </div>
 }

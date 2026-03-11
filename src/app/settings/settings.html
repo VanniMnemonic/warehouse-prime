@@ -1,15 +1,16 @@
 <div class="card p-6 flex flex-col gap-4">
-    <h2 class="text-2xl font-bold">Settings</h2>
+    <h2 class="text-2xl font-bold" i18n="@@settingsTitle">Settings</h2>
     
     <div class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
         <div class="flex flex-col">
-            <span class="text-xl font-semibold">Data Management</span>
-            <span class="text-muted-color">Export or import your data.</span>
+            <span class="text-xl font-semibold" i18n="@@settingsDataManagementTitle">Data Management</span>
+            <span class="text-muted-color" i18n="@@settingsDataManagementDescription">Export or import your data.</span>
         </div>
         
         <div class="flex gap-4">
             <p-button 
                 label="Export Backup" 
+                i18n-label="@@settingsExportBackup"
                 icon="pi pi-download" 
                 severity="secondary" 
                 (onClick)="exportBackup()" 
@@ -18,6 +19,7 @@
             
             <p-button 
                 label="Import Backup" 
+                i18n-label="@@settingsImportBackup"
                 icon="pi pi-upload" 
                 severity="secondary" 
                 (onClick)="importBackup()" 
@@ -28,13 +30,14 @@
 
     <div class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
         <div class="flex flex-col">
-            <span class="text-xl font-semibold text-red-600 dark:text-red-400">Danger Zone</span>
-            <span class="text-muted-color">Manage database and data state. These actions cannot be undone.</span>
+            <span class="text-xl font-semibold text-red-600 dark:text-red-400" i18n="@@settingsDangerZoneTitle">Danger Zone</span>
+            <span class="text-muted-color" i18n="@@settingsDangerZoneDescription">Manage database and data state. These actions cannot be undone.</span>
         </div>
         
         <div class="flex gap-4">
             <p-button 
                 label="Reset Database" 
+                i18n-label="@@settingsResetDatabase"
                 icon="pi pi-trash" 
                 severity="danger" 
                 (onClick)="resetDatabase()" 
@@ -43,6 +46,7 @@
             
             <p-button 
                 label="Seed Mock Data" 
+                i18n-label="@@settingsSeedMockData"
                 icon="pi pi-database" 
                 severity="warn" 
                 (onClick)="seedDatabase()" 

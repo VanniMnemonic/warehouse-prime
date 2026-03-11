@@ -3,7 +3,7 @@
     <div class="flex items-center gap-3">
       <p-button icon="pi pi-arrow-left" rounded="true" severity="secondary" (onClick)="goBack()" />
       <div class="flex flex-col">
-        <h2 class="text-2xl font-bold m-0">{{ asset?.denomination || 'Asset Detail' }}</h2>
+        <h2 class="text-2xl font-bold m-0">{{ pageTitle }}</h2>
         @if (asset?.part_number) {
           <span class="text-muted-color">{{ asset.part_number }}</span>
         }
@@ -21,7 +21,7 @@
   </div>
 
   @if (loading) {
-    <div class="p-6 text-center text-muted-color">Loading...</div>
+    <div class="p-6 text-center text-muted-color" i18n="@@loading">Loading...</div>
   } @else {
     @if (asset) {
       <app-asset-detail
@@ -31,7 +31,7 @@
         (onWithdrawBatch)="withdrawBatch($event)"
       />
     } @else {
-      <div class="p-6 text-center text-muted-color">Asset not found.</div>
+      <div class="p-6 text-center text-muted-color" i18n="@@assetNotFound">Asset not found.</div>
     }
   }
 </div>
@@ -39,6 +39,7 @@
 <p-dialog
   [(visible)]="formDrawerVisible"
   header="Edit Asset"
+  i18n-header="@@editAssetDialogHeader"
   [modal]="true"
   [dismissableMask]="true"
   [style]="{ width: '40rem' }"
@@ -53,7 +54,7 @@
 
 <p-dialog
   [(visible)]="batchFormDrawerVisible"
-  [header]="'Edit Batch for ' + (asset?.denomination || 'Asset')"
+  [header]="batchDialogHeader"
   [modal]="true"
   [dismissableMask]="true"
   [style]="{ width: '40rem' }"

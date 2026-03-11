@@ -138,32 +138,32 @@ export class Home implements OnInit {
   tabs = [
     {
       route: 'dashboard',
-      label: 'Dashboard',
+      label: $localize`:@@tabDashboard:Dashboard`,
       icon: 'pi pi-home',
     },
     {
       route: 'users',
-      label: 'Users',
+      label: $localize`:@@tabUsers:Users`,
       icon: 'pi pi-user',
     },
     {
       route: 'assets',
-      label: 'Assets',
+      label: $localize`:@@tabAssets:Assets`,
       icon: 'pi pi-box',
     },
     {
       route: 'withdrawals',
-      label: 'Withdrawals',
+      label: $localize`:@@tabWithdrawals:Withdrawals`,
       icon: 'pi pi-upload',
     },
     {
       route: 'locations',
-      label: 'Locations',
+      label: $localize`:@@tabLocations:Locations`,
       icon: 'pi pi-map-marker',
     },
     {
       route: 'settings',
-      label: 'Settings',
+      label: $localize`:@@tabSettings:Settings`,
       icon: 'pi pi-cog',
     },
   ];

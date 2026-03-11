@@ -64,14 +64,14 @@ export class Users implements OnInit {
 
   items: MenuItem[] = [
     {
-      label: 'Edit',
+      label: $localize`:@@menuEdit:Edit`,
       icon: 'pi pi-pencil',
       command: () => {
         this.openEditUser(this.selectedUser);
       },
     },
     {
-      label: 'Add Withdrawal',
+      label: $localize`:@@menuAddWithdrawal:Add Withdrawal`,
       icon: 'pi pi-cart-plus',
       command: () => {
         console.log('Add withdrawal for:', this.selectedUser);

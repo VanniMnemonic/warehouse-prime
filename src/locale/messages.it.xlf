@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" target-language="it" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="loading" datatype="html">
+        <source>Loading...</source>
+        <target>Caricamento...</target>
+      </trans-unit>
+      <trans-unit id="assetNotFound" datatype="html">
+        <source>Asset not found.</source>
+        <target>Risorsa non trovata.</target>
+      </trans-unit>
+      <trans-unit id="editAssetDialogHeader" datatype="html">
+        <source>Edit Asset</source>
+        <target>Modifica risorsa</target>
+      </trans-unit>
+      <trans-unit id="assetDetailTitle" datatype="html">
+        <source>Asset Detail</source>
+        <target>Dettaglio risorsa</target>
+      </trans-unit>
+      <trans-unit id="assetLabel" datatype="html">
+        <source>Asset</source>
+        <target>Risorsa</target>
+      </trans-unit>
+      <trans-unit id="editBatchForHeader" datatype="html">
+        <source>Edit Batch for <x id="assetName" equiv-text="assetName"/></source>
+        <target>Modifica lotto per <x id="assetName" equiv-text="assetName"/></target>
+      </trans-unit>
+      <trans-unit id="withdrawButton" datatype="html">
+        <source>Withdraw</source>
+        <target>Preleva</target>
+      </trans-unit>
+      <trans-unit id="searchKeywordPlaceholder" datatype="html">
+        <source>Search keyword</source>
+        <target>Cerca…</target>
+      </trans-unit>
+      <trans-unit id="addAssetButton" datatype="html">
+        <source>Add Asset</source>
+        <target>Aggiungi risorsa</target>
+      </trans-unit>
+      <trans-unit id="batchButton" datatype="html">
+        <source>Batch</source>
+        <target>Lotto</target>
+      </trans-unit>
+      <trans-unit id="menuViewDetails" datatype="html">
+        <source>View Details</source>
+        <target>Vedi dettagli</target>
+      </trans-unit>
+      <trans-unit id="menuEdit" datatype="html">
+        <source>Edit</source>
+        <target>Modifica</target>
+      </trans-unit>
+      <trans-unit id="menuDelete" datatype="html">
+        <source>Delete</source>
+        <target>Elimina</target>
+      </trans-unit>
+      <trans-unit id="appTitle" datatype="html">
+        <source>Warehouse Prime</source>
+        <target>Magazzino Prime</target>
+      </trans-unit>
+      <trans-unit id="tabDashboard" datatype="html">
+        <source>Dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id="tabUsers" datatype="html">
+        <source>Users</source>
+        <target>Utenti</target>
+      </trans-unit>
+      <trans-unit id="tabAssets" datatype="html">
+        <source>Assets</source>
+        <target>Risorse</target>
+      </trans-unit>
+      <trans-unit id="tabWithdrawals" datatype="html">
+        <source>Withdrawals</source>
+        <target>Prelievi</target>
+      </trans-unit>
+      <trans-unit id="tabLocations" datatype="html">
+        <source>Locations</source>
+        <target>Sedi</target>
+      </trans-unit>
+      <trans-unit id="tabSettings" datatype="html">
+        <source>Settings</source>
+        <target>Impostazioni</target>
+      </trans-unit>
+      <trans-unit id="settingsTitle" datatype="html">
+        <source>Settings</source>
+        <target>Impostazioni</target>
+      </trans-unit>
+      <trans-unit id="settingsDataManagementTitle" datatype="html">
+        <source>Data Management</source>
+        <target>Gestione dati</target>
+      </trans-unit>
+      <trans-unit id="settingsDataManagementDescription" datatype="html">
+        <source>Export or import your data.</source>
+        <target>Esporta o importa i tuoi dati.</target>
+      </trans-unit>
+      <trans-unit id="settingsExportBackup" datatype="html">
+        <source>Export Backup</source>
+        <target>Esporta backup</target>
+      </trans-unit>
+      <trans-unit id="settingsImportBackup" datatype="html">
+        <source>Import Backup</source>
+        <target>Importa backup</target>
+      </trans-unit>
+      <trans-unit id="settingsDangerZoneTitle" datatype="html">
+        <source>Danger Zone</source>
+        <target>Zona pericolosa</target>
+      </trans-unit>
+      <trans-unit id="settingsDangerZoneDescription" datatype="html">
+        <source>Manage database and data state. These actions cannot be undone.</source>
+        <target>Gestisci database e dati. Queste azioni non possono essere annullate.</target>
+      </trans-unit>
+      <trans-unit id="settingsResetDatabase" datatype="html">
+        <source>Reset Database</source>
+        <target>Reimposta database</target>
+      </trans-unit>
+      <trans-unit id="settingsSeedMockData" datatype="html">
+        <source>Seed Mock Data</source>
+        <target>Carica dati di esempio</target>
+      </trans-unit>
+      <trans-unit id="confirmResetDatabaseHeader" datatype="html">
+        <source>Reset Database</source>
+        <target>Reimposta database</target>
+      </trans-unit>
+      <trans-unit id="confirmResetDatabaseMessage" datatype="html">
+        <source>Are you sure you want to delete all data? This action cannot be undone.</source>
+        <target>Vuoi davvero eliminare tutti i dati? Questa azione non può essere annullata.</target>
+      </trans-unit>
+      <trans-unit id="toastSuccessSummary" datatype="html">
+        <source>Success</source>
+        <target>Successo</target>
+      </trans-unit>
+      <trans-unit id="toastResetDatabaseSuccessDetail" datatype="html">
+        <source>Database has been reset. Please restart the app.</source>
+        <target>Il database è stato reimpostato. Riavvia l'app.</target>
+      </trans-unit>
+      <trans-unit id="toastErrorSummary" datatype="html">
+        <source>Error</source>
+        <target>Errore</target>
+      </trans-unit>
+      <trans-unit id="toastResetDatabaseErrorDetail" datatype="html">
+        <source>Failed to reset database</source>
+        <target>Impossibile reimpostare il database</target>
+      </trans-unit>
+      <trans-unit id="confirmSeedDatabaseHeader" datatype="html">
+        <source>Seed Database</source>
+        <target>Popola database</target>
+      </trans-unit>
+      <trans-unit id="confirmSeedDatabaseMessage" datatype="html">
+        <source>This will add mock data to the database. Continue?</source>
+        <target>Questo aggiungerà dati di esempio al database. Continuare?</target>
+      </trans-unit>
+      <trans-unit id="toastSeedDatabaseSuccessDetail" datatype="html">
+        <source>Mock data seeded successfully.</source>
+        <target>Dati di esempio aggiunti correttamente.</target>
+      </trans-unit>
+      <trans-unit id="toastSeedDatabaseErrorDetail" datatype="html">
+        <source>Failed to seed database</source>
+        <target>Impossibile aggiungere dati di esempio</target>
+      </trans-unit>
+      <trans-unit id="toastExportBackupSuccessDetail" datatype="html">
+        <source>Backup exported successfully.</source>
+        <target>Backup esportato correttamente.</target>
+      </trans-unit>
+      <trans-unit id="toastExportBackupErrorDetail" datatype="html">
+        <source>Failed to export backup.</source>
+        <target>Impossibile esportare il backup.</target>
+      </trans-unit>
+      <trans-unit id="confirmImportBackupHeader" datatype="html">
+        <source>Import Backup</source>
+        <target>Importa backup</target>
+      </trans-unit>
+      <trans-unit id="confirmImportBackupMessage" datatype="html">
+        <source>This will overwrite your current data. Are you sure you want to continue?</source>
+        <target>Questo sovrascriverà i dati correnti. Continuare?</target>
+      </trans-unit>
+      <trans-unit id="toastImportBackupSuccessDetail" datatype="html">
+        <source>Backup imported successfully. Please restart the application.</source>
+        <target>Backup importato correttamente. Riavvia l'applicazione.</target>
+      </trans-unit>
+      <trans-unit id="toastImportBackupErrorDetail" datatype="html">
+        <source>Failed to import backup.</source>
+        <target>Impossibile importare il backup.</target>
+      </trans-unit>
+      <trans-unit id="noNotesYet" datatype="html">
+        <source>No notes yet.</source>
+        <target>Nessuna nota.</target>
+      </trans-unit>
+      <trans-unit id="addNotePlaceholder" datatype="html">
+        <source>Add a note...</source>
+        <target>Aggiungi una nota…</target>
+      </trans-unit>
+      <trans-unit id="userNotFound" datatype="html">
+        <source>User not found.</source>
+        <target>Utente non trovato.</target>
+      </trans-unit>
+      <trans-unit id="editUserDialogHeader" datatype="html">
+        <source>Edit User</source>
+        <target>Modifica utente</target>
+      </trans-unit>
+      <trans-unit id="userDetailTitle" datatype="html">
+        <source>User Detail</source>
+        <target>Dettaglio utente</target>
+      </trans-unit>
+      <trans-unit id="returnAssetTooltip" datatype="html">
+        <source>Return Asset</source>
+        <target>Restituisci risorsa</target>
+      </trans-unit>
+      <trans-unit id="actionsButton" datatype="html">
+        <source>Actions</source>
+        <target>Azioni</target>
+      </trans-unit>
+      <trans-unit id="addUserButton" datatype="html">
+        <source>Add User</source>
+        <target>Aggiungi utente</target>
+      </trans-unit>
+      <trans-unit id="menuAddWithdrawal" datatype="html">
+        <source>Add Withdrawal</source>
+        <target>Aggiungi prelievo</target>
+      </trans-unit>
+      <trans-unit id="quantityToReturnLabel" datatype="html">
+        <source>Quantity to Return</source>
+        <target>Quantità da restituire</target>
+      </trans-unit>
+      <trans-unit id="maxReturnableText" datatype="html">
+        <source>Max returnable: <x id="INTERPOLATION" equiv-text="{{ maxReturnQuantity() }}"/></source>
+        <target>Massimo restituibile: <x id="INTERPOLATION" equiv-text="{{ maxReturnQuantity() }}"/></target>
+      </trans-unit>
+      <trans-unit id="inefficientQuantityLabel" datatype="html">
+        <source> Inefficient Quantity (Damaged/Lost) </source>
+        <target> Quantità inefficiente (danneggiata/persa) </target>
+      </trans-unit>
+      <trans-unit id="inefficientQuantityHelp" datatype="html">
+        <source> How many of the returned items are inefficient? </source>
+        <target> Quanti degli articoli restituiti sono inefficienti? </target>
+      </trans-unit>
+      <trans-unit id="returnDateLabel" datatype="html">
+        <source>Return Date</source>
+        <target>Data di restituzione</target>
+      </trans-unit>
+      <trans-unit id="cancelButton" datatype="html">
+        <source>Cancel</source>
+        <target>Annulla</target>
+      </trans-unit>
+      <trans-unit id="confirmReturnButton" datatype="html">
+        <source>Confirm Return</source>
+        <target>Conferma restituzione</target>
+      </trans-unit>
+      <trans-unit id="noWithdrawalSelected" datatype="html">
+        <source> No withdrawal selected. </source>
+        <target> Nessun prelievo selezionato. </target>
+      </trans-unit>
+      <trans-unit id="addWithdrawalButton" datatype="html">
+        <source>Add Withdrawal</source>
+        <target>Aggiungi prelievo</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

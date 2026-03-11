@@ -4,6 +4,10 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { routes } from './app.routes';
+import { it } from 'primelocale/js/it.js';
+
+const appLocale = (globalThis as any).$localize?.locale as string | undefined;
+const primeTranslation = appLocale?.startsWith('it') ? it : undefined;
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -11,6 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideRouter(routes),
     providePrimeNG({
+      translation: primeTranslation,
       theme: {
         preset: Aura,
         options: {

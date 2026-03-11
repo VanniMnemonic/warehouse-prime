@@ -5,7 +5,7 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "./out-tsc/app",
-    "types": []
+    "types": ["@angular/localize"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.spec.ts"]

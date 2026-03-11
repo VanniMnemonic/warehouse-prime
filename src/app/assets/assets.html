@@ -24,11 +24,17 @@
               [(ngModel)]="searchValue"
               (input)="dt.filterGlobal($any($event.target).value, 'contains')"
               placeholder="Search keyword"
+              i18n-placeholder="@@searchKeywordPlaceholder"
             />
           </p-iconfield>
         </ng-template>
         <ng-template pTemplate="end">
-          <p-button label="Add Asset" icon="pi pi-plus" (onClick)="openAddAsset()" />
+          <p-button
+            label="Add Asset"
+            i18n-label="@@addAssetButton"
+            icon="pi pi-plus"
+            (onClick)="openAddAsset()"
+          />
         </ng-template>
       </p-toolbar>
     </ng-template>
@@ -116,6 +122,7 @@
             />
             <p-splitButton
               label="Batch"
+              i18n-label="@@batchButton"
               icon="pi pi-plus"
               (onClick)="openAddBatch(asset)"
               [model]="items"

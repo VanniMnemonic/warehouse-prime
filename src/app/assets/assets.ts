@@ -60,14 +60,14 @@ export class Assets implements OnInit {
 
   items: MenuItem[] = [
     {
-      label: 'View Details',
+      label: $localize`:@@menuViewDetails:View Details`,
       icon: 'pi pi-eye',
       command: () => {
         this.openDetail(this.selectedAsset);
       },
     },
     {
-      label: 'Edit',
+      label: $localize`:@@menuEdit:Edit`,
       icon: 'pi pi-pencil',
       command: () => {
         console.log('Edit asset:', this.selectedAsset);
@@ -75,7 +75,7 @@ export class Assets implements OnInit {
       },
     },
     {
-      label: 'Delete',
+      label: $localize`:@@menuDelete:Delete`,
       icon: 'pi pi-trash',
       command: () => {
         console.log('Delete asset:', this.selectedAsset);

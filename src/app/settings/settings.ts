@@ -24,8 +24,8 @@ export class Settings {
 
   resetDatabase() {
     this.confirmationService.confirm({
-      header: 'Reset Database',
-      message: 'Are you sure you want to delete all data? This action cannot be undone.',
+      header: $localize`:@@confirmResetDatabaseHeader:Reset Database`,
+      message: $localize`:@@confirmResetDatabaseMessage:Are you sure you want to delete all data? This action cannot be undone.`,
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: async () => {
@@ -34,15 +34,15 @@ export class Settings {
           await this.electronService.invoke('reset-db');
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Database has been reset. Please restart the app.',
+            summary: $localize`:@@toastSuccessSummary:Success`,
+            detail: $localize`:@@toastResetDatabaseSuccessDetail:Database has been reset. Please restart the app.`,
           });
         } catch (error) {
           console.error('Error resetting database:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to reset database',
+            summary: $localize`:@@toastErrorSummary:Error`,
+            detail: $localize`:@@toastResetDatabaseErrorDetail:Failed to reset database`,
           });
         } finally {
           this.loading = false;
@@ -53,8 +53,8 @@ export class Settings {
 
   seedDatabase() {
     this.confirmationService.confirm({
-      header: 'Seed Database',
-      message: 'This will add mock data to the database. Continue?',
+      header: $localize`:@@confirmSeedDatabaseHeader:Seed Database`,
+      message: $localize`:@@confirmSeedDatabaseMessage:This will add mock data to the database. Continue?`,
       icon: 'pi pi-info-circle',
       accept: async () => {
         try {
@@ -62,15 +62,15 @@ export class Settings {
           await this.electronService.invoke('seed-db');
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Mock data seeded successfully.',
+            summary: $localize`:@@toastSuccessSummary:Success`,
+            detail: $localize`:@@toastSeedDatabaseSuccessDetail:Mock data seeded successfully.`,
           });
         } catch (error) {
           console.error('Error seeding database:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to seed database',
+            summary: $localize`:@@toastErrorSummary:Error`,
+            detail: $localize`:@@toastSeedDatabaseErrorDetail:Failed to seed database`,
           });
         } finally {
           this.loading = false;
@@ -86,16 +86,16 @@ export class Settings {
       if (success) {
         this.messageService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Backup exported successfully.',
+          summary: $localize`:@@toastSuccessSummary:Success`,
+          detail: $localize`:@@toastExportBackupSuccessDetail:Backup exported successfully.`,
         });
       }
     } catch (error) {
       console.error('Error exporting backup:', error);
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to export backup.',
+        summary: $localize`:@@toastErrorSummary:Error`,
+        detail: $localize`:@@toastExportBackupErrorDetail:Failed to export backup.`,
       });
     } finally {
       this.loading = false;
@@ -104,8 +104,8 @@ export class Settings {
 
   async importBackup() {
     this.confirmationService.confirm({
-      header: 'Import Backup',
-      message: 'This will overwrite your current data. Are you sure you want to continue?',
+      header: $localize`:@@confirmImportBackupHeader:Import Backup`,
+      message: $localize`:@@confirmImportBackupMessage:This will overwrite your current data. Are you sure you want to continue?`,
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: async () => {
@@ -115,16 +115,16 @@ export class Settings {
           if (success) {
             this.messageService.add({
               severity: 'success',
-              summary: 'Success',
-              detail: 'Backup imported successfully. Please restart the application.',
+              summary: $localize`:@@toastSuccessSummary:Success`,
+              detail: $localize`:@@toastImportBackupSuccessDetail:Backup imported successfully. Please restart the application.`,
             });
           }
         } catch (error) {
           console.error('Error importing backup:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to import backup.',
+            summary: $localize`:@@toastErrorSummary:Error`,
+            detail: $localize`:@@toastImportBackupErrorDetail:Failed to import backup.`,
           });
         } finally {
           this.loading = false;

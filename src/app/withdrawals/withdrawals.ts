@@ -52,7 +52,7 @@ export class Withdrawals implements OnInit {
 
   items: MenuItem[] = [
     {
-      label: 'View Details',
+      label: $localize`:@@menuViewDetails:View Details`,
       icon: 'pi pi-eye',
       command: () => {
         console.log('View details for:', this.selectedWithdrawal);

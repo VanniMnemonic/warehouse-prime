@@ -25,6 +25,13 @@ export class UserDetailPage {
   formDrawerVisible = false;
   editingUser: any = null;
 
+  get pageTitle() {
+    const firstName = this.user?.first_name ?? '';
+    const lastName = this.user?.last_name ?? '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    return fullName || $localize`:@@userDetailTitle:User Detail`;
+  }
+
   constructor() {
     const navigationUser = this.router.getCurrentNavigation()?.extras.state?.['user'];
     if (navigationUser) {
