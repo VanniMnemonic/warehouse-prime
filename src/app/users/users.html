@@ -37,17 +37,27 @@
       <tr>
         <th></th>
         <th pSortableColumn="title.title">Title <p-sortIcon field="title.title" /></th>
-        <th pSortableColumn="first_name">First Name <p-sortIcon field="first_name" /></th>
-        <th pSortableColumn="last_name">Last Name <p-sortIcon field="last_name" /></th>
+        <th pSortableColumn="first_name">
+          <span i18n="@@thFirstName">First Name</span>
+          <p-sortIcon field="first_name" />
+        </th>
+        <th pSortableColumn="last_name">
+          <span i18n="@@thLastName">Last Name</span>
+          <p-sortIcon field="last_name" />
+        </th>
         <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
         <th pSortableColumn="location.denomination">
-          Location <p-sortIcon field="location.denomination" />
+          <span i18n="@@thLocation">Location</span>
+          <p-sortIcon field="location.denomination" />
         </th>
         <th pSortableColumn="active_withdrawals">
           <i class="pi pi-shopping-cart text-lg"></i>
           <p-sortIcon field="active_withdrawals" />
         </th>
-        <th pSortableColumn="barcode">Barcode <p-sortIcon field="barcode" /></th>
+        <th pSortableColumn="barcode">
+          <span i18n="@@thBarcode">Barcode</span>
+          <p-sortIcon field="barcode" />
+        </th>
         <th style="width: 4rem"></th>
       </tr>
     </ng-template>

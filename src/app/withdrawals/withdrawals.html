@@ -45,8 +45,14 @@
         <th pSortableColumn="user.last_name">User <p-sortIcon field="user.last_name" /></th>
         <th style="width: 4rem"></th>
         <th pSortableColumn="batch.asset.denomination">Asset <p-sortIcon field="batch.asset.denomination" /></th>
-        <th pSortableColumn="batch.serial_number">Batch S/N <p-sortIcon field="batch.serial_number" /></th>
-        <th pSortableColumn="quantity">Qty <p-sortIcon field="quantity" /></th>
+        <th pSortableColumn="batch.serial_number">
+          <span i18n="@@thBatchSN">Batch S/N</span>
+          <p-sortIcon field="batch.serial_number" />
+        </th>
+        <th pSortableColumn="quantity">
+          <span i18n="@@thQtyShort">Qty</span>
+          <p-sortIcon field="quantity" />
+        </th>
         <th pSortableColumn="must_return">Status <p-sortIcon field="must_return" /></th>
         <th style="width: 4rem"></th>
       </tr>

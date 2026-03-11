@@ -17,6 +17,110 @@ import { BackupService } from './services/backup.service';
 
 let win: BrowserWindow | null = null;
 
+function getArgValue(name: string): string | undefined {
+  const prefix = `${name}=`;
+  const raw = process.argv.find((a) => a.startsWith(prefix));
+  return raw ? raw.slice(prefix.length) : undefined;
+}
+
+function getLocale(): string {
+  const lang = getArgValue('--lang') ?? getArgValue('--locale');
+  if (!lang) return 'it';
+  return lang.startsWith('it') ? 'it' : 'en-US';
+}
+
+function contentTypeForPath(filePath: string): string {
+  const ext = path.extname(filePath).toLowerCase();
+  switch (ext) {
+    case '.html':
+      return 'text/html; charset=utf-8';
+    case '.js':
+      return 'text/javascript; charset=utf-8';
+    case '.css':
+      return 'text/css; charset=utf-8';
+    case '.json':
+      return 'application/json; charset=utf-8';
+    case '.svg':
+      return 'image/svg+xml';
+    case '.png':
+      return 'image/png';
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.ico':
+      return 'image/x-icon';
+    case '.woff':
+      return 'font/woff';
+    case '.woff2':
+      return 'font/woff2';
+    case '.ttf':
+      return 'font/ttf';
+    case '.eot':
+      return 'application/vnd.ms-fontobject';
+    default:
+      return 'application/octet-stream';
+  }
+}
+
+async function startUiServer(distRoot: string) {
+  const http = await import('http');
+  const server = http.createServer((req, res) => {
+    const locale = getLocale();
+    const reqUrl = req.url ?? '/';
+    const pathname = reqUrl.split('?')[0] ?? '/';
+
+    if (pathname === '/') {
+      res.writeHead(302, { Location: `/${locale}/` });
+      res.end();
+      return;
+    }
+
+    const decoded = decodeURIComponent(pathname);
+    const normalized = path.posix.normalize(decoded);
+    const safePath = normalized.replace(/^(\.\.(\/|\\|$))+/, '');
+
+    const filePath = path.join(distRoot, safePath);
+    const resolved = path.resolve(filePath);
+    const resolvedRoot = path.resolve(distRoot);
+    if (!resolved.startsWith(resolvedRoot)) {
+      res.writeHead(403);
+      res.end();
+      return;
+    }
+
+    let finalPath = resolved;
+    try {
+      const stat = fs.statSync(finalPath);
+      if (stat.isDirectory()) {
+        finalPath = path.join(finalPath, 'index.html');
+      }
+    } catch {
+      res.writeHead(404);
+      res.end();
+      return;
+    }
+
+    try {
+      const data = fs.readFileSync(finalPath);
+      res.setHeader('Content-Type', contentTypeForPath(finalPath));
+      res.setHeader('Cache-Control', 'no-store');
+      res.writeHead(200);
+      res.end(data);
+    } catch {
+      res.writeHead(500);
+      res.end();
+    }
+  });
+
+  return await new Promise<{ server: any; port: number }>((resolve) => {
+    server.listen(0, '127.0.0.1', () => {
+      const addr = server.address();
+      const port = typeof addr === 'object' && addr ? addr.port : 0;
+      resolve({ server, port });
+    });
+  });
+}
+
 function createWindow() {
   win = new BrowserWindow({
     width: 1200,
@@ -30,22 +134,25 @@ function createWindow() {
   });
 
   const isDev = process.argv.includes('--dev') || process.env['NODE_ENV'] === 'development';
+  const ui = getArgValue('--ui');
 
   if (isDev) {
-    win.loadURL('http://localhost:4200');
+    const uiPath = ui ?? '/';
+    win.loadURL(`http://localhost:4200${uiPath}`);
     win.webContents.openDevTools();
   } else {
-    // Fallback to dev url for now or load dist file
-    win.loadURL('http://localhost:4200');
-    /*
-    win.loadURL(
-      url.format({
-        pathname: path.join(__dirname, '../../dist/prime/browser/index.html'),
-        protocol: 'file:',
-        slashes: true,
-      })
-    );
-    */
+    const locale = getLocale();
+    const distRoot = path.join(app.getAppPath(), 'dist', 'prime', 'browser');
+
+    startUiServer(distRoot).then(({ server, port }) => {
+      if (!win) return;
+      win.loadURL(`http://127.0.0.1:${port}/${locale}/`);
+      win.on('closed', () => {
+        try {
+          server.close();
+        } catch {}
+      });
+    });
   }
 
   win.on('closed', () => {
@@ -65,331 +172,328 @@ app.on('ready', () => {
     }
   });
 
-  AppDataSource.initialize()
-    .then(async () => {
-      console.log('Data Source has been initialized!');
+  AppDataSource.initialize().then(async () => {
+    console.log('Data Source has been initialized!');
 
-      // Seed Titles
-      const titleRepository = AppDataSource.getRepository(Title);
-      const titleCount = await titleRepository.count();
-      let titles: Title[] = [];
-      if (titleCount === 0) {
-        console.log('Seeding titles...');
-        const titleNames = ['Mr.', 'Mrs.', 'Dr.', 'Prof.', 'Ms.'];
-        for (const name of titleNames) {
-          const t = new Title();
-          t.title = name;
-          titles.push(await titleRepository.save(t));
-        }
-        console.log('Titles seeded.');
-      } else {
-        titles = await titleRepository.find();
+    // Seed Titles
+    const titleRepository = AppDataSource.getRepository(Title);
+    const titleCount = await titleRepository.count();
+    let titles: Title[] = [];
+    if (titleCount === 0) {
+      console.log('Seeding titles...');
+      const titleNames = ['Mr.', 'Mrs.', 'Dr.', 'Prof.', 'Ms.'];
+      for (const name of titleNames) {
+        const t = new Title();
+        t.title = name;
+        titles.push(await titleRepository.save(t));
       }
+      console.log('Titles seeded.');
+    } else {
+      titles = await titleRepository.find();
+    }
 
-      // Seed Locations (Hierarchy: Complex > Building > Section > Office)
-      const locationRepository = AppDataSource.getRepository(Location);
-      const locationCount = await locationRepository.count();
-      let locations: Location[] = [];
+    // Seed Locations (Hierarchy: Complex > Building > Section > Office)
+    const locationRepository = AppDataSource.getRepository(Location);
+    const locationCount = await locationRepository.count();
+    let locations: Location[] = [];
 
-      if (locationCount === 0) {
-        console.log('Seeding locations...');
-        // Create a minimal Root location
-        const root = new Location();
-        root.denomination = 'Root';
-        root.description = 'Root Location';
-        await locationRepository.save(root);
-        locations.push(root);
-        
-        console.log('Root location created.');
-      } else {
-        // Fetch all leaf locations (those without children, assuming for now we just pick some known ones or all)
-        // For simplicity in this mock update, let's just grab all locations and pick random ones
-        locations = await locationRepository.find();
+    if (locationCount === 0) {
+      console.log('Seeding locations...');
+      // Create a minimal Root location
+      const root = new Location();
+      root.denomination = 'Root';
+      root.description = 'Root Location';
+      await locationRepository.save(root);
+      locations.push(root);
+
+      console.log('Root location created.');
+    } else {
+      // Fetch all leaf locations (those without children, assuming for now we just pick some known ones or all)
+      // For simplicity in this mock update, let's just grab all locations and pick random ones
+      locations = await locationRepository.find();
+    }
+
+    // Seed mock users if empty
+    const userRepository = AppDataSource.getRepository(User);
+    const count = await userRepository.count();
+    if (count === 0) {
+      console.log('Seeding mock users...');
+
+      // Helper to get random location from our seeded list
+      const getRandomLocation = () => locations[Math.floor(Math.random() * locations.length)];
+
+      const mockUsers = [
+        {
+          first_name: 'Mario',
+          last_name: 'Rossi',
+          email: 'mario.rossi@example.com',
+          role: 'admin',
+          barcode: 'MR001',
+          title: titles[0], // Mr.
+          location: locations.find((l) => l.denomination === 'IT Support') || getRandomLocation(),
+        },
+        {
+          first_name: 'Luigi',
+          last_name: 'Verdi',
+          email: 'luigi.verdi@example.com',
+          role: 'user',
+          barcode: 'LV002',
+          title: titles[0], // Mr.
+          location:
+            locations.find((l) => l.denomination === 'Logistics Office') || getRandomLocation(),
+        },
+        {
+          first_name: 'Giovanna',
+          last_name: 'Bianchi',
+          email: 'giovanna.bianchi@example.com',
+          role: 'user',
+          barcode: 'GB003',
+          title: titles[1], // Mrs.
+          location:
+            locations.find((l) => l.denomination === 'HR Department') || getRandomLocation(),
+        },
+        {
+          first_name: 'Anna',
+          last_name: 'Neri',
+          email: 'anna.neri@example.com',
+          role: 'manager',
+          barcode: 'AN004',
+          title: titles[1], // Mrs.
+          location: locations.find((l) => l.denomination === 'Reception') || getRandomLocation(),
+        },
+        {
+          first_name: 'Paolo',
+          last_name: 'Gialli',
+          email: 'paolo.gialli@example.com',
+          role: 'user',
+          barcode: 'PG005',
+          title: titles[0], // Mr.
+          location:
+            locations.find((l) => l.denomination === 'Security Office') || getRandomLocation(),
+        },
+      ];
+
+      for (const u of mockUsers) {
+        await userRepository.save(userRepository.create(u));
       }
+      console.log('Mock users seeded.');
+    } else {
+      // Update existing users if they are missing title or location
+      const users = await userRepository.find({ relations: ['title', 'location'] });
 
-      // Seed mock users if empty
-      const userRepository = AppDataSource.getRepository(User);
-      const count = await userRepository.count();
-      if (count === 0) {
-        console.log('Seeding mock users...');
+      const mockUserLocations: Record<string, string> = {
+        'mario.rossi@example.com': 'IT Support',
+        'luigi.verdi@example.com': 'Logistics Office',
+        'giovanna.bianchi@example.com': 'HR Department',
+        'anna.neri@example.com': 'Reception',
+        'paolo.gialli@example.com': 'Security Office',
+      };
 
-        // Helper to get random location from our seeded list
-        const getRandomLocation = () => locations[Math.floor(Math.random() * locations.length)];
-
-        const mockUsers = [
-          {
-            first_name: 'Mario',
-            last_name: 'Rossi',
-            email: 'mario.rossi@example.com',
-            role: 'admin',
-            barcode: 'MR001',
-            title: titles[0], // Mr.
-            location: locations.find((l) => l.denomination === 'IT Support') || getRandomLocation(),
-          },
-          {
-            first_name: 'Luigi',
-            last_name: 'Verdi',
-            email: 'luigi.verdi@example.com',
-            role: 'user',
-            barcode: 'LV002',
-            title: titles[0], // Mr.
-            location:
-              locations.find((l) => l.denomination === 'Logistics Office') || getRandomLocation(),
-          },
-          {
-            first_name: 'Giovanna',
-            last_name: 'Bianchi',
-            email: 'giovanna.bianchi@example.com',
-            role: 'user',
-            barcode: 'GB003',
-            title: titles[1], // Mrs.
-            location:
-              locations.find((l) => l.denomination === 'HR Department') || getRandomLocation(),
-          },
-          {
-            first_name: 'Anna',
-            last_name: 'Neri',
-            email: 'anna.neri@example.com',
-            role: 'manager',
-            barcode: 'AN004',
-            title: titles[1], // Mrs.
-            location: locations.find((l) => l.denomination === 'Reception') || getRandomLocation(),
-          },
-          {
-            first_name: 'Paolo',
-            last_name: 'Gialli',
-            email: 'paolo.gialli@example.com',
-            role: 'user',
-            barcode: 'PG005',
-            title: titles[0], // Mr.
-            location:
-              locations.find((l) => l.denomination === 'Security Office') || getRandomLocation(),
-          },
-        ];
-
-        for (const u of mockUsers) {
-          await userRepository.save(userRepository.create(u));
+      for (const user of users) {
+        let updated = false;
+        if (!user.title && titles.length > 0) {
+          user.title = titles[Math.floor(Math.random() * titles.length)];
+          updated = true;
         }
-        console.log('Mock users seeded.');
-      } else {
-        // Update existing users if they are missing title or location
-        const users = await userRepository.find({ relations: ['title', 'location'] });
 
-        const mockUserLocations: Record<string, string> = {
-          'mario.rossi@example.com': 'IT Support',
-          'luigi.verdi@example.com': 'Logistics Office',
-          'giovanna.bianchi@example.com': 'HR Department',
-          'anna.neri@example.com': 'Reception',
-          'paolo.gialli@example.com': 'Security Office',
-        };
-
-        for (const user of users) {
-          let updated = false;
-          if (!user.title && titles.length > 0) {
-            user.title = titles[Math.floor(Math.random() * titles.length)];
+        // Force update location for known mock users
+        if (mockUserLocations[user.email]) {
+          const targetLoc = locations.find((l) => l.denomination === mockUserLocations[user.email]);
+          if (targetLoc && (!user.location || user.location.id !== targetLoc.id)) {
+            user.location = targetLoc;
             updated = true;
           }
-
-          // Force update location for known mock users
-          if (mockUserLocations[user.email]) {
-            const targetLoc = locations.find(
-              (l) => l.denomination === mockUserLocations[user.email],
-            );
-            if (targetLoc && (!user.location || user.location.id !== targetLoc.id)) {
-              user.location = targetLoc;
-              updated = true;
-            }
-          } else if (!user.location && locations.length > 0) {
-            user.location = locations[Math.floor(Math.random() * locations.length)];
-            updated = true;
-          }
-
-          if (updated) {
-            await userRepository.save(user);
-          }
+        } else if (!user.location && locations.length > 0) {
+          user.location = locations[Math.floor(Math.random() * locations.length)];
+          updated = true;
         }
-        console.log('Existing users updated with mock data.');
-      }
 
-      // Seed Assets and Batches
-      const assetRepository = AppDataSource.getRepository(Asset);
-      const batchRepository = AppDataSource.getRepository(Batch);
-      const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
-      const assetCount = await assetRepository.count();
-
-      let createdBatches: Batch[] = [];
-
-      if (assetCount === 0 && locations.length > 0) {
-        console.log('Seeding assets and batches...');
-
-        const assetsData = [
-          { denomination: 'Laptop Dell XPS 15', part_number: 'DELL-XPS-15', min_stock: 5 },
-          { denomination: 'Monitor Samsung 27"', part_number: 'SAM-27-MON', min_stock: 10 },
-          { denomination: 'Ergonomic Chair', part_number: 'ERGO-CHAIR-V1', min_stock: 20 },
-          { denomination: 'Office Desk', part_number: 'DESK-STD-120', min_stock: 15 },
-          { denomination: 'Keyboard Logitech MX', part_number: 'LOGI-MX-KEYS', min_stock: 8 },
-          { denomination: 'Mouse Logitech MX Master', part_number: 'LOGI-MX-MOUSE', min_stock: 8 },
-          { denomination: 'Printer HP LaserJet', part_number: 'HP-LASER-PRO', min_stock: 2 },
-          { denomination: 'Projector Epson', part_number: 'EPSON-PROJ-4K', min_stock: 1 },
-          { denomination: 'Whiteboard', part_number: 'WB-180x120', min_stock: 3 },
-          { denomination: 'Coffee Machine', part_number: 'NESPRESSO-PRO', min_stock: 1 },
-          // Test items
-          { denomination: 'Expired Milk', part_number: 'MILK-EXP', min_stock: 10 },
-          { denomination: 'Near Expiry Bread', part_number: 'BREAD-SOON', min_stock: 10 },
-          { denomination: 'Low Stock Pens', part_number: 'PEN-LOW', min_stock: 100 },
-        ];
-
-        for (const data of assetsData) {
-          const asset = new Asset();
-          asset.denomination = data.denomination;
-          asset.part_number = data.part_number;
-          asset.min_stock = data.min_stock;
-          // Generate a pseudo-random barcode
-          asset.barcode = `AST-${Math.floor(1000 + Math.random() * 9000)}`;
-
-          const savedAsset = await assetRepository.save(asset);
-
-          // Specific logic for test items
-          if (data.part_number === 'MILK-EXP') {
-            const batch = new Batch();
-            batch.denomination = `Batch 1 - Expired`;
-            batch.asset = savedAsset;
-            batch.serial_number = `SN-EXP-001`;
-            batch.quantity = 20;
-            const date = new Date();
-            date.setDate(date.getDate() - 10); // 10 days ago
-            batch.expiration_date = date;
-            batch.location = locations[0];
-            createdBatches.push(await batchRepository.save(batch));
-            continue;
-          }
-
-          if (data.part_number === 'BREAD-SOON') {
-            const batch = new Batch();
-            batch.denomination = `Batch 1 - Near Expiry`;
-            batch.asset = savedAsset;
-            batch.serial_number = `SN-NEAR-001`;
-            batch.quantity = 20;
-            const date = new Date();
-            date.setDate(date.getDate() + 5); // In 5 days
-            batch.expiration_date = date;
-            batch.location = locations[0];
-            createdBatches.push(await batchRepository.save(batch));
-            continue;
-          }
-
-          if (data.part_number === 'PEN-LOW') {
-            const batch = new Batch();
-            batch.denomination = `Batch 1 - Low Stock`;
-            batch.asset = savedAsset;
-            batch.serial_number = `SN-LOW-001`;
-            batch.quantity = 5; // Below min_stock of 100
-            batch.location = locations[0];
-            createdBatches.push(await batchRepository.save(batch));
-            continue;
-          }
-
-          // Create batches for each asset
-          const numBatches = Math.floor(Math.random() * 3) + 1; // 1 to 3 batches per asset
-
-          for (let i = 0; i < numBatches; i++) {
-            const batch = new Batch();
-            batch.denomination = `Batch ${i + 1} - ${savedAsset.denomination}`;
-            batch.asset = savedAsset;
-            batch.serial_number = `SN-${savedAsset.part_number}-${Date.now()}-${i}`;
-
-            // Random quantity
-            batch.quantity = Math.floor(Math.random() * 50) + 1;
-            batch.inefficient_quantity = Math.floor(Math.random() * 5);
-
-            // Random expiration date for some
-            if (Math.random() > 0.7) {
-              const date = new Date();
-              date.setFullYear(date.getFullYear() + 1);
-              batch.expiration_date = date;
-            }
-
-            // Assign to a random location
-            batch.location = locations[Math.floor(Math.random() * locations.length)];
-
-            const savedBatch = await batchRepository.save(batch);
-            createdBatches.push(savedBatch);
-          }
+        if (updated) {
+          await userRepository.save(user);
         }
-        console.log('Assets and batches seeded.');
-      } else {
-        createdBatches = await batchRepository.find();
       }
+      console.log('Existing users updated with mock data.');
+    }
 
-      // Seed Withdrawals
-      const withdrawalCount = await withdrawalRepository.count();
-      if (withdrawalCount === 0 && createdBatches.length > 0) {
-        console.log('Seeding withdrawals...');
-        const users = await userRepository.find();
+    // Seed Assets and Batches
+    const assetRepository = AppDataSource.getRepository(Asset);
+    const batchRepository = AppDataSource.getRepository(Batch);
+    const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
+    const assetCount = await assetRepository.count();
 
-        // Create 20 random withdrawals
-        for (let i = 0; i < 20; i++) {
-          const withdrawal = new Withdrawal();
+    let createdBatches: Batch[] = [];
 
-          // Random user
-          withdrawal.user = users[Math.floor(Math.random() * users.length)];
+    if (assetCount === 0 && locations.length > 0) {
+      console.log('Seeding assets and batches...');
 
-          // Random batch
-          withdrawal.batch = createdBatches[Math.floor(Math.random() * createdBatches.length)];
+      const assetsData = [
+        { denomination: 'Laptop Dell XPS 15', part_number: 'DELL-XPS-15', min_stock: 5 },
+        { denomination: 'Monitor Samsung 27"', part_number: 'SAM-27-MON', min_stock: 10 },
+        { denomination: 'Ergonomic Chair', part_number: 'ERGO-CHAIR-V1', min_stock: 20 },
+        { denomination: 'Office Desk', part_number: 'DESK-STD-120', min_stock: 15 },
+        { denomination: 'Keyboard Logitech MX', part_number: 'LOGI-MX-KEYS', min_stock: 8 },
+        { denomination: 'Mouse Logitech MX Master', part_number: 'LOGI-MX-MOUSE', min_stock: 8 },
+        { denomination: 'Printer HP LaserJet', part_number: 'HP-LASER-PRO', min_stock: 2 },
+        { denomination: 'Projector Epson', part_number: 'EPSON-PROJ-4K', min_stock: 1 },
+        { denomination: 'Whiteboard', part_number: 'WB-180x120', min_stock: 3 },
+        { denomination: 'Coffee Machine', part_number: 'NESPRESSO-PRO', min_stock: 1 },
+        // Test items
+        { denomination: 'Expired Milk', part_number: 'MILK-EXP', min_stock: 10 },
+        { denomination: 'Near Expiry Bread', part_number: 'BREAD-SOON', min_stock: 10 },
+        { denomination: 'Low Stock Pens', part_number: 'PEN-LOW', min_stock: 100 },
+      ];
 
-          // Random quantity (1 to 5)
-          withdrawal.quantity = Math.floor(Math.random() * 5) + 1;
+      for (const data of assetsData) {
+        const asset = new Asset();
+        asset.denomination = data.denomination;
+        asset.part_number = data.part_number;
+        asset.min_stock = data.min_stock;
+        // Generate a pseudo-random barcode
+        asset.barcode = `AST-${Math.floor(1000 + Math.random() * 9000)}`;
 
-          // Random inefficient quantity (0 to 1)
-          withdrawal.inefficient_quantity = Math.random() > 0.8 ? 1 : 0;
+        const savedAsset = await assetRepository.save(asset);
 
-          // Random date within the last 30 days
+        // Specific logic for test items
+        if (data.part_number === 'MILK-EXP') {
+          const batch = new Batch();
+          batch.denomination = `Batch 1 - Expired`;
+          batch.asset = savedAsset;
+          batch.serial_number = `SN-EXP-001`;
+          batch.quantity = 20;
           const date = new Date();
-          date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-          withdrawal.date = date;
+          date.setDate(date.getDate() - 10); // 10 days ago
+          batch.expiration_date = date;
+          batch.location = locations[0];
+          createdBatches.push(await batchRepository.save(batch));
+          continue;
+        }
 
-          // Random must_return
-          withdrawal.must_return = Math.random() > 0.5;
+        if (data.part_number === 'BREAD-SOON') {
+          const batch = new Batch();
+          batch.denomination = `Batch 1 - Near Expiry`;
+          batch.asset = savedAsset;
+          batch.serial_number = `SN-NEAR-001`;
+          batch.quantity = 20;
+          const date = new Date();
+          date.setDate(date.getDate() + 5); // In 5 days
+          batch.expiration_date = date;
+          batch.location = locations[0];
+          createdBatches.push(await batchRepository.save(batch));
+          continue;
+        }
 
-          // If must_return is true, maybe set a return date (50% chance)
-          if (withdrawal.must_return && Math.random() > 0.5) {
-            const returnDate = new Date(date);
-            returnDate.setDate(returnDate.getDate() + Math.floor(Math.random() * 7) + 1); // Returned 1-7 days later
-            withdrawal.return_date = returnDate;
+        if (data.part_number === 'PEN-LOW') {
+          const batch = new Batch();
+          batch.denomination = `Batch 1 - Low Stock`;
+          batch.asset = savedAsset;
+          batch.serial_number = `SN-LOW-001`;
+          batch.quantity = 5; // Below min_stock of 100
+          batch.location = locations[0];
+          createdBatches.push(await batchRepository.save(batch));
+          continue;
+        }
+
+        // Create batches for each asset
+        const numBatches = Math.floor(Math.random() * 3) + 1; // 1 to 3 batches per asset
+
+        for (let i = 0; i < numBatches; i++) {
+          const batch = new Batch();
+          batch.denomination = `Batch ${i + 1} - ${savedAsset.denomination}`;
+          batch.asset = savedAsset;
+          batch.serial_number = `SN-${savedAsset.part_number}-${Date.now()}-${i}`;
+
+          // Random quantity
+          batch.quantity = Math.floor(Math.random() * 50) + 1;
+          batch.inefficient_quantity = Math.floor(Math.random() * 5);
+
+          // Random expiration date for some
+          if (Math.random() > 0.7) {
+            const date = new Date();
+            date.setFullYear(date.getFullYear() + 1);
+            batch.expiration_date = date;
           }
 
-          await withdrawalRepository.save(withdrawal);
+          // Assign to a random location
+          batch.location = locations[Math.floor(Math.random() * locations.length)];
+
+          const savedBatch = await batchRepository.save(batch);
+          createdBatches.push(savedBatch);
         }
-        console.log('Withdrawals seeded.');
       }
+      console.log('Assets and batches seeded.');
+    } else {
+      createdBatches = await batchRepository.find();
+    }
 
-      // Handle Notes
-      const noteService = new NoteService();
+    // Seed Withdrawals
+    const withdrawalCount = await withdrawalRepository.count();
+    if (withdrawalCount === 0 && createdBatches.length > 0) {
+      console.log('Seeding withdrawals...');
+      const users = await userRepository.find();
 
-      ipcMain.handle('get-notes', async (event, entityType: string, entityId: number) => {
-        return await noteService.getByEntity(entityType, entityId);
-      });
+      // Create 20 random withdrawals
+      for (let i = 0; i < 20; i++) {
+        const withdrawal = new Withdrawal();
 
-      ipcMain.handle('add-note', async (event, note: any) => {
-        return await noteService.create(note);
-      });
+        // Random user
+        withdrawal.user = users[Math.floor(Math.random() * users.length)];
 
-      ipcMain.handle('delete-note', async (event, id: number) => {
-    return await noteService.delete(id);
-  });
+        // Random batch
+        withdrawal.batch = createdBatches[Math.floor(Math.random() * createdBatches.length)];
 
-  // Handle Backup
-  const backupService = new BackupService();
+        // Random quantity (1 to 5)
+        withdrawal.quantity = Math.floor(Math.random() * 5) + 1;
 
-  ipcMain.handle('export-backup', async () => {
-    return await backupService.exportBackup();
-  });
+        // Random inefficient quantity (0 to 1)
+        withdrawal.inefficient_quantity = Math.random() > 0.8 ? 1 : 0;
 
-  ipcMain.handle('import-backup', async () => {
-    return await backupService.importBackup();
-  });
+        // Random date within the last 30 days
+        const date = new Date();
+        date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+        withdrawal.date = date;
 
-  createWindow();
+        // Random must_return
+        withdrawal.must_return = Math.random() > 0.5;
+
+        // If must_return is true, maybe set a return date (50% chance)
+        if (withdrawal.must_return && Math.random() > 0.5) {
+          const returnDate = new Date(date);
+          returnDate.setDate(returnDate.getDate() + Math.floor(Math.random() * 7) + 1); // Returned 1-7 days later
+          withdrawal.return_date = returnDate;
+        }
+
+        await withdrawalRepository.save(withdrawal);
+      }
+      console.log('Withdrawals seeded.');
+    }
+
+    // Handle Notes
+    const noteService = new NoteService();
+
+    ipcMain.handle('get-notes', async (event, entityType: string, entityId: number) => {
+      return await noteService.getByEntity(entityType, entityId);
+    });
+
+    ipcMain.handle('add-note', async (event, note: any) => {
+      return await noteService.create(note);
+    });
+
+    ipcMain.handle('delete-note', async (event, id: number) => {
+      return await noteService.delete(id);
+    });
+
+    // Handle Backup
+    const backupService = new BackupService();
+
+    ipcMain.handle('export-backup', async () => {
+      return await backupService.exportBackup();
+    });
+
+    ipcMain.handle('import-backup', async () => {
+      return await backupService.importBackup();
+    });
+
+    createWindow();
   });
 });
 

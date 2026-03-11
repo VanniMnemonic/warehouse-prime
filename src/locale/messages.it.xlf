@@ -254,6 +254,42 @@
         <source>Add Withdrawal</source>
         <target>Aggiungi prelievo</target>
       </trans-unit>
+      <trans-unit id="thBatch" datatype="html">
+        <source>Batch</source>
+        <target>Lotto</target>
+      </trans-unit>
+      <trans-unit id="thLocation" datatype="html">
+        <source>Location</source>
+        <target>Posizione</target>
+      </trans-unit>
+      <trans-unit id="thQtyShort" datatype="html">
+        <source>Qty</source>
+        <target>Q.ta</target>
+      </trans-unit>
+      <trans-unit id="thDenomination" datatype="html">
+        <source>Denomination</source>
+        <target>Denominazione</target>
+      </trans-unit>
+      <trans-unit id="thBarcode" datatype="html">
+        <source>Barcode</source>
+        <target>Codice</target>
+      </trans-unit>
+      <trans-unit id="thQuantity" datatype="html">
+        <source>Quantity</source>
+        <target>Quantità</target>
+      </trans-unit>
+      <trans-unit id="thFirstName" datatype="html">
+        <source>First Name</source>
+        <target>Nome</target>
+      </trans-unit>
+      <trans-unit id="thLastName" datatype="html">
+        <source>Last Name</source>
+        <target>Cognome</target>
+      </trans-unit>
+      <trans-unit id="thBatchSN" datatype="html">
+        <source>Batch S/N</source>
+        <target>Lotto S/N</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

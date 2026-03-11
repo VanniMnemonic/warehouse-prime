@@ -94,12 +94,19 @@
       >
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="denomination">Batch <p-sortIcon field="denomination" /></th>
+            <th pSortableColumn="denomination">
+              <span i18n="@@thBatch">Batch</span>
+              <p-sortIcon field="denomination" />
+            </th>
             <th pSortableColumn="serial_number">S/N <p-sortIcon field="serial_number" /></th>
             <th pSortableColumn="location.denomination">
-              Location <p-sortIcon field="location.denomination" />
+              <span i18n="@@thLocation">Location</span>
+              <p-sortIcon field="location.denomination" />
             </th>
-            <th pSortableColumn="quantity">Qty <p-sortIcon field="quantity" /></th>
+            <th pSortableColumn="quantity">
+              <span i18n="@@thQtyShort">Qty</span>
+              <p-sortIcon field="quantity" />
+            </th>
             <th pSortableColumn="expiration_date">
               Exp. Date <p-sortIcon field="expiration_date" />
             </th>

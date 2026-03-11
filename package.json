@@ -7,11 +7,17 @@
     "start": "ng serve",
     "build": "ng build",
     "build:localize": "ng build --localize",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "dev:localize": "ng build --watch --configuration development --localize",
     "extract-i18n": "ng extract-i18n --output-path src/locale",
     "watch": "ng build --watch --configuration development",
+    "serve:dist": "npx http-server dist/prime/browser -p 4200 -c-1",
     "test": "ng test",
     "electron": "wait-on tcp:4200 && electron src/electron/main.entry.js",
-    "electron:dev": "concurrently -k \"npm start\" \"npm run electron\""
+    "electron:dev": "concurrently -k \"npm start\" \"npm run electron\"",
+    "electron:it": "wait-on tcp:4200 && electron src/electron/main.entry.js --dev --lang=it --ui=/it/",
+    "electron:dev:it": "concurrently -k \"npm run dev:localize\" \"npm run serve:dist\" \"npm run electron:it\"",
+    "dist:win": "node scripts/dist-win.cjs"
   },
   "private": true,
   "packageManager": "npm@11.9.0",
@@ -57,5 +63,26 @@
     "typescript": "~5.9.2",
     "vitest": "^4.0.8",
     "wait-on": "^9.0.4"
+  },
+  "build": {
+    "appId": "com.warehouse.prime",
+    "productName": "Warehouse Prime",
+    "asar": true,
+    "files": [
+      "dist-electron/**/*",
+      "dist/prime/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "dist-electron/main.js"
+    },
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    }
   }
 }

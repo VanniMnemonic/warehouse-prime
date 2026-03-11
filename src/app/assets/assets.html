@@ -41,16 +41,22 @@
     <ng-template pTemplate="header">
       <tr>
         <th></th>
-        <th pSortableColumn="denomination">Denomination<p-sortIcon field="denomination" /></th>
+        <th pSortableColumn="denomination">
+          <span i18n="@@thDenomination">Denomination</span>
+          <p-sortIcon field="denomination" />
+        </th>
         <th pSortableColumn="part_number">Part Number<p-sortIcon field="part_number" /></th>
-        <th pSortableColumn="barcode">Barcode<p-sortIcon field="barcode" /></th>
+        <th pSortableColumn="barcode">
+          <span i18n="@@thBarcode">Barcode</span>
+          <p-sortIcon field="barcode" />
+        </th>
         <th pSortableColumn="min_stock" class="text-right">
           <p-sortIcon field="min_stock" class="mr-2" />
           Min Stock
         </th>
         <th pSortableColumn="total_quantity" class="text-right">
           <p-sortIcon field="total_quantity" class="mr-2" />
-          Quantity
+          <span i18n="@@thQuantity">Quantity</span>
         </th>
         <th pSortableColumn="withdrawn_quantity" class="text-right" style="width: 6rem">
           <i class="pi pi-cart-arrow-down font-bold text-xl pt-1"></i>
