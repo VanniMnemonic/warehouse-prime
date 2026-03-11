@@ -68,6 +68,7 @@
     "appId": "com.warehouse.prime",
     "productName": "Warehouse Prime",
     "asar": true,
+    "publish": null,
     "files": [
       "dist-electron/**/*",
       "dist/prime/**/*",
