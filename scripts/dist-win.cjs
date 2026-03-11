@@ -8,7 +8,7 @@ if (process.platform !== 'win32') {
 const commands = [
   ['npm', ['run', 'build:localize']],
   ['npm', ['run', 'build:electron']],
-  ['npx', ['electron-builder', '--win', '--publish=never']],
+  ['npx', ['electron-builder', '--win', '-p', 'never', '-c.publish=null']],
 ];
 
 for (const [cmd, args] of commands) {
