@@ -28,8 +28,6 @@ export class Locations implements OnInit {
   loading = signal(true);
   drawerVisible = signal(false);
   selectedLocation = signal<any>(null);
-  flatLocations = signal<any[]>([]);
-  debugSimpleView = signal(false);
 
   items: MenuItem[] = [
     {
@@ -41,40 +39,21 @@ export class Locations implements OnInit {
         this.addRootLocation();
       },
     },
-    {
-      icon: 'pi pi-list',
-      tooltipOptions: {
-        tooltipLabel: 'Toggle Debug View',
-      },
-      command: () => {
-        this.debugSimpleView.set(!this.debugSimpleView());
-      },
-    },
   ];
 
   ngOnInit() {
-    console.log('[locations-page] ngOnInit');
     void this.loadLocations();
   }
 
   async loadLocations() {
-    const startedAt = performance.now();
-    console.log('[locations-page] loadLocations:start');
     this.loading.set(true);
     try {
       const locations = await this.locationService.getAll();
-      console.log('[locations-page] loadLocations:fetched', { count: locations.length });
-      this.flatLocations.set(locations);
       const tree = this.buildTree(locations);
-      console.log('[locations-page] loadLocations:builtTree', { roots: tree.length });
       this.data.set(tree);
-      const elapsedMs = Math.round(performance.now() - startedAt);
-      console.log('[locations-page] loadLocations:done', { elapsedMs });
     } catch (error) {
-      const elapsedMs = Math.round(performance.now() - startedAt);
-      console.error('[locations-page] loadLocations:error', { elapsedMs, error });
       this.data.set([]);
-      this.flatLocations.set([]);
+      console.error(error);
     } finally {
       this.loading.set(false);
     }
@@ -84,7 +63,6 @@ export class Locations implements OnInit {
     const locationMap = new Map<number, any>();
     const roots: TreeNode[] = [];
 
-    // First pass: create nodes and map them by ID
     locations.forEach((loc) => {
       locationMap.set(loc.id, {
         label: loc.denomination,
@@ -97,7 +75,6 @@ export class Locations implements OnInit {
       });
     });
 
-    // Second pass: build hierarchy
     locations.forEach((loc) => {
       const node = locationMap.get(loc.id);
       if (loc.parent_id) {
@@ -124,10 +101,8 @@ export class Locations implements OnInit {
   }
 
   onLocationSaved() {
-    console.log('[locations-page] onLocationSaved');
     this.drawerVisible.set(false);
     setTimeout(() => {
-      console.log('[locations-page] onLocationSaved:refresh');
       void this.loadLocations();
     }, 0);
   }

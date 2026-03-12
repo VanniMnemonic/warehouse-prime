@@ -242,21 +242,6 @@ electron_1.app.on('ready', () => {
     }
     data_source_1.AppDataSource.initialize().then(async () => {
         console.log('Data Source has been initialized!');
-        electron_1.ipcMain.on('renderer-log', (event, payload) => {
-            const level = payload?.level;
-            const message = payload?.message;
-            const meta = payload?.meta;
-            const time = payload?.time;
-            if (level === 'error') {
-                console.error('[renderer]', time, message, meta ?? '');
-            }
-            else if (level === 'warn') {
-                console.warn('[renderer]', time, message, meta ?? '');
-            }
-            else {
-                console.log('[renderer]', time, message, meta ?? '');
-            }
-        });
         // Handle Notes
         const noteService = new note_service_1.NoteService();
         electron_1.ipcMain.handle('get-notes', async (event, entityType, entityId) => {
@@ -286,33 +271,19 @@ electron_1.app.on('window-all-closed', () => {
 });
 electron_1.ipcMain.handle('add-location', async (event, locationData) => {
     const startedAt = Date.now();
-    console.log('[ipc] add-location:start', { locationData });
-    try {
-        const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
-        console.log('[ipc] add-location:created repository');
-        const location = locationRepository.create(locationData);
-        console.log('[ipc] add-location:entity created', {
-            denomination: location.denomination,
-            parent_id: location.parent_id ?? null,
-        });
-        const saved = await locationRepository.save(location);
-        const elapsedMs = Date.now() - startedAt;
-        console.log('[ipc] add-location:done', { elapsedMs, id: saved.id });
-        if (elapsedMs > 1500)
-            console.warn(`[ipc] add-location took ${elapsedMs}ms`);
-        return {
-            id: saved.id,
-            denomination: saved.denomination,
-            description: saved.description,
-            phone: saved.phone,
-            parent_id: saved.parent_id ?? null,
-        };
-    }
-    catch (error) {
-        const elapsedMs = Date.now() - startedAt;
-        console.error('[ipc] add-location:error', { elapsedMs, error });
-        throw error;
-    }
+    const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
+    const location = locationRepository.create(locationData);
+    const saved = await locationRepository.save(location);
+    const elapsedMs = Date.now() - startedAt;
+    if (elapsedMs > 1500)
+        console.warn(`[ipc] add-location took ${elapsedMs}ms`);
+    return {
+        id: saved.id,
+        denomination: saved.denomination,
+        description: saved.description,
+        phone: saved.phone,
+        parent_id: saved.parent_id ?? null,
+    };
 });
 electron_1.app.on('activate', () => {
     if (win === null) {
@@ -371,30 +342,20 @@ electron_1.ipcMain.handle('add-title', async (event, titleData) => {
 });
 electron_1.ipcMain.handle('get-locations', async () => {
     const startedAt = Date.now();
-    console.log('[ipc] get-locations:start');
-    try {
-        const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
-        console.log('[ipc] get-locations:created repository');
-        const locations = await locationRepository
-            .createQueryBuilder('l')
-            .select('l.id', 'id')
-            .addSelect('l.denomination', 'denomination')
-            .addSelect('l.description', 'description')
-            .addSelect('l.phone', 'phone')
-            .addSelect('l.parent_id', 'parent_id')
-            .orderBy('l.id', 'ASC')
-            .getRawMany();
-        const elapsedMs = Date.now() - startedAt;
-        console.log('[ipc] get-locations:done', { elapsedMs, count: locations.length });
-        if (elapsedMs > 1500)
-            console.warn(`[ipc] get-locations took ${elapsedMs}ms`);
-        return locations;
-    }
-    catch (error) {
-        const elapsedMs = Date.now() - startedAt;
-        console.error('[ipc] get-locations:error', { elapsedMs, error });
-        throw error;
-    }
+    const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
+    const locations = await locationRepository
+        .createQueryBuilder('l')
+        .select('l.id', 'id')
+        .addSelect('l.denomination', 'denomination')
+        .addSelect('l.description', 'description')
+        .addSelect('l.phone', 'phone')
+        .addSelect('l.parent_id', 'parent_id')
+        .orderBy('l.id', 'ASC')
+        .getRawMany();
+    const elapsedMs = Date.now() - startedAt;
+    if (elapsedMs > 1500)
+        console.warn(`[ipc] get-locations took ${elapsedMs}ms`);
+    return locations;
 });
 electron_1.ipcMain.handle('get-withdrawals', async () => {
     const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);

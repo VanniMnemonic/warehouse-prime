@@ -1,12 +1,18 @@
 <div class="card overflow-x-auto p-4">
-  @if (debugSimpleView()) {
-    <div class="flex flex-col gap-2">
-      @for (loc of flatLocations(); track loc.id) {
-        <div class="p-2 border rounded flex items-center justify-between">
-          <div class="flex flex-col">
-            <div class="font-bold">{{ loc.denomination }}</div>
-            <div class="text-xs opacity-70">id={{ loc.id }} parent_id={{ loc.parent_id }}</div>
+  <p-organizationChart [value]="data()" [collapsible]="true">
+    <ng-template let-node pTemplate="default">
+      <div class="p-2 text-center min-w-32 flex flex-col gap-1 relative group">
+        <div class="font-bold">{{ node.data.denomination }}</div>
+        @if (node.data.description) {
+          <div class="text-sm opacity-80">{{ node.data.description }}</div>
+        }
+        @if (node.data.phone) {
+          <div class="text-xs opacity-70 flex items-center justify-center gap-1">
+            <i class="pi pi-phone text-xs"></i>
+            {{ node.data.phone }}
           </div>
+        }
+        <div class="absolute -top-2 -right-3">
           <p-button
             icon="pi pi-plus"
             [rounded]="true"
@@ -14,42 +20,13 @@
             size="small"
             severity="secondary"
             pTooltip="Add sub-location"
-            (onClick)="addSubLocation(loc)"
+            (onClick)="addSubLocation(node.data)"
             [style]="{ width: '1.5rem', height: '1.5rem', padding: '0' }"
           />
         </div>
-      }
-    </div>
-  } @else {
-    <p-organizationChart [value]="data()" [collapsible]="true">
-      <ng-template let-node pTemplate="default">
-        <div class="p-2 text-center min-w-32 flex flex-col gap-1 relative group">
-          <div class="font-bold">{{ node.data.denomination }}</div>
-          @if (node.data.description) {
-            <div class="text-sm opacity-80">{{ node.data.description }}</div>
-          }
-          @if (node.data.phone) {
-            <div class="text-xs opacity-70 flex items-center justify-center gap-1">
-              <i class="pi pi-phone text-xs"></i>
-              {{ node.data.phone }}
-            </div>
-          }
-          <div class="absolute -top-2 -right-3">
-            <p-button
-              icon="pi pi-plus"
-              [rounded]="true"
-              [text]="true"
-              size="small"
-              severity="secondary"
-              pTooltip="Add sub-location"
-              (onClick)="addSubLocation(node.data)"
-              [style]="{ width: '1.5rem', height: '1.5rem', padding: '0' }"
-            />
-          </div>
-        </div>
-      </ng-template>
-    </p-organizationChart>
-  }
+      </div>
+    </ng-template>
+  </p-organizationChart>
 
   <p-speedDial
     [model]="items"

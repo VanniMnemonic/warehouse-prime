@@ -1,4 +1,4 @@
-import { Component, inject, input, output, effect } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -48,11 +48,6 @@ export class LocationForm {
   });
 
   async save() {
-    console.log('[location-form] save:click', {
-      invalid: this.form.invalid,
-      value: this.form.value,
-      parent: this.parentLocation(),
-    });
     if (this.form.invalid) return;
 
     const parent = this.parentLocation();
@@ -62,18 +57,15 @@ export class LocationForm {
     };
 
     try {
-      console.log('[location-form] save:invoke add-location', { locationData });
       await this.locationService.create(locationData);
-      console.log('[location-form] save:success');
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
         detail: 'Location created successfully',
       });
-      console.log('[location-form] save:emit onSave');
       queueMicrotask(() => this.onSave.emit());
     } catch (error) {
-      console.error('[location-form] save:error', error);
+      console.error(error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
