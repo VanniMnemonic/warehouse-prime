@@ -124,8 +124,8 @@ export class UserForm {
     locations.forEach((loc) => {
       const node = map.get(loc.id);
       if (node) {
-        if (loc.parent) {
-          const parentNode = map.get(loc.parent.id);
+        if (loc.parent_id) {
+          const parentNode = map.get(loc.parent_id);
           if (parentNode) {
             parentNode.children?.push(node);
           }

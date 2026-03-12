@@ -290,6 +290,66 @@
         <source>Batch S/N</source>
         <target>Lotto S/N</target>
       </trans-unit>
+      <trans-unit id="userFormUploadImageChooseLabel" datatype="html">
+        <source>Upload Image</source>
+        <target>Carica immagine</target>
+      </trans-unit>
+      <trans-unit id="userFormTitleLabel" datatype="html">
+        <source>Title</source>
+        <target>Titolo</target>
+      </trans-unit>
+      <trans-unit id="userFormTitlePlaceholder" datatype="html">
+        <source>Select a Title</source>
+        <target>Seleziona un titolo</target>
+      </trans-unit>
+      <trans-unit id="userFormFirstNameLabel" datatype="html">
+        <source>First Name</source>
+        <target>Nome</target>
+      </trans-unit>
+      <trans-unit id="userFormFirstNameRequired" datatype="html">
+        <source>First Name is required.</source>
+        <target>Il nome è obbligatorio.</target>
+      </trans-unit>
+      <trans-unit id="userFormLastNameLabel" datatype="html">
+        <source>Last Name</source>
+        <target>Cognome</target>
+      </trans-unit>
+      <trans-unit id="userFormLastNameRequired" datatype="html">
+        <source>Last Name is required.</source>
+        <target>Il cognome è obbligatorio.</target>
+      </trans-unit>
+      <trans-unit id="userFormEmailLabel" datatype="html">
+        <source>Email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="userFormEmailInvalid" datatype="html">
+        <source>Valid Email is required.</source>
+        <target>È richiesta un'email valida.</target>
+      </trans-unit>
+      <trans-unit id="userFormBarcodeLabel" datatype="html">
+        <source>Barcode</source>
+        <target>Codice a barre</target>
+      </trans-unit>
+      <trans-unit id="userFormLocationLabel" datatype="html">
+        <source>Location</source>
+        <target>Sede</target>
+      </trans-unit>
+      <trans-unit id="userFormLocationPlaceholder" datatype="html">
+        <source>Select a Location</source>
+        <target>Seleziona una sede</target>
+      </trans-unit>
+      <trans-unit id="saveButton" datatype="html">
+        <source>Save</source>
+        <target>Salva</target>
+      </trans-unit>
+      <trans-unit id="userFormAddTitleDialogHeader" datatype="html">
+        <source>Add New Title</source>
+        <target>Aggiungi nuovo titolo</target>
+      </trans-unit>
+      <trans-unit id="userFormNewTitleLabel" datatype="html">
+        <source>Title</source>
+        <target>Titolo</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

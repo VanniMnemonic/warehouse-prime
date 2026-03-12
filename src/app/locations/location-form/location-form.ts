@@ -48,23 +48,32 @@ export class LocationForm {
   });
 
   async save() {
+    console.log('[location-form] save:click', {
+      invalid: this.form.invalid,
+      value: this.form.value,
+      parent: this.parentLocation(),
+    });
     if (this.form.invalid) return;
 
+    const parent = this.parentLocation();
     const locationData = {
       ...this.form.value,
-      parent: this.parentLocation(),
+      parent_id: parent?.id ?? null,
     };
 
     try {
+      console.log('[location-form] save:invoke add-location', { locationData });
       await this.locationService.create(locationData);
+      console.log('[location-form] save:success');
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
         detail: 'Location created successfully',
       });
-      this.onSave.emit();
+      console.log('[location-form] save:emit onSave');
+      queueMicrotask(() => this.onSave.emit());
     } catch (error) {
-      console.error(error);
+      console.error('[location-form] save:error', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',

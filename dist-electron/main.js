@@ -17,6 +17,69 @@ const typeorm_1 = require("typeorm");
 const note_service_1 = require("./services/note.service");
 const backup_service_1 = require("./services/backup.service");
 let win = null;
+async function seedDatabase() {
+    const titleRepository = data_source_1.AppDataSource.getRepository(Title_1.Title);
+    const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
+    const userRepository = data_source_1.AppDataSource.getRepository(User_1.User);
+    const assetRepository = data_source_1.AppDataSource.getRepository(Asset_1.Asset);
+    const batchRepository = data_source_1.AppDataSource.getRepository(Batch_1.Batch);
+    const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);
+    const titleCount = await titleRepository.count();
+    if (titleCount === 0) {
+        const titleNames = ['Mr.', 'Mrs.', 'Dr.', 'Prof.', 'Ms.'];
+        for (const name of titleNames) {
+            const t = new Title_1.Title();
+            t.title = name;
+            await titleRepository.save(t);
+        }
+    }
+    const locationCount = await locationRepository.count();
+    if (locationCount === 0) {
+        const root = new Location_1.Location();
+        root.denomination = 'Root';
+        root.description = 'Root Location';
+        await locationRepository.save(root);
+    }
+    const titles = await titleRepository.find();
+    const locations = await locationRepository.find();
+    const userCount = await userRepository.count();
+    if (userCount === 0 && titles.length && locations.length) {
+        const u = new User_1.User();
+        u.first_name = 'Mario';
+        u.last_name = 'Rossi';
+        u.email = 'mario.rossi@example.com';
+        u.barcode = 'MR001';
+        u.title = titles[0];
+        u.location = locations[0];
+        await userRepository.save(u);
+    }
+    const assetCount = await assetRepository.count();
+    if (assetCount === 0 && locations.length) {
+        const asset = new Asset_1.Asset();
+        asset.denomination = 'Laptop Dell XPS 15';
+        asset.part_number = 'DELL-XPS-15';
+        asset.min_stock = 5;
+        asset.barcode = `AST-${Math.floor(1000 + Math.random() * 9000)}`;
+        const savedAsset = await assetRepository.save(asset);
+        const batch = new Batch_1.Batch();
+        batch.denomination = `Batch 1 - ${savedAsset.denomination}`;
+        batch.asset = savedAsset;
+        batch.serial_number = `SN-${savedAsset.part_number}-${Date.now()}-0`;
+        batch.quantity = 10;
+        batch.location = locations[0];
+        const savedBatch = await batchRepository.save(batch);
+        const users = await userRepository.find();
+        if (users.length) {
+            const withdrawal = new Withdrawal_1.Withdrawal();
+            withdrawal.user = users[0];
+            withdrawal.batch = savedBatch;
+            withdrawal.quantity = 1;
+            withdrawal.date = new Date();
+            withdrawal.must_return = false;
+            await withdrawalRepository.save(withdrawal);
+        }
+    }
+}
 function getArgValue(name) {
     const prefix = `${name}=`;
     const raw = process.argv.find((a) => a.startsWith(prefix));
@@ -163,265 +226,37 @@ electron_1.app.on('ready', () => {
             return callback('404');
         }
     });
+    try {
+        const userDataPath = electron_1.app.getPath('userData');
+        const dbPath = path.join(userDataPath, 'prime.sqlite');
+        const clearedMarkerPath = path.join(userDataPath, '.prime-db-cleared');
+        if (!fs.existsSync(clearedMarkerPath)) {
+            if (fs.existsSync(dbPath)) {
+                fs.rmSync(dbPath, { force: true });
+            }
+            fs.writeFileSync(clearedMarkerPath, '1');
+        }
+    }
+    catch (error) {
+        console.error('Failed to clear database file:', error);
+    }
     data_source_1.AppDataSource.initialize().then(async () => {
         console.log('Data Source has been initialized!');
-        // Seed Titles
-        const titleRepository = data_source_1.AppDataSource.getRepository(Title_1.Title);
-        const titleCount = await titleRepository.count();
-        let titles = [];
-        if (titleCount === 0) {
-            console.log('Seeding titles...');
-            const titleNames = ['Mr.', 'Mrs.', 'Dr.', 'Prof.', 'Ms.'];
-            for (const name of titleNames) {
-                const t = new Title_1.Title();
-                t.title = name;
-                titles.push(await titleRepository.save(t));
+        electron_1.ipcMain.on('renderer-log', (event, payload) => {
+            const level = payload?.level;
+            const message = payload?.message;
+            const meta = payload?.meta;
+            const time = payload?.time;
+            if (level === 'error') {
+                console.error('[renderer]', time, message, meta ?? '');
             }
-            console.log('Titles seeded.');
-        }
-        else {
-            titles = await titleRepository.find();
-        }
-        // Seed Locations (Hierarchy: Complex > Building > Section > Office)
-        const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
-        const locationCount = await locationRepository.count();
-        let locations = [];
-        if (locationCount === 0) {
-            console.log('Seeding locations...');
-            // Create a minimal Root location
-            const root = new Location_1.Location();
-            root.denomination = 'Root';
-            root.description = 'Root Location';
-            await locationRepository.save(root);
-            locations.push(root);
-            console.log('Root location created.');
-        }
-        else {
-            // Fetch all leaf locations (those without children, assuming for now we just pick some known ones or all)
-            // For simplicity in this mock update, let's just grab all locations and pick random ones
-            locations = await locationRepository.find();
-        }
-        // Seed mock users if empty
-        const userRepository = data_source_1.AppDataSource.getRepository(User_1.User);
-        const count = await userRepository.count();
-        if (count === 0) {
-            console.log('Seeding mock users...');
-            // Helper to get random location from our seeded list
-            const getRandomLocation = () => locations[Math.floor(Math.random() * locations.length)];
-            const mockUsers = [
-                {
-                    first_name: 'Mario',
-                    last_name: 'Rossi',
-                    email: 'mario.rossi@example.com',
-                    role: 'admin',
-                    barcode: 'MR001',
-                    title: titles[0], // Mr.
-                    location: locations.find((l) => l.denomination === 'IT Support') || getRandomLocation(),
-                },
-                {
-                    first_name: 'Luigi',
-                    last_name: 'Verdi',
-                    email: 'luigi.verdi@example.com',
-                    role: 'user',
-                    barcode: 'LV002',
-                    title: titles[0], // Mr.
-                    location: locations.find((l) => l.denomination === 'Logistics Office') || getRandomLocation(),
-                },
-                {
-                    first_name: 'Giovanna',
-                    last_name: 'Bianchi',
-                    email: 'giovanna.bianchi@example.com',
-                    role: 'user',
-                    barcode: 'GB003',
-                    title: titles[1], // Mrs.
-                    location: locations.find((l) => l.denomination === 'HR Department') || getRandomLocation(),
-                },
-                {
-                    first_name: 'Anna',
-                    last_name: 'Neri',
-                    email: 'anna.neri@example.com',
-                    role: 'manager',
-                    barcode: 'AN004',
-                    title: titles[1], // Mrs.
-                    location: locations.find((l) => l.denomination === 'Reception') || getRandomLocation(),
-                },
-                {
-                    first_name: 'Paolo',
-                    last_name: 'Gialli',
-                    email: 'paolo.gialli@example.com',
-                    role: 'user',
-                    barcode: 'PG005',
-                    title: titles[0], // Mr.
-                    location: locations.find((l) => l.denomination === 'Security Office') || getRandomLocation(),
-                },
-            ];
-            for (const u of mockUsers) {
-                await userRepository.save(userRepository.create(u));
+            else if (level === 'warn') {
+                console.warn('[renderer]', time, message, meta ?? '');
             }
-            console.log('Mock users seeded.');
-        }
-        else {
-            // Update existing users if they are missing title or location
-            const users = await userRepository.find({ relations: ['title', 'location'] });
-            const mockUserLocations = {
-                'mario.rossi@example.com': 'IT Support',
-                'luigi.verdi@example.com': 'Logistics Office',
-                'giovanna.bianchi@example.com': 'HR Department',
-                'anna.neri@example.com': 'Reception',
-                'paolo.gialli@example.com': 'Security Office',
-            };
-            for (const user of users) {
-                let updated = false;
-                if (!user.title && titles.length > 0) {
-                    user.title = titles[Math.floor(Math.random() * titles.length)];
-                    updated = true;
-                }
-                // Force update location for known mock users
-                if (mockUserLocations[user.email]) {
-                    const targetLoc = locations.find((l) => l.denomination === mockUserLocations[user.email]);
-                    if (targetLoc && (!user.location || user.location.id !== targetLoc.id)) {
-                        user.location = targetLoc;
-                        updated = true;
-                    }
-                }
-                else if (!user.location && locations.length > 0) {
-                    user.location = locations[Math.floor(Math.random() * locations.length)];
-                    updated = true;
-                }
-                if (updated) {
-                    await userRepository.save(user);
-                }
+            else {
+                console.log('[renderer]', time, message, meta ?? '');
             }
-            console.log('Existing users updated with mock data.');
-        }
-        // Seed Assets and Batches
-        const assetRepository = data_source_1.AppDataSource.getRepository(Asset_1.Asset);
-        const batchRepository = data_source_1.AppDataSource.getRepository(Batch_1.Batch);
-        const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);
-        const assetCount = await assetRepository.count();
-        let createdBatches = [];
-        if (assetCount === 0 && locations.length > 0) {
-            console.log('Seeding assets and batches...');
-            const assetsData = [
-                { denomination: 'Laptop Dell XPS 15', part_number: 'DELL-XPS-15', min_stock: 5 },
-                { denomination: 'Monitor Samsung 27"', part_number: 'SAM-27-MON', min_stock: 10 },
-                { denomination: 'Ergonomic Chair', part_number: 'ERGO-CHAIR-V1', min_stock: 20 },
-                { denomination: 'Office Desk', part_number: 'DESK-STD-120', min_stock: 15 },
-                { denomination: 'Keyboard Logitech MX', part_number: 'LOGI-MX-KEYS', min_stock: 8 },
-                { denomination: 'Mouse Logitech MX Master', part_number: 'LOGI-MX-MOUSE', min_stock: 8 },
-                { denomination: 'Printer HP LaserJet', part_number: 'HP-LASER-PRO', min_stock: 2 },
-                { denomination: 'Projector Epson', part_number: 'EPSON-PROJ-4K', min_stock: 1 },
-                { denomination: 'Whiteboard', part_number: 'WB-180x120', min_stock: 3 },
-                { denomination: 'Coffee Machine', part_number: 'NESPRESSO-PRO', min_stock: 1 },
-                // Test items
-                { denomination: 'Expired Milk', part_number: 'MILK-EXP', min_stock: 10 },
-                { denomination: 'Near Expiry Bread', part_number: 'BREAD-SOON', min_stock: 10 },
-                { denomination: 'Low Stock Pens', part_number: 'PEN-LOW', min_stock: 100 },
-            ];
-            for (const data of assetsData) {
-                const asset = new Asset_1.Asset();
-                asset.denomination = data.denomination;
-                asset.part_number = data.part_number;
-                asset.min_stock = data.min_stock;
-                // Generate a pseudo-random barcode
-                asset.barcode = `AST-${Math.floor(1000 + Math.random() * 9000)}`;
-                const savedAsset = await assetRepository.save(asset);
-                // Specific logic for test items
-                if (data.part_number === 'MILK-EXP') {
-                    const batch = new Batch_1.Batch();
-                    batch.denomination = `Batch 1 - Expired`;
-                    batch.asset = savedAsset;
-                    batch.serial_number = `SN-EXP-001`;
-                    batch.quantity = 20;
-                    const date = new Date();
-                    date.setDate(date.getDate() - 10); // 10 days ago
-                    batch.expiration_date = date;
-                    batch.location = locations[0];
-                    createdBatches.push(await batchRepository.save(batch));
-                    continue;
-                }
-                if (data.part_number === 'BREAD-SOON') {
-                    const batch = new Batch_1.Batch();
-                    batch.denomination = `Batch 1 - Near Expiry`;
-                    batch.asset = savedAsset;
-                    batch.serial_number = `SN-NEAR-001`;
-                    batch.quantity = 20;
-                    const date = new Date();
-                    date.setDate(date.getDate() + 5); // In 5 days
-                    batch.expiration_date = date;
-                    batch.location = locations[0];
-                    createdBatches.push(await batchRepository.save(batch));
-                    continue;
-                }
-                if (data.part_number === 'PEN-LOW') {
-                    const batch = new Batch_1.Batch();
-                    batch.denomination = `Batch 1 - Low Stock`;
-                    batch.asset = savedAsset;
-                    batch.serial_number = `SN-LOW-001`;
-                    batch.quantity = 5; // Below min_stock of 100
-                    batch.location = locations[0];
-                    createdBatches.push(await batchRepository.save(batch));
-                    continue;
-                }
-                // Create batches for each asset
-                const numBatches = Math.floor(Math.random() * 3) + 1; // 1 to 3 batches per asset
-                for (let i = 0; i < numBatches; i++) {
-                    const batch = new Batch_1.Batch();
-                    batch.denomination = `Batch ${i + 1} - ${savedAsset.denomination}`;
-                    batch.asset = savedAsset;
-                    batch.serial_number = `SN-${savedAsset.part_number}-${Date.now()}-${i}`;
-                    // Random quantity
-                    batch.quantity = Math.floor(Math.random() * 50) + 1;
-                    batch.inefficient_quantity = Math.floor(Math.random() * 5);
-                    // Random expiration date for some
-                    if (Math.random() > 0.7) {
-                        const date = new Date();
-                        date.setFullYear(date.getFullYear() + 1);
-                        batch.expiration_date = date;
-                    }
-                    // Assign to a random location
-                    batch.location = locations[Math.floor(Math.random() * locations.length)];
-                    const savedBatch = await batchRepository.save(batch);
-                    createdBatches.push(savedBatch);
-                }
-            }
-            console.log('Assets and batches seeded.');
-        }
-        else {
-            createdBatches = await batchRepository.find();
-        }
-        // Seed Withdrawals
-        const withdrawalCount = await withdrawalRepository.count();
-        if (withdrawalCount === 0 && createdBatches.length > 0) {
-            console.log('Seeding withdrawals...');
-            const users = await userRepository.find();
-            // Create 20 random withdrawals
-            for (let i = 0; i < 20; i++) {
-                const withdrawal = new Withdrawal_1.Withdrawal();
-                // Random user
-                withdrawal.user = users[Math.floor(Math.random() * users.length)];
-                // Random batch
-                withdrawal.batch = createdBatches[Math.floor(Math.random() * createdBatches.length)];
-                // Random quantity (1 to 5)
-                withdrawal.quantity = Math.floor(Math.random() * 5) + 1;
-                // Random inefficient quantity (0 to 1)
-                withdrawal.inefficient_quantity = Math.random() > 0.8 ? 1 : 0;
-                // Random date within the last 30 days
-                const date = new Date();
-                date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-                withdrawal.date = date;
-                // Random must_return
-                withdrawal.must_return = Math.random() > 0.5;
-                // If must_return is true, maybe set a return date (50% chance)
-                if (withdrawal.must_return && Math.random() > 0.5) {
-                    const returnDate = new Date(date);
-                    returnDate.setDate(returnDate.getDate() + Math.floor(Math.random() * 7) + 1); // Returned 1-7 days later
-                    withdrawal.return_date = returnDate;
-                }
-                await withdrawalRepository.save(withdrawal);
-            }
-            console.log('Withdrawals seeded.');
-        }
+        });
         // Handle Notes
         const noteService = new note_service_1.NoteService();
         electron_1.ipcMain.handle('get-notes', async (event, entityType, entityId) => {
@@ -450,9 +285,34 @@ electron_1.app.on('window-all-closed', () => {
     }
 });
 electron_1.ipcMain.handle('add-location', async (event, locationData) => {
-    const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
-    const location = locationRepository.create(locationData);
-    return await locationRepository.save(location);
+    const startedAt = Date.now();
+    console.log('[ipc] add-location:start', { locationData });
+    try {
+        const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
+        console.log('[ipc] add-location:created repository');
+        const location = locationRepository.create(locationData);
+        console.log('[ipc] add-location:entity created', {
+            denomination: location.denomination,
+            parent_id: location.parent_id ?? null,
+        });
+        const saved = await locationRepository.save(location);
+        const elapsedMs = Date.now() - startedAt;
+        console.log('[ipc] add-location:done', { elapsedMs, id: saved.id });
+        if (elapsedMs > 1500)
+            console.warn(`[ipc] add-location took ${elapsedMs}ms`);
+        return {
+            id: saved.id,
+            denomination: saved.denomination,
+            description: saved.description,
+            phone: saved.phone,
+            parent_id: saved.parent_id ?? null,
+        };
+    }
+    catch (error) {
+        const elapsedMs = Date.now() - startedAt;
+        console.error('[ipc] add-location:error', { elapsedMs, error });
+        throw error;
+    }
 });
 electron_1.app.on('activate', () => {
     if (win === null) {
@@ -461,6 +321,7 @@ electron_1.app.on('activate', () => {
 });
 // TypeORM IPC Handlers
 electron_1.ipcMain.handle('get-users', async () => {
+    const startedAt = Date.now();
     const userRepository = data_source_1.AppDataSource.getRepository(User_1.User);
     const users = await userRepository.find({
         relations: [
@@ -472,12 +333,22 @@ electron_1.ipcMain.handle('get-users', async () => {
         ],
     });
     const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);
-    const usersWithCount = await Promise.all(users.map(async (user) => {
-        const count = await withdrawalRepository.count({
-            where: { user: { id: user.id }, must_return: true, return_date: (0, typeorm_1.IsNull)() },
-        });
-        return { ...user, active_withdrawals: count };
+    const activeCounts = await withdrawalRepository
+        .createQueryBuilder('w')
+        .select('w.user_id', 'user_id')
+        .addSelect('COUNT(*)', 'count')
+        .where('w.must_return = :mustReturn', { mustReturn: true })
+        .andWhere('w.return_date IS NULL')
+        .groupBy('w.user_id')
+        .getRawMany();
+    const activeCountByUserId = new Map(activeCounts.map((r) => [Number(r.user_id), Number(r.count)]));
+    const usersWithCount = users.map((user) => ({
+        ...user,
+        active_withdrawals: activeCountByUserId.get(user.id) ?? 0,
     }));
+    const elapsedMs = Date.now() - startedAt;
+    if (elapsedMs > 1500)
+        console.warn(`[ipc] get-users took ${elapsedMs}ms`);
     return usersWithCount;
 });
 electron_1.ipcMain.handle('add-user', async (event, userData) => {
@@ -499,10 +370,31 @@ electron_1.ipcMain.handle('add-title', async (event, titleData) => {
     return await titleRepository.save(title);
 });
 electron_1.ipcMain.handle('get-locations', async () => {
-    const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
-    return await locationRepository.find({
-        relations: ['parent'],
-    });
+    const startedAt = Date.now();
+    console.log('[ipc] get-locations:start');
+    try {
+        const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
+        console.log('[ipc] get-locations:created repository');
+        const locations = await locationRepository
+            .createQueryBuilder('l')
+            .select('l.id', 'id')
+            .addSelect('l.denomination', 'denomination')
+            .addSelect('l.description', 'description')
+            .addSelect('l.phone', 'phone')
+            .addSelect('l.parent_id', 'parent_id')
+            .orderBy('l.id', 'ASC')
+            .getRawMany();
+        const elapsedMs = Date.now() - startedAt;
+        console.log('[ipc] get-locations:done', { elapsedMs, count: locations.length });
+        if (elapsedMs > 1500)
+            console.warn(`[ipc] get-locations took ${elapsedMs}ms`);
+        return locations;
+    }
+    catch (error) {
+        const elapsedMs = Date.now() - startedAt;
+        console.error('[ipc] get-locations:error', { elapsedMs, error });
+        throw error;
+    }
 });
 electron_1.ipcMain.handle('get-withdrawals', async () => {
     const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);
@@ -542,30 +434,39 @@ electron_1.ipcMain.handle('upload-image', async (event, filePath) => {
     }
 });
 electron_1.ipcMain.handle('get-assets', async () => {
+    const startedAt = Date.now();
     const assetRepository = data_source_1.AppDataSource.getRepository(Asset_1.Asset);
     const assets = await assetRepository.find();
     const batchRepository = data_source_1.AppDataSource.getRepository(Batch_1.Batch);
     const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);
-    // Fetch all active withdrawals to calculate withdrawn quantity per asset
-    const activeWithdrawals = await withdrawalRepository.find({
-        where: { must_return: true, return_date: (0, typeorm_1.IsNull)() },
-        relations: ['batch'],
-    });
-    const withdrawnMap = new Map();
-    for (const w of activeWithdrawals) {
-        if (w.batch && w.batch.asset_id) {
-            const current = withdrawnMap.get(w.batch.asset_id) || 0;
-            withdrawnMap.set(w.batch.asset_id, current + (w.quantity - w.returned_quantity));
-        }
+    const assetIds = assets.map((a) => a.id);
+    const batches = assetIds.length
+        ? await batchRepository.find({ where: { asset_id: (0, typeorm_1.In)(assetIds) } })
+        : [];
+    const batchesByAssetId = new Map();
+    for (const batch of batches) {
+        const list = batchesByAssetId.get(batch.asset_id) ?? [];
+        list.push(batch);
+        batchesByAssetId.set(batch.asset_id, list);
     }
-    const assetsWithDetails = await Promise.all(assets.map(async (asset) => {
-        const batches = await batchRepository.find({ where: { asset: { id: asset.id } } });
-        const totalQty = batches.reduce((sum, batch) => sum + batch.quantity, 0);
-        const now = new Date();
-        const thirtyDaysFromNow = new Date();
-        thirtyDaysFromNow.setDate(now.getDate() + 30);
-        const hasExpired = batches.some((b) => b.expiration_date && new Date(b.expiration_date) < now);
-        const hasNearExpiry = batches.some((b) => {
+    const withdrawnByAsset = await withdrawalRepository
+        .createQueryBuilder('w')
+        .innerJoin(Batch_1.Batch, 'b', 'b.id = w.batch_id')
+        .select('b.asset_id', 'asset_id')
+        .addSelect('SUM(w.quantity - w.returned_quantity)', 'withdrawn_quantity')
+        .where('w.must_return = :mustReturn', { mustReturn: true })
+        .andWhere('w.return_date IS NULL')
+        .groupBy('b.asset_id')
+        .getRawMany();
+    const withdrawnMap = new Map(withdrawnByAsset.map((r) => [Number(r.asset_id), Number(r.withdrawn_quantity ?? 0)]));
+    const now = new Date();
+    const thirtyDaysFromNow = new Date(now);
+    thirtyDaysFromNow.setDate(now.getDate() + 30);
+    const assetsWithDetails = assets.map((asset) => {
+        const assetBatches = batchesByAssetId.get(asset.id) ?? [];
+        const totalQty = assetBatches.reduce((sum, batch) => sum + batch.quantity, 0);
+        const hasExpired = assetBatches.some((b) => b.expiration_date && new Date(b.expiration_date) < now);
+        const hasNearExpiry = assetBatches.some((b) => {
             if (!b.expiration_date)
                 return false;
             const exp = new Date(b.expiration_date);
@@ -574,12 +475,15 @@ electron_1.ipcMain.handle('get-assets', async () => {
         return {
             ...asset,
             total_quantity: totalQty,
-            withdrawn_quantity: withdrawnMap.get(asset.id) || 0,
+            withdrawn_quantity: withdrawnMap.get(asset.id) ?? 0,
             is_below_min_stock: totalQty < asset.min_stock,
             has_expired_batches: hasExpired,
             has_near_expiry_batches: hasNearExpiry,
         };
-    }));
+    });
+    const elapsedMs = Date.now() - startedAt;
+    if (elapsedMs > 1500)
+        console.warn(`[ipc] get-assets took ${elapsedMs}ms`);
     return assetsWithDetails;
 });
 electron_1.ipcMain.handle('add-asset', async (event, assetData) => {
@@ -773,15 +677,6 @@ electron_1.ipcMain.handle('reset-db', async () => {
     }
 });
 electron_1.ipcMain.handle('seed-db', async () => {
-    // Reuse the seeding logic from app.on('ready')
-    // For simplicity, we'll just trigger a reload which will run the seeding logic again on startup
-    // But since the user wants a button, let's extract the seeding logic or just call reload
-    // A better approach is to reload the window, which will re-run the main process initialization logic if we structure it right.
-    // However, the seeding logic is currently inside app.on('ready').
-    // Let's just reload the window for now, as the seeding logic runs if counts are 0.
-    // Since we just cleared the DB with reset-db, a reload should trigger seeding.
-    if (win) {
-        win.reload();
-    }
+    await seedDatabase();
     return true;
 });

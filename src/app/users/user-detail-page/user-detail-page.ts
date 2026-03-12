@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { Component, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -17,7 +17,7 @@ export class UserDetailPage {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private userService = inject(UserService);
-  private cdr = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
 
   user: any = null;
   loading = true;
@@ -48,26 +48,33 @@ export class UserDetailPage {
     const idParam = this.route.snapshot.paramMap.get('id');
     const userId = idParam ? Number(idParam) : NaN;
     if (!Number.isFinite(userId)) {
-      this.user = null;
-      this.loading = false;
-      this.cdr.detectChanges();
+      this.zone.run(() => {
+        this.user = null;
+        this.loading = false;
+      });
       return;
     }
 
     if (this.user?.id === userId) {
-      this.loading = false;
-      this.cdr.detectChanges();
+      this.zone.run(() => {
+        this.loading = false;
+      });
       return;
     }
 
     try {
-      this.loading = true;
-      this.cdr.detectChanges();
+      this.zone.run(() => {
+        this.loading = true;
+      });
       const users = await this.userService.getAll();
-      this.user = users.find((u: any) => u.id === userId) ?? null;
+      const selectedUser = users.find((u: any) => u.id === userId) ?? null;
+      this.zone.run(() => {
+        this.user = selectedUser;
+      });
     } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
+      this.zone.run(() => {
+        this.loading = false;
+      });
     }
   }
 

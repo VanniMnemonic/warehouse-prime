@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, afterNextRender, inject, signal } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
@@ -13,6 +13,7 @@ import { animate, group, query, style, transition, trigger } from '@angular/anim
   providers: [MessageService],
   animations: [
     trigger('routeAnimations', [
+      transition('initial => *', []),
       transition('usersList => usersDetail', [
         query(':enter, :leave', style({ position: 'absolute', top: 0, left: 0, width: '100%' }), {
           optional: true,
@@ -134,6 +135,7 @@ import { animate, group, query, style, transition, trigger } from '@angular/anim
 export class Home implements OnInit {
   router = inject(Router);
   activeTab = 'dashboard';
+  animationsEnabled = signal(false);
 
   tabs = [
     {
@@ -167,6 +169,10 @@ export class Home implements OnInit {
       icon: 'pi pi-cog',
     },
   ];
+
+  constructor() {
+    afterNextRender(() => this.animationsEnabled.set(true));
+  }
 
   ngOnInit() {
     this.router.events.subscribe((event) => {
