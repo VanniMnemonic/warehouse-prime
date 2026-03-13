@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -9,6 +9,7 @@ import { AssetForm } from '../asset-form/asset-form';
 import { AssetBatchForm } from '../asset-batch-form/asset-batch-form';
 import { WithdrawalForm } from '../../withdrawals/withdrawal-form/withdrawal-form';
 import { WithdrawalService } from '../../services/withdrawal.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-asset-detail-page',
@@ -40,6 +41,8 @@ export class AssetDetailPage {
   editingAsset: any = null;
   selectedBatch: any = null;
   selectedBatchForWithdrawal: any = null;
+  private destroyed = false;
+  private routeSub: Subscription | null = null;
 
   get pageTitle() {
     return this.asset?.denomination ?? $localize`:@@assetDetailTitle:Asset Detail`;
@@ -57,9 +60,20 @@ export class AssetDetailPage {
       this.loading = false;
     }
 
-    this.route.paramMap.subscribe(() => {
+    this.routeSub = this.route.paramMap.subscribe(() => {
       this.loadAsset();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    this.routeSub?.unsubscribe();
+  }
+
+  private safeDetectChanges() {
+    if (!this.destroyed) {
+      this.cdr.detectChanges();
+    }
   }
 
   async loadAsset(force = false) {
@@ -68,24 +82,26 @@ export class AssetDetailPage {
     if (!Number.isFinite(assetId)) {
       this.asset = null;
       this.loading = false;
-      this.cdr.detectChanges();
+      this.safeDetectChanges();
       return;
     }
 
     if (!force && this.asset?.id === assetId) {
       this.loading = false;
-      this.cdr.detectChanges();
+      this.safeDetectChanges();
       return;
     }
 
     try {
       this.loading = true;
-      this.cdr.detectChanges();
+      this.safeDetectChanges();
       const assets = await this.assetService.getAll();
+      if (this.destroyed) return;
       this.asset = assets.find((a: any) => a.id === assetId) ?? null;
     } finally {
+      if (this.destroyed) return;
       this.loading = false;
-      this.cdr.detectChanges();
+      this.safeDetectChanges();
     }
   }
 

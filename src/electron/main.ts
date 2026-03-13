@@ -141,9 +141,26 @@ async function startUiServer(distRoot: string) {
     const pathname = reqUrl.split('?')[0] ?? '/';
 
     if (pathname === '/') {
-      res.writeHead(302, { Location: `/${locale}/` });
-      res.end();
-      return;
+      const localizedIndex = path.join(distRoot, locale, 'index.html');
+      const rootIndex = path.join(distRoot, 'index.html');
+
+      if (fs.existsSync(localizedIndex)) {
+        res.writeHead(302, { Location: `/${locale}/` });
+        res.end();
+        return;
+      }
+
+      if (fs.existsSync(rootIndex)) {
+        try {
+          const file = fs.readFileSync(rootIndex);
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.end(file);
+        } catch {
+          res.writeHead(500);
+          res.end();
+        }
+        return;
+      }
     }
 
     const decoded = decodeURIComponent(pathname);
@@ -214,10 +231,12 @@ function createWindow() {
   } else {
     const locale = getLocale();
     const distRoot = path.join(app.getAppPath(), 'dist', 'prime', 'browser');
+    const hasLocalizedUi = fs.existsSync(path.join(distRoot, locale, 'index.html'));
 
     startUiServer(distRoot).then(({ server, port }) => {
       if (!win) return;
-      win.loadURL(`http://127.0.0.1:${port}/${locale}/`);
+      const entryPath = hasLocalizedUi ? `/${locale}/` : `/`;
+      win.loadURL(`http://127.0.0.1:${port}${entryPath}`);
       win.on('closed', () => {
         try {
           server.close();
@@ -729,55 +748,71 @@ ipcMain.handle('force-return-withdrawal', async (event, { id, date, returnedQuan
       throw new Error('Withdrawal already returned');
     }
 
-    const currentReturned = withdrawal.returned_quantity || 0;
-    const remaining = withdrawal.quantity - currentReturned;
-
-    if (returnedQuantity > remaining) {
-      throw new Error('Returned quantity exceeds remaining withdrawn quantity');
-    }
-
-    withdrawal.returned_quantity = currentReturned + returnedQuantity;
-    if (withdrawal.returned_quantity >= withdrawal.quantity) {
-      withdrawal.return_date = new Date(date);
-    }
-    await queryRunner.manager.save(withdrawal);
-
     const sourceBatch = withdrawal.batch;
     if (!sourceBatch) {
       throw new Error('Withdrawal batch not found');
     }
 
-    const allBatches = await queryRunner.manager.find(Batch, {
-      where: { asset_id: sourceBatch.asset_id },
-    });
-
-    if (!allBatches.length) {
-      throw new Error('No batches found for asset');
+    if (withdrawal.must_return) {
+      throw new Error('Withdrawal must be returned using the standard return flow');
     }
 
-    const now = new Date();
-    const nonExpiredBatches = allBatches.filter(
-      (b) => !b.expiration_date || new Date(b.expiration_date) >= now,
-    );
-    const candidates = nonExpiredBatches.length ? nonExpiredBatches : allBatches;
+    const groupWithdrawals = await withdrawalRepository.find({
+      where: {
+        user_id: withdrawal.user_id,
+        must_return: false,
+        return_date: IsNull(),
+        date: withdrawal.date,
+        batch: { asset_id: sourceBatch.asset_id },
+      },
+      relations: ['batch'],
+    });
 
     const pickValue = (b: Batch) => {
       if (!b.expiration_date) return Number.MAX_SAFE_INTEGER;
       return new Date(b.expiration_date).getTime();
     };
 
-    let targetBatch = candidates[0];
-    for (const b of candidates.slice(1)) {
-      if (pickValue(b) > pickValue(targetBatch)) {
-        targetBatch = b;
+    groupWithdrawals.sort((a, b) => pickValue(b.batch) - pickValue(a.batch));
+
+    const returnDate = new Date(date);
+    let remainingToReturn = returnedQuantity;
+
+    for (const w of groupWithdrawals) {
+      if (remainingToReturn <= 0) break;
+
+      const alreadyReturned = w.returned_quantity || 0;
+      const remainingForWithdrawal = w.quantity - alreadyReturned;
+      if (remainingForWithdrawal <= 0) continue;
+
+      const take = Math.min(remainingForWithdrawal, remainingToReturn);
+      w.returned_quantity = alreadyReturned + take;
+      if (w.returned_quantity >= w.quantity) {
+        w.return_date = returnDate;
       }
+      await queryRunner.manager.save(w);
+
+      const batch = w.batch;
+      if (!batch) {
+        throw new Error('Withdrawal batch not found');
+      }
+      batch.quantity += take;
+      await queryRunner.manager.save(batch);
+
+      remainingToReturn -= take;
     }
 
-    targetBatch.quantity += returnedQuantity;
-    await queryRunner.manager.save(targetBatch);
+    if (remainingToReturn > 0) {
+      throw new Error('Returned quantity exceeds remaining withdrawn quantity');
+    }
 
     await queryRunner.commitTransaction();
-    return withdrawal;
+    return (
+      (await withdrawalRepository.findOne({
+        where: { id },
+        relations: ['batch'],
+      })) ?? withdrawal
+    );
   } catch (err) {
     await queryRunner.rollbackTransaction();
     throw err;

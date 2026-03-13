@@ -10,8 +10,6 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { WithdrawalForm } from './withdrawal-form/withdrawal-form';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { MenuItem } from 'primeng/api';
 import { WithdrawalReturnForm } from './withdrawal-return-form/withdrawal-return-form';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ImageDisplay } from '../shared/components/image-display/image-display';
@@ -30,7 +28,6 @@ import { ToolbarModule } from 'primeng/toolbar';
     ButtonModule,
     DialogModule,
     WithdrawalForm,
-    SplitButtonModule,
     WithdrawalReturnForm,
     ImageDisplay,
     ToolbarModule,
@@ -50,16 +47,6 @@ export class Withdrawals implements OnInit {
   returnDrawerVisible: boolean = false;
   selectedWithdrawal: any = null;
 
-  items: MenuItem[] = [
-    {
-      label: $localize`:@@menuViewDetails:View Details`,
-      icon: 'pi pi-eye',
-      command: () => {
-        console.log('View details for:', this.selectedWithdrawal);
-      },
-    },
-  ];
-
   ngOnInit() {
     this.loadWithdrawals();
   }
@@ -69,8 +56,8 @@ export class Withdrawals implements OnInit {
     return this.sanitizer.bypassSecurityTrustUrl(path);
   }
 
-  setMenuWithdrawal(withdrawal: any) {
-    this.selectedWithdrawal = withdrawal;
+  openDetails(withdrawal: any) {
+    console.log('View details for:', withdrawal);
   }
 
   async loadWithdrawals() {

@@ -258,6 +258,34 @@
         <source>Add Withdrawal</source>
         <target>Aggiungi prelievo</target>
       </trans-unit>
+      <trans-unit id="withdrawalStatusHeader" datatype="html">
+        <source>Status</source>
+        <target>Stato</target>
+      </trans-unit>
+      <trans-unit id="withdrawalStatusReturned" datatype="html">
+        <source>Returned</source>
+        <target>Restituito</target>
+      </trans-unit>
+      <trans-unit id="withdrawalStatusPartiallyReturned" datatype="html">
+        <source>Partially Returned (<x id="INTERPOLATION" equiv-text="{{ withdrawal.returned_quantity || 0 }}"/>/<x id="INTERPOLATION_1" equiv-text="{{
+                  withdrawal.quantity || 0
+                }}"/>)</source>
+        <target>Parzialmente restituito (<x id="INTERPOLATION" equiv-text="{{ withdrawal.returned_quantity || 0 }}"/>/<x id="INTERPOLATION_1" equiv-text="{{
+                  withdrawal.quantity || 0
+                }}"/>)</target>
+      </trans-unit>
+      <trans-unit id="withdrawalStatusActive" datatype="html">
+        <source>Active</source>
+        <target>Attivo</target>
+      </trans-unit>
+      <trans-unit id="withdrawalStatusConsumed" datatype="html">
+        <source>Consumed</source>
+        <target>Consumata</target>
+      </trans-unit>
+      <trans-unit id="withdrawalStatusInefficientCount" datatype="html">
+        <source>Inefficient: <x id="INTERPOLATION" equiv-text="{{ withdrawal.inefficient_quantity || 0 }}"/></source>
+        <target>Inefficiente: <x id="INTERPOLATION" equiv-text="{{ withdrawal.inefficient_quantity || 0 }}"/></target>
+      </trans-unit>
       <trans-unit id="withdrawalStepSelectUser" datatype="html">
         <source>Select User</source>
         <target>Seleziona utente</target>

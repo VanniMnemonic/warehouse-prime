@@ -5,7 +5,12 @@
     size="large"
     [value]="withdrawals"
     [loading]="loading"
-    [globalFilterFields]="['user.first_name', 'user.last_name', 'batch.asset.denomination', 'batch.serial_number']"
+    [globalFilterFields]="[
+      'user.first_name',
+      'user.last_name',
+      'batch.asset.denomination',
+      'batch.serial_number',
+    ]"
     [tableStyle]="{ 'min-width': '50rem' }"
     dataKey="id"
     [scrollable]="true"
@@ -44,16 +49,21 @@
         <th style="width: 4rem"></th>
         <th pSortableColumn="user.last_name">User <p-sortIcon field="user.last_name" /></th>
         <th style="width: 4rem"></th>
-        <th pSortableColumn="batch.asset.denomination">Asset <p-sortIcon field="batch.asset.denomination" /></th>
+        <th pSortableColumn="batch.asset.denomination">
+          Asset <p-sortIcon field="batch.asset.denomination" />
+        </th>
         <th pSortableColumn="batch.serial_number">
           <span i18n="@@thBatchSN">Batch S/N</span>
           <p-sortIcon field="batch.serial_number" />
         </th>
-        <th pSortableColumn="quantity">
+        <th pSortableColumn="quantity" class="text-right">
           <span i18n="@@thQtyShort">Qty</span>
           <p-sortIcon field="quantity" />
         </th>
-        <th pSortableColumn="must_return">Status <p-sortIcon field="must_return" /></th>
+        <th pSortableColumn="must_return">
+          <span i18n="@@withdrawalStatusHeader">Status</span>
+          <p-sortIcon field="must_return" />
+        </th>
         <th style="width: 4rem"></th>
       </tr>
     </ng-template>
@@ -71,7 +81,9 @@
         </td>
         <td>
           <div class="flex flex-col">
-            <span class="font-bold">{{ withdrawal.user?.first_name }} {{ withdrawal.user?.last_name }}</span>
+            <span class="font-bold"
+              >{{ withdrawal.user?.first_name }} {{ withdrawal.user?.last_name }}</span
+            >
             <span class="text-sm text-muted-color">{{ withdrawal.user?.email }}</span>
           </div>
         </td>
@@ -86,15 +98,40 @@
         </td>
         <td class="font-bold">{{ withdrawal.batch?.asset?.denomination }}</td>
         <td>{{ withdrawal.batch?.serial_number }}</td>
-        <td>{{ withdrawal.quantity }}</td>
+        <td class="font-bold text-right">{{ withdrawal.quantity }}</td>
         <td>
-          @if (withdrawal.return_date || (withdrawal.returned_quantity || 0) > 0) {
-            <p-tag value="Returned" severity="info" />
-          } @else if (withdrawal.must_return) {
-            <p-tag value="Active" severity="warn" />
-          } @else {
-            <p-tag value="Consumed" severity="success" />
-          }
+          <div class="flex flex-wrap gap-2">
+            @if (
+              withdrawal.return_date ||
+              (withdrawal.returned_quantity || 0) >= (withdrawal.quantity || 0)
+            ) {
+              <p-tag value="Returned" i18n-value="@@withdrawalStatusReturned" severity="info" />
+            } @else if ((withdrawal.returned_quantity || 0) > 0) {
+              <p-tag
+                value="Partially Returned ({{ withdrawal.returned_quantity || 0 }}/{{
+                  withdrawal.quantity || 0
+                }})"
+                i18n-value="@@withdrawalStatusPartiallyReturned"
+                severity="warn"
+              />
+            } @else if (withdrawal.must_return) {
+              <p-tag value="Active" i18n-value="@@withdrawalStatusActive" severity="warn" />
+            } @else {
+              <p-tag value="Consumed" i18n-value="@@withdrawalStatusConsumed" severity="success" />
+            }
+
+            @if (
+              (withdrawal.inefficient_quantity || 0) > 0 &&
+              ((withdrawal.returned_quantity || 0) > 0 || withdrawal.return_date)
+            ) {
+              <p-tag
+                value="Inefficient: {{ withdrawal.inefficient_quantity || 0 }}"
+                i18n-value="@@withdrawalStatusInefficientCount"
+                severity="danger"
+                icon="pi pi-exclamation-triangle"
+              />
+            }
+          </div>
         </td>
         <td class="relative">
           <div class="flex items-center gap-2">
@@ -107,16 +144,13 @@
               pTooltip="Return Asset"
               i18n-pTooltip="@@returnAssetTooltip"
             />
-            <p-splitButton
-              label="Actions"
-              i18n-label="@@actionsButton"
-              icon="pi pi-cog"
-              [model]="items"
-              (onDropdownClick)="setMenuWithdrawal(withdrawal)"
-              outlined
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
               severity="secondary"
-              size="small"
-              appendTo="body"
+              (onClick)="openDetails(withdrawal)"
+              pTooltip="View Details"
+              i18n-pTooltip="@@menuViewDetails"
             />
           </div>
         </td>
