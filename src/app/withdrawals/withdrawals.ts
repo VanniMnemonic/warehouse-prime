@@ -1,36 +1,19 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
 import { WithdrawalService } from '../services/withdrawal.service';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
-import { FormsModule } from '@angular/forms';
-import { TagModule } from 'primeng/tag';
-import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { WithdrawalForm } from './withdrawal-form/withdrawal-form';
 import { WithdrawalReturnForm } from './withdrawal-return-form/withdrawal-return-form';
-import { DomSanitizer } from '@angular/platform-browser';
-import { ImageDisplay } from '../shared/components/image-display/image-display';
-import { ToolbarModule } from 'primeng/toolbar';
+import { WithdrawalsTable } from './withdrawals-table/withdrawals-table';
 
 @Component({
   selector: 'app-withdrawals',
   imports: [
     CommonModule,
-    TableModule,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
-    FormsModule,
-    TagModule,
-    ButtonModule,
     DialogModule,
     WithdrawalForm,
     WithdrawalReturnForm,
-    ImageDisplay,
-    ToolbarModule,
+    WithdrawalsTable,
   ],
   templateUrl: './withdrawals.html',
   styleUrl: './withdrawals.css',
@@ -38,22 +21,15 @@ import { ToolbarModule } from 'primeng/toolbar';
 export class Withdrawals implements OnInit {
   withdrawalService = inject(WithdrawalService);
   cdr = inject(ChangeDetectorRef);
-  sanitizer = inject(DomSanitizer);
 
   withdrawals: any[] = [];
   loading: boolean = true;
-  searchValue: string | undefined;
   formDrawerVisible: boolean = false;
   returnDrawerVisible: boolean = false;
   selectedWithdrawal: any = null;
 
   ngOnInit() {
     this.loadWithdrawals();
-  }
-
-  getSafeUrl(path: string) {
-    if (!path) return null;
-    return this.sanitizer.bypassSecurityTrustUrl(path);
   }
 
   openDetails(withdrawal: any) {

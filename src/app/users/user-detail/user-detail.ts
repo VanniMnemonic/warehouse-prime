@@ -3,21 +3,14 @@ import { ImageModule } from 'primeng/image';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
-import { MenuItem, MessageService } from 'primeng/api';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
+import { MessageService } from 'primeng/api';
 import { WithdrawalService } from '../../services/withdrawal.service';
-import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { LocationDisplay } from '../../shared/components/location-display';
 import { NotesComponent } from '../../shared/components/notes/notes';
-import { SplitButtonModule } from 'primeng/splitbutton';
 import { DialogModule } from 'primeng/dialog';
 import { WithdrawalReturnForm } from '../../withdrawals/withdrawal-return-form/withdrawal-return-form';
+import { WithdrawalsTable } from '../../withdrawals/withdrawals-table/withdrawals-table';
 
 @Component({
   selector: 'app-user-detail',
@@ -26,19 +19,12 @@ import { WithdrawalReturnForm } from '../../withdrawals/withdrawal-return-form/w
     ButtonModule,
     TooltipModule,
     ToastModule,
-    TableModule,
-    TagModule,
-    DatePipe,
-    FormsModule,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
     DividerModule,
     LocationDisplay,
     NotesComponent,
-    SplitButtonModule,
     DialogModule,
     WithdrawalReturnForm,
+    WithdrawalsTable,
   ],
   templateUrl: './user-detail.html',
   styleUrl: './user-detail.css',
@@ -53,19 +39,8 @@ export class UserDetail {
 
   withdrawals: any[] = [];
   loading: boolean = true;
-  searchValue: string | undefined;
   returnDrawerVisible: boolean = false;
   selectedWithdrawal: any = null;
-
-  items: MenuItem[] = [
-    {
-      label: $localize`:@@menuViewDetails:View Details`,
-      icon: 'pi pi-eye',
-      command: () => {
-        console.log('View details for:', this.selectedWithdrawal);
-      },
-    },
-  ];
 
   constructor() {
     effect(() => {
@@ -104,8 +79,8 @@ export class UserDetail {
     this.onEdit.emit(this.user());
   }
 
-  setMenuWithdrawal(withdrawal: any) {
-    this.selectedWithdrawal = withdrawal;
+  openDetails(withdrawal: any) {
+    console.log('View details for:', withdrawal);
   }
 
   openReturn(withdrawal: any) {

@@ -51,114 +51,13 @@
     </div>
 
     <div>
-      <p-table
-        #dt
-        [value]="withdrawals"
+      <app-withdrawals-table
+        [withdrawals]="withdrawals"
         [loading]="loading"
-        size="large"
-        stripedRows
-        [globalFilterFields]="['batch.asset.denomination', 'batch.serial_number']"
-        class="p-datatable-sm"
-      >
-        <!-- <ng-template pTemplate="caption">
-          <div class="flex">
-            <p-iconfield iconPosition="left" class="ml-auto">
-              <p-inputicon>
-                <i class="pi pi-search"></i>
-              </p-inputicon>
-              <input
-                pInputText
-                type="text"
-                [(ngModel)]="searchValue"
-                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-                placeholder="Search withdrawals"
-              />
-            </p-iconfield>
-          </div>
-        </ng-template> -->
-        <ng-template pTemplate="header">
-          <tr>
-            <th></th>
-            <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
-            <th pSortableColumn="batch.asset.denomination">
-              Item <p-sortIcon field="batch.asset.denomination" />
-            </th>
-            <th pSortableColumn="quantity">
-              <span i18n="@@thQtyShort">Qty</span>
-              <p-sortIcon field="quantity" />
-            </th>
-            <th>Status</th>
-            <th style="width: 4rem"></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-withdrawal>
-          <tr>
-            <td>
-              @if (withdrawal.batch?.asset?.image_path) {
-                <p-image
-                  [src]="withdrawal.batch?.asset?.image_path"
-                  [preview]="true"
-                  width="50"
-                  class="rounded-md overflow-hidden"
-                  [imageStyle]="{ 'object-fit': 'cover', height: '60px', width: '60px' }"
-                />
-              } @else {
-                <div
-                  class="w-[50px] h-[50px] bg-surface-100 dark:bg-surface-800 rounded-md flex items-center justify-center text-muted-color border border-surface-200 dark:border-surface-700"
-                >
-                  <i class="pi pi-image text-2xl"></i>
-                </div>
-              }
-            </td>
-            <td>{{ withdrawal.date | date: 'fullDate' }}</td>
-            <td>
-              <div class="flex flex-col">
-                <span class="font-bold">{{ withdrawal.batch?.asset?.denomination }}</span>
-                <span class="text-xs text-muted-color">{{ withdrawal.batch?.serial_number }}</span>
-              </div>
-            </td>
-            <td>{{ withdrawal.quantity }}</td>
-            <td>
-              @if (withdrawal.return_date || (withdrawal.returned_quantity || 0) > 0) {
-                <p-tag severity="success" value="Returned" />
-              } @else if (withdrawal.must_return) {
-                <p-tag severity="warn" value="Borrowed" />
-              } @else {
-                <p-tag severity="info" value="Consumed" />
-              }
-            </td>
-            <td class="relative">
-              <div class="flex items-center gap-2">
-                <p-button
-                  icon="pi pi-undo"
-                  [rounded]="true"
-                  severity="secondary"
-                  (onClick)="openReturn(withdrawal)"
-                  [disabled]="!!withdrawal.return_date"
-                  pTooltip="Return Asset"
-                  i18n-pTooltip="@@returnAssetTooltip"
-                />
-                <p-splitButton
-                  label="Actions"
-                  i18n-label="@@actionsButton"
-                  icon="pi pi-cog"
-                  [model]="items"
-                  (onDropdownClick)="setMenuWithdrawal(withdrawal)"
-                  outlined
-                  severity="secondary"
-                  size="small"
-                  appendTo="body"
-                />
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="6" class="text-center">No withdrawals found.</td>
-          </tr>
-        </ng-template>
-      </p-table>
+        [showAddButton]="false"
+        (onReturn)="openReturn($event)"
+        (onDetails)="openDetails($event)"
+      />
     </div>
 
     <p-dialog
