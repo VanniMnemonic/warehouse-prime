@@ -280,7 +280,7 @@
       </trans-unit>
       <trans-unit id="withdrawalStatusConsumed" datatype="html">
         <source>Consumed</source>
-        <target>Consumata</target>
+        <target>Consumato</target>
       </trans-unit>
       <trans-unit id="withdrawalStatusInefficientCount" datatype="html">
         <source>Inefficient: <x id="INTERPOLATION" equiv-text="{{ withdrawal.inefficient_quantity || 0 }}"/></source>
@@ -516,7 +516,7 @@
       </trans-unit>
       <trans-unit id="userFormLocationPlaceholder" datatype="html">
         <source>Select a Location</source>
-        <target>Seleziona una posizione</target>  
+        <target>Seleziona una posizione</target>
       </trans-unit>
       <trans-unit id="saveButton" datatype="html">
         <source>Save</source>
