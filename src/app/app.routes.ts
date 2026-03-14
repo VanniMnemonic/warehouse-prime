@@ -6,6 +6,7 @@ import { Dashboard } from './dashboard/dashboard';
 import { Assets } from './assets/assets';
 import { AssetDetailPage } from './assets/asset-detail-page/asset-detail-page';
 import { Withdrawals } from './withdrawals/withdrawals';
+import { WithdrawalDetailPage } from './withdrawals/withdrawal-detail-page/withdrawal-detail-page';
 import { Settings } from './settings/settings';
 import { Locations } from './locations/locations';
 
@@ -22,6 +23,11 @@ export const routes: Routes = [
       { path: 'assets', component: Assets, data: { animation: 'assetsList' } },
       { path: 'assets/:id', component: AssetDetailPage, data: { animation: 'assetsDetail' } },
       { path: 'withdrawals', component: Withdrawals },
+      {
+        path: 'withdrawals/:id',
+        component: WithdrawalDetailPage,
+        data: { animation: 'withdrawalsDetail' },
+      },
       { path: 'settings', component: Settings },
     ],
   },

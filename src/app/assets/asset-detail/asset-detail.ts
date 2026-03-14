@@ -21,6 +21,7 @@ import { WithdrawalsTable } from '../../withdrawals/withdrawals-table/withdrawal
 import { WithdrawalService } from '../../services/withdrawal.service';
 import { DialogModule } from 'primeng/dialog';
 import { WithdrawalReturnForm } from '../../withdrawals/withdrawal-return-form/withdrawal-return-form';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-asset-detail',
@@ -57,6 +58,7 @@ export class AssetDetail {
   messageService = inject(MessageService);
   batchService = inject(BatchService);
   withdrawalService = inject(WithdrawalService);
+  router = inject(Router);
   cdr = inject(ChangeDetectorRef);
   sanitizer = inject(DomSanitizer);
 
@@ -160,7 +162,8 @@ export class AssetDetail {
   }
 
   openDetails(withdrawal: any) {
-    console.log('View details for:', withdrawal);
+    if (!withdrawal?.id) return;
+    this.router.navigate(['/withdrawals', withdrawal.id], { state: { withdrawal } });
   }
 
   openReturn(withdrawal: any) {

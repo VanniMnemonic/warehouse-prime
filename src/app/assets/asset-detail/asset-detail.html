@@ -8,14 +8,14 @@
         @if (asset().image_path) {
           <app-image-display
             [image]="asset().image_path"
-            width="240px"
+            width="180px"
             height="auto"
             shape="square"
             icon="pi pi-box"
           />
         } @else {
           <div
-            class="w-[240px] aspect-square bg-surface-100 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 flex items-center justify-center text-muted-color"
+            class="w-[180px] aspect-square bg-surface-100 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 flex items-center justify-center text-muted-color"
           >
             <i class="pi pi-box text-6xl"></i>
           </div>
@@ -71,13 +71,7 @@
         </div>
       </div>
 
-      <!-- Column 3: Notes -->
-      <div class="flex-1 min-w-[300px] flex flex-col">
-        <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 h-full">
-          <h3 class="text-lg font-bold mb-2">Notes</h3>
-          <app-notes entityType="asset" [entityId]="asset().id" />
-        </div>
-      </div>
+      <app-notes entityType="asset" [entityId]="asset().id" [floating]="true" />
     </div>
 
     <!-- <p-divider /> -->
@@ -199,6 +193,7 @@
             [withdrawals]="withdrawals"
             [loading]="withdrawalsLoading"
             [showAddButton]="false"
+            [showToolbar]="false"
             (onReturn)="openReturn($event)"
             (onDetails)="openDetails($event)"
           />

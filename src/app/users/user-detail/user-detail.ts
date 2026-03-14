@@ -11,6 +11,7 @@ import { NotesComponent } from '../../shared/components/notes/notes';
 import { DialogModule } from 'primeng/dialog';
 import { WithdrawalReturnForm } from '../../withdrawals/withdrawal-return-form/withdrawal-return-form';
 import { WithdrawalsTable } from '../../withdrawals/withdrawals-table/withdrawals-table';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-detail',
@@ -35,6 +36,7 @@ export class UserDetail {
   onEdit = output<any>();
   messageService = inject(MessageService);
   withdrawalService = inject(WithdrawalService);
+  router = inject(Router);
   cdr = inject(ChangeDetectorRef);
 
   withdrawals: any[] = [];
@@ -80,7 +82,8 @@ export class UserDetail {
   }
 
   openDetails(withdrawal: any) {
-    console.log('View details for:', withdrawal);
+    if (!withdrawal?.id) return;
+    this.router.navigate(['/withdrawals', withdrawal.id], { state: { withdrawal } });
   }
 
   openReturn(withdrawal: any) {

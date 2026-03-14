@@ -20,6 +20,9 @@ export class Location {
   @Column({ nullable: true })
   parent_id?: number;
 
+  @Column({ type: 'integer', default: 0 })
+  sort_order!: number;
+
   @ManyToOne(() => Location, (location) => location.children)
   @JoinColumn({ name: 'parent_id' })
   parent?: Location;

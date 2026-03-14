@@ -34,6 +34,8 @@ export class WithdrawalsTable {
   withdrawals = input<any[]>([]);
   loading = input<boolean>(false);
   showAddButton = input<boolean>(true);
+  toolbarFixed = input<boolean>(false);
+  showToolbar = input<boolean>(true);
 
   onAdd = output<void>();
   onReturn = output<any>();
@@ -41,4 +43,3 @@ export class WithdrawalsTable {
 
   searchValue: string | undefined;
 }
-

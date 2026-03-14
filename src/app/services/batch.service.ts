@@ -22,4 +22,8 @@ export class BatchService {
   async getBySerial(serialNumber: string): Promise<any> {
     return await this.electronService.invoke('get-batch-by-serial', serialNumber);
   }
+
+  async getByLocation(locationId: number): Promise<any[]> {
+    return (await this.electronService.invoke('get-batches-by-location', locationId)) ?? [];
+  }
 }

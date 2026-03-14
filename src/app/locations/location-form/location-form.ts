@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -38,6 +38,7 @@ export class LocationForm {
   messageService = inject(MessageService);
 
   parentLocation = input<any>(null);
+  location = input<any>(null);
   onSave = output<void>();
   onCancel = output<void>();
 
@@ -47,21 +48,48 @@ export class LocationForm {
     phone: [''],
   });
 
+  constructor() {
+    effect(() => {
+      const loc = this.location();
+      if (loc) {
+        this.form.patchValue({
+          denomination: loc.denomination ?? '',
+          description: loc.description ?? '',
+          phone: loc.phone ?? '',
+        });
+      } else {
+        this.form.reset({
+          denomination: '',
+          description: '',
+          phone: '',
+        });
+      }
+    });
+  }
+
   async save() {
     if (this.form.invalid) return;
 
-    const parent = this.parentLocation();
-    const locationData = {
-      ...this.form.value,
-      parent_id: parent?.id ?? null,
-    };
-
     try {
-      await this.locationService.create(locationData);
+      const editing = this.location();
+      if (editing?.id) {
+        await this.locationService.update({
+          id: editing.id,
+          ...this.form.value,
+          parent_id: editing.parent_id ?? null,
+          sort_order: editing.sort_order ?? 0,
+        });
+      } else {
+        const parent = this.parentLocation();
+        await this.locationService.create({
+          ...this.form.value,
+          parent_id: parent?.id ?? null,
+        });
+      }
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
-        detail: 'Location created successfully',
+        detail: editing?.id ? 'Location updated successfully' : 'Location created successfully',
       });
       queueMicrotask(() => this.onSave.emit());
     } catch (error) {
@@ -69,7 +97,7 @@ export class LocationForm {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to create location',
+        detail: 'Failed to save location',
       });
     }
   }

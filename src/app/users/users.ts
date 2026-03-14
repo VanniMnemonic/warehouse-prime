@@ -16,7 +16,7 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { LocationDisplay } from '../shared/components/location-display';
 import { TagModule } from 'primeng/tag';
 import { ImageDisplay } from '../shared/components/image-display/image-display';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
@@ -47,16 +47,24 @@ export class Users implements OnInit {
   userService = inject(UserService);
   cdr = inject(ChangeDetectorRef);
   router = inject(Router);
+  route = inject(ActivatedRoute);
 
   selectedUser: any;
   searchValue: string | undefined;
+  allUsers: any[] = [];
   users: any[] = [];
   loading: boolean = true;
   formDrawerVisible: boolean = false;
   editingUser: any = null;
+  locationIdFilter: number | null = null;
 
   ngOnInit() {
-    this.loadUsers();
+    this.route.queryParamMap.subscribe(() => {
+      const raw = this.route.snapshot.queryParamMap.get('locationId');
+      const id = raw ? Number(raw) : NaN;
+      this.locationIdFilter = Number.isFinite(id) ? id : null;
+      void this.loadUsers();
+    });
   }
 
   getUserDialogHeader(): string {
@@ -68,7 +76,10 @@ export class Users implements OnInit {
   async loadUsers() {
     try {
       this.loading = true;
-      this.users = await this.userService.getAll();
+      this.allUsers = await this.userService.getAll();
+      this.users = this.locationIdFilter
+        ? this.allUsers.filter((u) => Number(u?.location?.id) === this.locationIdFilter)
+        : this.allUsers;
     } finally {
       this.loading = false;
       this.cdr.detectChanges();

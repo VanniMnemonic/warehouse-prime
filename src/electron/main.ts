@@ -320,7 +320,18 @@ app.on('window-all-closed', () => {
 ipcMain.handle('add-location', async (event, locationData: Partial<Location>) => {
   const startedAt = Date.now();
   const locationRepository = AppDataSource.getRepository(Location);
-  const location = locationRepository.create(locationData);
+  const parentId = (locationData.parent_id ?? null) as number | null;
+  let sortOrder = locationData.sort_order;
+  if (sortOrder === undefined || sortOrder === null) {
+    const raw = await locationRepository
+      .createQueryBuilder('l')
+      .select('MAX(l.sort_order)', 'max')
+      .where(parentId === null ? 'l.parent_id IS NULL' : 'l.parent_id = :parentId', { parentId })
+      .getRawOne<{ max: string | null }>();
+    sortOrder = Number(raw?.max ?? 0) + 1;
+  }
+
+  const location = locationRepository.create({ ...locationData, sort_order: sortOrder });
   const saved = await locationRepository.save(location);
   const elapsedMs = Date.now() - startedAt;
   if (elapsedMs > 1500) console.warn(`[ipc] add-location took ${elapsedMs}ms`);
@@ -330,6 +341,20 @@ ipcMain.handle('add-location', async (event, locationData: Partial<Location>) =>
     description: saved.description,
     phone: saved.phone,
     parent_id: saved.parent_id ?? null,
+    sort_order: saved.sort_order ?? 0,
+  };
+});
+
+ipcMain.handle('update-location', async (event, locationData: Partial<Location>) => {
+  const locationRepository = AppDataSource.getRepository(Location);
+  const saved = await locationRepository.save(locationData);
+  return {
+    id: saved.id,
+    denomination: saved.denomination,
+    description: saved.description,
+    phone: saved.phone,
+    parent_id: saved.parent_id ?? null,
+    sort_order: saved.sort_order ?? 0,
   };
 });
 
@@ -409,18 +434,47 @@ ipcMain.handle('get-locations', async () => {
     .addSelect('l.description', 'description')
     .addSelect('l.phone', 'phone')
     .addSelect('l.parent_id', 'parent_id')
-    .orderBy('l.id', 'ASC')
+    .addSelect('l.sort_order', 'sort_order')
+    .orderBy('l.parent_id', 'ASC')
+    .addOrderBy('l.sort_order', 'ASC')
+    .addOrderBy('l.id', 'ASC')
     .getRawMany<{
       id: number;
       denomination: string;
       description: string | null;
       phone: string | null;
       parent_id: number | null;
+      sort_order: number | null;
     }>();
   const elapsedMs = Date.now() - startedAt;
   if (elapsedMs > 1500) console.warn(`[ipc] get-locations took ${elapsedMs}ms`);
   return locations;
 });
+
+ipcMain.handle(
+  'update-locations-hierarchy',
+  async (
+    event,
+    updates: Array<{ id: number; parent_id: number | null; sort_order: number }>,
+  ) => {
+    const startedAt = Date.now();
+    await AppDataSource.transaction(async (manager) => {
+      const repo = manager.getRepository(Location);
+      const payload = updates.map((u) => ({
+        id: u.id,
+        parent_id: u.parent_id ?? null,
+        sort_order: u.sort_order ?? 0,
+      }));
+      await repo.save(payload as any);
+    });
+    const elapsedMs = Date.now() - startedAt;
+    if (elapsedMs > 500)
+      console.warn(
+        `[ipc] update-locations-hierarchy updated ${updates.length} row(s) in ${elapsedMs}ms`,
+      );
+    return true;
+  },
+);
 
 ipcMain.handle('get-withdrawals', async () => {
   const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
@@ -560,6 +614,15 @@ ipcMain.handle('get-batches-by-asset', async (event, assetId: number) => {
   return await batchRepository.find({
     where: { asset: { id: assetId } },
     relations: ['location', 'location.parent'],
+  });
+});
+
+ipcMain.handle('get-batches-by-location', async (event, locationId: number) => {
+  const batchRepository = AppDataSource.getRepository(Batch);
+  return await batchRepository.find({
+    where: { location: { id: locationId } },
+    relations: ['asset', 'location', 'location.parent'],
+    order: { id: 'ASC' },
   });
 });
 

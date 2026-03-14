@@ -16,35 +16,38 @@
     [scrollable]="true"
     scrollHeight="calc(100vh - 12rem)"
   >
-    <ng-template pTemplate="caption">
-      <p-toolbar>
-        <ng-template pTemplate="start">
-          <p-iconfield iconPosition="left">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input
-              pInputText
-              type="text"
-              [(ngModel)]="searchValue"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-              placeholder="Search keyword"
-              i18n-placeholder="@@searchKeywordPlaceholder"
-            />
-          </p-iconfield>
-        </ng-template>
-        <ng-template pTemplate="end">
-          @if (showAddButton()) {
-            <p-button
-              label="Add Withdrawal"
-              i18n-label="@@addWithdrawalButton"
-              icon="pi pi-plus"
-              (onClick)="onAdd.emit()"
-            />
-          }
-        </ng-template>
-      </p-toolbar>
-    </ng-template>
+    @if (showToolbar() && !toolbarFixed()) {
+      <ng-template pTemplate="caption">
+        <p-toolbar>
+          <ng-template pTemplate="start">
+            <p-iconfield iconPosition="left">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input
+                pInputText
+                type="text"
+                data-autofocus-search="withdrawals"
+                [(ngModel)]="searchValue"
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Search keyword"
+                i18n-placeholder="@@searchKeywordPlaceholder"
+              />
+            </p-iconfield>
+          </ng-template>
+          <ng-template pTemplate="end">
+            @if (showAddButton()) {
+              <p-button
+                label="Add Withdrawal"
+                i18n-label="@@addWithdrawalButton"
+                icon="pi pi-plus"
+                (onClick)="onAdd.emit()"
+              />
+            }
+          </ng-template>
+        </p-toolbar>
+      </ng-template>
+    }
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="date">
@@ -52,22 +55,25 @@
           <p-sortIcon field="date" />
         </th>
         <th style="width: 4rem"></th>
-        <th pSortableColumn="user.last_name">User <p-sortIcon field="user.last_name" /></th>
+        <th pSortableColumn="user.last_name">
+          <span i18n="@@withdrawalSummaryUser">User</span>
+          <p-sortIcon field="user.last_name" class="ml-2" />
+        </th>
         <th style="width: 4rem"></th>
         <th pSortableColumn="batch.asset.denomination">
           Asset <p-sortIcon field="batch.asset.denomination" />
         </th>
         <th pSortableColumn="batch.serial_number">
           <span i18n="@@thBatchSN">Batch S/N</span>
-          <p-sortIcon field="batch.serial_number" />
+          <p-sortIcon field="batch.serial_number" class="ml-2" />
         </th>
-        <th pSortableColumn="quantity" class="text-right">
+        <th pSortableColumn="quantity" class="text-center">
           <span i18n="@@thQtyShort">Qty</span>
-          <p-sortIcon field="quantity" />
+          <p-sortIcon field="quantity" class="ml-2" />
         </th>
-        <th pSortableColumn="must_return">
+        <th pSortableColumn="must_return" class="text-center">
           <span i18n="@@withdrawalStatusHeader">Status</span>
-          <p-sortIcon field="must_return" />
+          <p-sortIcon field="must_return" class="ml-2" />
         </th>
         <th style="width: 4rem"></th>
       </tr>
@@ -103,8 +109,8 @@
         </td>
         <td class="font-bold">{{ withdrawal.batch?.asset?.denomination }}</td>
         <td>{{ withdrawal.batch?.serial_number }}</td>
-        <td class="font-bold text-right">{{ withdrawal.quantity }}</td>
-        <td>
+        <td class="font-bold text-center">{{ withdrawal.quantity }}</td>
+        <td class="text-center">
           <div class="flex flex-wrap gap-2">
             @if (
               withdrawal.return_date ||
@@ -141,6 +147,14 @@
         <td class="relative">
           <div class="flex items-center gap-2">
             <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              severity="secondary"
+              (onClick)="onDetails.emit(withdrawal)"
+              pTooltip="View Details"
+              i18n-pTooltip="@@menuViewDetails"
+            />
+            <p-button
               icon="pi pi-undo"
               [rounded]="true"
               severity="secondary"
@@ -149,17 +163,38 @@
               pTooltip="Return Asset"
               i18n-pTooltip="@@returnAssetTooltip"
             />
-            <p-button
-              icon="pi pi-eye"
-              [rounded]="true"
-              severity="secondary"
-              (onClick)="onDetails.emit(withdrawal)"
-              pTooltip="View Details"
-              i18n-pTooltip="@@menuViewDetails"
-            />
           </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
+
+  @if (showToolbar() && toolbarFixed()) {
+    <div
+      class="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-xl border border-surface-200 bg-surface-0/90 p-2 shadow-sm backdrop-blur dark:border-surface-700 dark:bg-surface-900/90"
+    >
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          pInputText
+          type="text"
+          data-autofocus-search="withdrawals"
+          [(ngModel)]="searchValue"
+          (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+          placeholder="Search keyword"
+          i18n-placeholder="@@searchKeywordPlaceholder"
+        />
+      </p-iconfield>
+      @if (showAddButton()) {
+        <p-button
+          label="Add Withdrawal"
+          i18n-label="@@addWithdrawalButton"
+          icon="pi pi-plus"
+          (onClick)="onAdd.emit()"
+        />
+      }
+    </div>
+  }
 </div>

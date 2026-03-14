@@ -7,13 +7,13 @@
           <p-image
             [src]="user().image_path"
             [preview]="true"
-            width="240"
+            width="180"
             class="rounded-xl overflow-hidden"
-            [imageStyle]="{ 'object-fit': 'cover', height: '240px', width: '240px' }"
+            [imageStyle]="{ 'object-fit': 'cover', height: '180px', width: '180px' }"
           />
         } @else {
           <div
-            class="w-[240px] aspect-square bg-surface-100 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 flex items-center justify-center text-muted-color"
+            class="w-[180px] aspect-square bg-surface-100 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700 flex items-center justify-center text-muted-color"
           >
             <i class="pi pi-user text-6xl"></i>
           </div>
@@ -42,12 +42,7 @@
         </div>
       </div>
 
-      <div class="flex-1 min-w-[300px] flex flex-col">
-        <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 h-full">
-          <h3 class="text-lg font-bold mb-2">Notes</h3>
-          <app-notes entityType="user" [entityId]="user().id" />
-        </div>
-      </div>
+      <app-notes entityType="user" [entityId]="user().id" [floating]="true" />
     </div>
 
     <div>
@@ -55,6 +50,7 @@
         [withdrawals]="withdrawals"
         [loading]="loading"
         [showAddButton]="false"
+        [showToolbar]="false"
         (onReturn)="openReturn($event)"
         (onDetails)="openDetails($event)"
       />

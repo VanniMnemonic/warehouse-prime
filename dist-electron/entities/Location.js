@@ -12,6 +12,7 @@ let Location = class Location {
     description;
     phone;
     parent_id;
+    sort_order;
     parent;
     children;
     users;
@@ -39,6 +40,10 @@ tslib_1.__decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     tslib_1.__metadata("design:type", Number)
 ], Location.prototype, "parent_id", void 0);
+tslib_1.__decorate([
+    (0, typeorm_1.Column)({ type: 'integer', default: 0 }),
+    tslib_1.__metadata("design:type", Number)
+], Location.prototype, "sort_order", void 0);
 tslib_1.__decorate([
     (0, typeorm_1.ManyToOne)(() => Location, (location) => location.children),
     (0, typeorm_1.JoinColumn)({ name: 'parent_id' }),

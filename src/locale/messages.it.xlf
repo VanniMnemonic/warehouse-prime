@@ -206,6 +206,14 @@
         <source>User Detail</source>
         <target>Dettaglio utente</target>
       </trans-unit>
+      <trans-unit id="withdrawalDetailTitle" datatype="html">
+        <source>Withdrawal Detail</source>
+        <target>Dettaglio prelievo</target>
+      </trans-unit>
+      <trans-unit id="withdrawalNotFound" datatype="html">
+        <source>Withdrawal not found.</source>
+        <target>Prelievo non trovato.</target>
+      </trans-unit>
       <trans-unit id="returnAssetTooltip" datatype="html">
         <source>Return Asset</source>
         <target>Restituisci risorsa</target>
@@ -470,6 +478,10 @@
         <source>Last Name</source>
         <target>Cognome</target>
       </trans-unit>
+      <trans-unit id="thEmail" datatype="html">
+        <source>Email</source>
+        <target>Email</target>
+      </trans-unit>
       <trans-unit id="thTitle" datatype="html">
         <source>Title</source>
         <target>Titolo</target>
@@ -589,6 +601,22 @@
       <trans-unit id="addLocationButton" datatype="html">
         <source>Add Location</source>
         <target>Aggiungi posizione</target>
+      </trans-unit>
+      <trans-unit id="locationsHierarchyButton" datatype="html">
+        <source>Hierarchy</source>
+        <target>Gerarchia</target>
+      </trans-unit>
+      <trans-unit id="locationsHierarchyHeader" datatype="html">
+        <source>Locations Hierarchy</source>
+        <target>Gerarchia posizioni</target>
+      </trans-unit>
+      <trans-unit id="locationsHierarchyHelp" datatype="html">
+        <source>Drag and drop locations to reorganize the structure.</source>
+        <target>Trascina e rilascia le posizioni per riorganizzare la struttura.</target>
+      </trans-unit>
+      <trans-unit id="noLocationsYet" datatype="html">
+        <source>No locations yet.</source>
+        <target>Nessuna posizione.</target>
       </trans-unit>
       <trans-unit id="assetFormUploadImageChooseLabel" datatype="html">
         <source>Upload Image</source>

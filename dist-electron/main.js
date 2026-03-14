@@ -291,7 +291,17 @@ electron_1.app.on('window-all-closed', () => {
 electron_1.ipcMain.handle('add-location', async (event, locationData) => {
     const startedAt = Date.now();
     const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
-    const location = locationRepository.create(locationData);
+    const parentId = (locationData.parent_id ?? null);
+    let sortOrder = locationData.sort_order;
+    if (sortOrder === undefined || sortOrder === null) {
+        const raw = await locationRepository
+            .createQueryBuilder('l')
+            .select('MAX(l.sort_order)', 'max')
+            .where(parentId === null ? 'l.parent_id IS NULL' : 'l.parent_id = :parentId', { parentId })
+            .getRawOne();
+        sortOrder = Number(raw?.max ?? 0) + 1;
+    }
+    const location = locationRepository.create({ ...locationData, sort_order: sortOrder });
     const saved = await locationRepository.save(location);
     const elapsedMs = Date.now() - startedAt;
     if (elapsedMs > 1500)
@@ -302,6 +312,19 @@ electron_1.ipcMain.handle('add-location', async (event, locationData) => {
         description: saved.description,
         phone: saved.phone,
         parent_id: saved.parent_id ?? null,
+        sort_order: saved.sort_order ?? 0,
+    };
+});
+electron_1.ipcMain.handle('update-location', async (event, locationData) => {
+    const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
+    const saved = await locationRepository.save(locationData);
+    return {
+        id: saved.id,
+        denomination: saved.denomination,
+        description: saved.description,
+        phone: saved.phone,
+        parent_id: saved.parent_id ?? null,
+        sort_order: saved.sort_order ?? 0,
     };
 });
 electron_1.app.on('activate', () => {
@@ -369,12 +392,31 @@ electron_1.ipcMain.handle('get-locations', async () => {
         .addSelect('l.description', 'description')
         .addSelect('l.phone', 'phone')
         .addSelect('l.parent_id', 'parent_id')
-        .orderBy('l.id', 'ASC')
+        .addSelect('l.sort_order', 'sort_order')
+        .orderBy('l.parent_id', 'ASC')
+        .addOrderBy('l.sort_order', 'ASC')
+        .addOrderBy('l.id', 'ASC')
         .getRawMany();
     const elapsedMs = Date.now() - startedAt;
     if (elapsedMs > 1500)
         console.warn(`[ipc] get-locations took ${elapsedMs}ms`);
     return locations;
+});
+electron_1.ipcMain.handle('update-locations-hierarchy', async (event, updates) => {
+    const startedAt = Date.now();
+    await data_source_1.AppDataSource.transaction(async (manager) => {
+        const repo = manager.getRepository(Location_1.Location);
+        const payload = updates.map((u) => ({
+            id: u.id,
+            parent_id: u.parent_id ?? null,
+            sort_order: u.sort_order ?? 0,
+        }));
+        await repo.save(payload);
+    });
+    const elapsedMs = Date.now() - startedAt;
+    if (elapsedMs > 500)
+        console.warn(`[ipc] update-locations-hierarchy updated ${updates.length} row(s) in ${elapsedMs}ms`);
+    return true;
 });
 electron_1.ipcMain.handle('get-withdrawals', async () => {
     const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);
@@ -490,6 +532,14 @@ electron_1.ipcMain.handle('get-batches-by-asset', async (event, assetId) => {
     return await batchRepository.find({
         where: { asset: { id: assetId } },
         relations: ['location', 'location.parent'],
+    });
+});
+electron_1.ipcMain.handle('get-batches-by-location', async (event, locationId) => {
+    const batchRepository = data_source_1.AppDataSource.getRepository(Batch_1.Batch);
+    return await batchRepository.find({
+        where: { location: { id: locationId } },
+        relations: ['asset', 'location', 'location.parent'],
+        order: { id: 'ASC' },
     });
 });
 electron_1.ipcMain.handle('add-batch', async (event, batchData) => {

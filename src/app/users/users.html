@@ -11,55 +11,35 @@
     [scrollable]="true"
     scrollHeight="calc(100vh - 12rem)"
   >
-    <ng-template pTemplate="caption">
-      <p-toolbar>
-        <ng-template pTemplate="start">
-          <p-iconfield iconPosition="left">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input
-              pInputText
-              type="text"
-              [(ngModel)]="searchValue"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-              placeholder="Search keyword"
-              i18n-placeholder="@@searchKeywordPlaceholder"
-            />
-          </p-iconfield>
-        </ng-template>
-        <ng-template pTemplate="end">
-          <p-button label="Add User" i18n-label="@@addUserButton" icon="pi pi-plus" (onClick)="openAddUser($event)" />
-        </ng-template>
-      </p-toolbar>
-    </ng-template>
     <ng-template pTemplate="header">
       <tr>
         <th></th>
         <th pSortableColumn="title.title">
           <span i18n="@@thTitle">Title</span>
-          <p-sortIcon field="title.title" />
+          <p-sortIcon field="title.title" class="ml-2" />
         </th>
         <th pSortableColumn="first_name">
           <span i18n="@@thFirstName">First Name</span>
-          <p-sortIcon field="first_name" />
+          <p-sortIcon field="first_name" class="ml-2" />
         </th>
         <th pSortableColumn="last_name">
           <span i18n="@@thLastName">Last Name</span>
-          <p-sortIcon field="last_name" />
+          <p-sortIcon field="last_name" class="ml-2" />
         </th>
-        <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+        <th pSortableColumn="email">
+          <span i18n="@@thEmail">Email</span>
+          <p-sortIcon field="email" class="ml-2" />
+        </th>
         <th pSortableColumn="location.denomination">
           <span i18n="@@thLocation">Location</span>
-          <p-sortIcon field="location.denomination" />
-        </th>
-        <th pSortableColumn="active_withdrawals">
-          <i class="pi pi-shopping-cart text-lg"></i>
-          <p-sortIcon field="active_withdrawals" />
+          <p-sortIcon field="location.denomination" class="ml-2" />
         </th>
         <th pSortableColumn="barcode">
           <span i18n="@@thBarcode">Barcode</span>
-          <p-sortIcon field="barcode" />
+          <p-sortIcon field="barcode" class="ml-2" />
+        </th>
+        <th pSortableColumn="active_withdrawals" class="text-center">
+          <i class="pi pi-shopping-cart text-lg"></i>
         </th>
         <th style="width: 4rem"></th>
       </tr>
@@ -82,12 +62,16 @@
         <td>
           <app-location-display [location]="user.location" />
         </td>
+        <td>{{ user.barcode }}</td>
         <td>
           @if (user.active_withdrawals > 0) {
-            <p-tag [value]="user.active_withdrawals.toString()" severity="warn" />
+            <p-tag
+              [value]="user.active_withdrawals.toString()"
+              severity="warn"
+              class="text-center"
+            />
           }
         </td>
-        <td>{{ user.barcode }}</td>
         <td class="relative">
           <div class="flex items-center gap-2">
             <p-button
@@ -107,6 +91,31 @@
       </tr>
     </ng-template>
   </p-table>
+
+  <div
+    class="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-xl border border-surface-200 bg-surface-0/90 p-2 shadow-sm backdrop-blur dark:border-surface-700 dark:bg-surface-900/90"
+  >
+    <p-iconfield iconPosition="left">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        data-autofocus-search="users"
+        [(ngModel)]="searchValue"
+        (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+        placeholder="Search keyword"
+        i18n-placeholder="@@searchKeywordPlaceholder"
+      />
+    </p-iconfield>
+    <p-button
+      label="Add User"
+      i18n-label="@@addUserButton"
+      icon="pi pi-plus"
+      (onClick)="openAddUser($event)"
+    />
+  </div>
 </div>
 
 <p-dialog

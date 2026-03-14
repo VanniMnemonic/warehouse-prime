@@ -1,13 +1,34 @@
 <div class="card overflow-x-auto p-4">
-  @if (!loading() && data().length === 0) {
+  @if (activeSpeedDialLocationId() !== null) {
+    <div
+      class="fixed inset-0"
+      [style]="{ backgroundColor: 'rgba(0, 0, 0, 0.25)', zIndex: 1000 }"
+      (click)="closeSpeedDial()"
+    ></div>
+  }
+  <div class="flex justify-end gap-2 mb-4">
+    <p-button
+      icon="pi pi-sitemap"
+      label="Hierarchy"
+      i18n-label="@@locationsHierarchyButton"
+      severity="secondary"
+      [rounded]="true"
+      [disabled]="loading() || data().length === 0"
+      (onClick)="openHierarchy()"
+    />
+    <p-button
+      icon="pi pi-plus"
+      label="Add Location"
+      i18n-label="@@addLocationButton"
+      [rounded]="true"
+      (onClick)="addRootLocation()"
+    />
+  </div>
+  @if (loading()) {
+    <div class="p-6 text-center text-muted-color" i18n="@@loading">Loading...</div>
+  } @else if (data().length === 0) {
     <div class="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <p-button
-        icon="pi pi-plus"
-        label="Add Location"
-        i18n-label="@@addLocationButton"
-        [rounded]="true"
-        (onClick)="addRootLocation()"
-      />
+      <div class="text-center text-muted-color" i18n="@@noLocationsYet">No locations yet.</div>
     </div>
   } @else {
     <p-organizationChart [value]="data()" [collapsible]="true">
@@ -24,15 +45,17 @@
             </div>
           }
           <div class="absolute -top-2 -right-3">
-            <p-button
-              icon="pi pi-plus"
-              [rounded]="true"
-              [text]="true"
-              size="small"
-              severity="secondary"
-              pTooltip="Add sub-location"
-              (onClick)="addSubLocation(node.data)"
-              [style]="{ width: '1.5rem', height: '1.5rem', padding: '0' }"
+            <p-speeddial
+              [model]="getNodeActions(node.data)"
+              [visible]="activeSpeedDialLocationId() === node.data.id"
+              (visibleChange)="onSpeedDialVisibleChange(node.data.id, $event)"
+              direction="left"
+              [style]="{ position: 'absolute', right: '0', top: '0' }"
+              [buttonProps]="{ rounded: true, text: true, severity: 'secondary', size: 'small' }"
+              [tooltipOptions]="{ tooltipPosition: 'left' }"
+              showIcon="pi pi-ellipsis-v"
+              hideIcon="pi pi-times"
+              [hideOnClickOutside]="true"
             />
           </div>
         </div>
@@ -41,13 +64,66 @@
   }
 </div>
 
+<p-drawer
+  [visible]="hierarchyDrawerVisible()"
+  (visibleChange)="onHierarchyDrawerVisibleChange($event)"
+  position="right"
+  [style]="{ width: '32rem' }"
+  appendTo="body"
+  [modal]="false"
+>
+  <ng-template pTemplate="header">
+    <div class="flex flex-col">
+      <div class="font-bold text-lg" i18n="@@locationsHierarchyHeader">Locations Hierarchy</div>
+      <div class="text-sm text-muted-color" i18n="@@locationsHierarchyHelp">
+        Drag and drop locations to reorganize the structure.
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <p-tree
+      [value]="hierarchyData()"
+      [draggableNodes]="true"
+      [droppableNodes]="true"
+      [validateDrop]="true"
+      selectionMode="single"
+      [selection]="hierarchySelection()"
+      (selectionChange)="hierarchySelection.set($event)"
+      draggableScope="locations"
+      droppableScope="locations"
+      [filter]="true"
+      filterBy="label"
+      (onNodeDrop)="onHierarchyNodeDrop($event)"
+    />
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 w-full">
+      <p-button
+        label="Cancel"
+        i18n-label="@@cancelButton"
+        severity="secondary"
+        (onClick)="onHierarchyDrawerVisibleChange(false)"
+      />
+      <p-button
+        label="Save"
+        i18n-label="@@saveButton"
+        [disabled]="!hierarchyDirty() || hierarchySaving()"
+        [loading]="hierarchySaving()"
+        (onClick)="saveHierarchy()"
+      />
+    </div>
+  </ng-template>
+</p-drawer>
+
 <p-dialog
   [visible]="drawerVisible()"
   (visibleChange)="drawerVisible.set($event)"
   [header]="
-    selectedLocation()
-      ? 'Add Sub-Location to ' + selectedLocation().denomination
-      : 'Add Root Location'
+    editingLocation()
+      ? 'Edit Location'
+      : selectedLocation()
+        ? 'Add Sub-Location to ' + selectedLocation().denomination
+        : 'Add Root Location'
   "
   [modal]="true"
   [dismissableMask]="true"
@@ -59,9 +135,58 @@
     @if (drawerVisible()) {
       <app-location-form
         [parentLocation]="selectedLocation()"
+        [location]="editingLocation()"
         (onSave)="onLocationSaved()"
         (onCancel)="drawerVisible.set(false)"
       />
     }
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [visible]="batchesDialogVisible()"
+  (visibleChange)="batchesDialogVisible.set($event)"
+  [header]="(selectedLocationForBatches()?.denomination ?? '') + ' - Batches'"
+  [modal]="true"
+  [dismissableMask]="true"
+  appendTo="body"
+  [style]="{ width: '60rem' }"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+>
+  <ng-template pTemplate="content">
+    <p-table
+      [value]="batches()"
+      [loading]="batchesLoading()"
+      dataKey="id"
+      [tableStyle]="{ 'min-width': '50rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Asset</th>
+          <th>Serial</th>
+          <th class="text-center">Qty</th>
+          <th style="width: 4rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-batch>
+        <tr>
+          <td class="font-bold">{{ batch.asset?.denomination }}</td>
+          <td>{{ batch.serial_number }}</td>
+          <td class="text-center">
+            <p-tag [value]="(batch.quantity ?? 0).toString()" severity="info" />
+          </td>
+          <td class="relative">
+            <div class="flex items-center gap-2">
+              <p-button
+                icon="pi pi-eye"
+                [rounded]="true"
+                severity="secondary"
+                (onClick)="openAssetFromBatch(batch)"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
   </ng-template>
 </p-dialog>

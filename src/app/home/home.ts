@@ -174,12 +174,28 @@ export class Home implements OnInit {
     afterNextRender(() => this.animationsEnabled.set(true));
   }
 
+  private scheduleSearchFocus(route: string) {
+    if (route !== 'users' && route !== 'assets' && route !== 'withdrawals') return;
+    this.tryFocusSearchInput(route, 0);
+  }
+
+  private tryFocusSearchInput(route: string, attempt: number) {
+    if (attempt > 30) return;
+    const input = document.querySelector<HTMLInputElement>(`input[data-autofocus-search="${route}"]`);
+    if (input) {
+      input.focus();
+      return;
+    }
+    requestAnimationFrame(() => this.tryFocusSearchInput(route, attempt + 1));
+  }
+
   ngOnInit() {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const url = event.urlAfterRedirects.split('/')[1];
         if (this.tabs.some((t) => t.route === url)) {
           this.activeTab = url;
+          this.scheduleSearchFocus(url);
         }
       }
     });
@@ -188,6 +204,7 @@ export class Home implements OnInit {
     const url = this.router.url.split('/')[1];
     if (this.tabs.some((t) => t.route === url)) {
       this.activeTab = url;
+      this.scheduleSearchFocus(url);
     }
   }
 

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WithdrawalService } from '../services/withdrawal.service';
+import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { WithdrawalForm } from './withdrawal-form/withdrawal-form';
 import { WithdrawalReturnForm } from './withdrawal-return-form/withdrawal-return-form';
@@ -19,6 +20,7 @@ import { WithdrawalsTable } from './withdrawals-table/withdrawals-table';
   styleUrl: './withdrawals.css',
 })
 export class Withdrawals implements OnInit {
+  router = inject(Router);
   withdrawalService = inject(WithdrawalService);
   cdr = inject(ChangeDetectorRef);
 
@@ -33,7 +35,8 @@ export class Withdrawals implements OnInit {
   }
 
   openDetails(withdrawal: any) {
-    console.log('View details for:', withdrawal);
+    if (!withdrawal?.id) return;
+    this.router.navigate(['/withdrawals', withdrawal.id], { state: { withdrawal } });
   }
 
   async loadWithdrawals() {

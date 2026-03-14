@@ -1,0 +1,111 @@
+@if (withdrawal()) {
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-wrap gap-6 px-6">
+      <div class="flex-none">
+        <app-image-display
+          [image]="withdrawal()!.user?.image_path"
+          width="180px"
+          height="180px"
+          shape="square"
+          icon="pi pi-user"
+        />
+      </div>
+
+      <div class="flex-1 min-w-[250px] flex flex-col gap-4">
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
+            <span class="text-muted-color text-sm">User</span>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-lg">
+                {{ withdrawal()!.user?.first_name }} {{ withdrawal()!.user?.last_name }}
+              </span>
+              <p-button
+                icon="pi pi-eye"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                size="small"
+                pTooltip="View user"
+                tooltipPosition="top"
+                (onClick)="openUser()"
+              />
+            </div>
+            <span class="text-sm text-muted-color">{{ withdrawal()!.user?.email }}</span>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <span class="text-muted-color text-sm">Asset</span>
+            <div class="flex items-center gap-2">
+              <app-image-display
+                [image]="withdrawal()!.batch?.asset?.image_path"
+                width="48px"
+                height="48px"
+                shape="square"
+                icon="pi pi-box"
+              />
+              <div class="flex flex-col min-w-0">
+                <span class="font-medium truncate">{{ withdrawal()!.batch?.asset?.denomination }}</span>
+                <span class="text-sm text-muted-color truncate">
+                  {{ withdrawal()!.batch?.serial_number }}
+                </span>
+              </div>
+              <p-button
+                icon="pi pi-eye"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                size="small"
+                pTooltip="View asset"
+                tooltipPosition="top"
+                (onClick)="openAsset()"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <p-tag
+            [value]="(withdrawal()!.date | date: 'fullDate') ?? ''"
+            severity="secondary"
+            icon="pi pi-calendar"
+          />
+          <p-tag [value]="'Qty: ' + (withdrawal()!.quantity ?? 0)" severity="info" />
+
+          @if (
+            withdrawal()!.return_date ||
+            (withdrawal()!.returned_quantity || 0) >= (withdrawal()!.quantity || 0)
+          ) {
+            <p-tag value="Returned" i18n-value="@@withdrawalStatusReturned" severity="info" />
+          } @else if ((withdrawal()!.returned_quantity || 0) > 0) {
+            <p-tag
+              value="Partially Returned ({{ withdrawal()!.returned_quantity || 0 }}/{{
+                withdrawal()!.quantity || 0
+              }})"
+              i18n-value="@@withdrawalStatusPartiallyReturned"
+              severity="warn"
+            />
+          } @else if (withdrawal()!.must_return) {
+            <p-tag value="Active" i18n-value="@@withdrawalStatusActive" severity="warn" />
+          } @else {
+            <p-tag value="Consumed" i18n-value="@@withdrawalStatusConsumed" severity="success" />
+          }
+
+          @if (
+            (withdrawal()!.inefficient_quantity || 0) > 0 &&
+            ((withdrawal()!.returned_quantity || 0) > 0 || withdrawal()!.return_date)
+          ) {
+            <p-tag
+              value="Inefficient: {{ withdrawal()!.inefficient_quantity || 0 }}"
+              i18n-value="@@withdrawalStatusInefficientCount"
+              severity="danger"
+              icon="pi pi-exclamation-triangle"
+            />
+          }
+        </div>
+      </div>
+
+      <app-notes entityType="withdrawal" [entityId]="withdrawal()!.id" [floating]="true" />
+    </div>
+  </div>
+}
+

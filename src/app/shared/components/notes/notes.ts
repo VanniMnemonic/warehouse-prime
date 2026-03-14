@@ -1,4 +1,4 @@
-import { Component, input, inject, effect, signal } from '@angular/core';
+import { Component, input, inject, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +21,7 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 export class NotesComponent {
   entityType = input.required<string>();
   entityId = input.required<number>();
+  floating = input<boolean>(false);
   
   noteService = inject(NoteService);
   messageService = inject(MessageService);
@@ -28,6 +29,10 @@ export class NotesComponent {
   notes = signal<any[]>([]);
   newNoteContent = signal('');
   loading = signal(false);
+  scrollPanelStyle = computed(() => ({
+    width: this.floating() ? '100%' : '100%',
+    height: this.floating() ? '200px' : '300px',
+  }));
 
   constructor() {
     effect(() => {
