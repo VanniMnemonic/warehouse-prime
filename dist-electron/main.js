@@ -153,7 +153,8 @@ async function startUiServer(distRoot) {
         const decoded = decodeURIComponent(pathname);
         const normalized = path.posix.normalize(decoded);
         const safePath = normalized.replace(/^(\.\.(\/|\\|$))+/, '');
-        const filePath = path.join(distRoot, safePath);
+        const safeRelativePath = safePath.replace(/^\/+/, '');
+        const filePath = path.join(distRoot, safeRelativePath);
         const resolved = path.resolve(filePath);
         const resolvedRoot = path.resolve(distRoot);
         if (!resolved.startsWith(resolvedRoot)) {
@@ -386,7 +387,15 @@ electron_1.ipcMain.handle('get-withdrawals-by-user', async (event, userId) => {
     const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);
     return await withdrawalRepository.find({
         where: { user_id: userId },
-        relations: ['batch', 'batch.asset'],
+        relations: ['user', 'batch', 'batch.asset'],
+        order: { date: 'DESC' },
+    });
+});
+electron_1.ipcMain.handle('get-withdrawals-by-asset', async (event, assetId) => {
+    const withdrawalRepository = data_source_1.AppDataSource.getRepository(Withdrawal_1.Withdrawal);
+    return await withdrawalRepository.find({
+        where: { batch: { asset_id: assetId } },
+        relations: ['user', 'batch', 'batch.asset'],
         order: { date: 'DESC' },
     });
 });

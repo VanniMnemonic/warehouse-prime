@@ -47,7 +47,10 @@
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="date">Date <p-sortIcon field="date" /></th>
+        <th pSortableColumn="date">
+          <span i18n="@@thDate">Date</span>
+          <p-sortIcon field="date" />
+        </th>
         <th style="width: 4rem"></th>
         <th pSortableColumn="user.last_name">User <p-sortIcon field="user.last_name" /></th>
         <th style="width: 4rem"></th>
@@ -160,4 +163,3 @@
     </ng-template>
   </p-table>
 </div>
-

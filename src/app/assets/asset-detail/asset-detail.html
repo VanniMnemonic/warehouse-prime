@@ -82,103 +82,147 @@
 
     <!-- <p-divider /> -->
 
-    <div class="">
-      <p-table
-        #dt
-        [value]="batches"
-        [loading]="loading"
-        size="large"
-        stripedRows
-        [globalFilterFields]="['denomination', 'serial_number', 'location.denomination']"
-        class="p-datatable-sm"
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th pSortableColumn="denomination">
-              <span i18n="@@thBatch">Batch</span>
-              <p-sortIcon field="denomination" />
-            </th>
-            <th pSortableColumn="serial_number">S/N <p-sortIcon field="serial_number" /></th>
-            <th pSortableColumn="location.denomination">
-              <span i18n="@@thLocation">Location</span>
-              <p-sortIcon field="location.denomination" />
-            </th>
-            <th pSortableColumn="quantity">
-              <span i18n="@@thQtyShort">Qty</span>
-              <p-sortIcon field="quantity" />
-            </th>
-            <th pSortableColumn="inefficient_quantity">
-              <p-sortIcon field="inefficient_quantity" class="mr-2" />
-              <i class="pi pi-exclamation-triangle font-bold text-xl pt-1"></i>
-            </th>
-            <th pSortableColumn="expiration_date">
-              Exp. Date <p-sortIcon field="expiration_date" />
-            </th>
-            <th style="width: 4rem"></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-batch>
-          <tr>
-            <td class="font-bold">{{ batch.denomination }}</td>
-            <td>{{ batch.serial_number }}</td>
-            <td>
-              <app-location-display [location]="batch.location" />
-            </td>
-            <td>{{ batch.quantity }}</td>
-            <td>{{ batch.inefficient_quantity }}</td>
-            <td>
-              @if (batch.expiration_date) {
-                <p-tag
-                  [value]="(batch.expiration_date | date: 'fullDate') ?? ''"
-                  [severity]="
-                    isExpired(batch.expiration_date)
-                      ? 'danger'
-                      : isNearExpiry(batch.expiration_date)
-                        ? 'warn'
-                        : 'success'
-                  "
-                  [icon]="
-                    isExpired(batch.expiration_date)
-                      ? 'pi pi-exclamation-circle'
-                      : isNearExpiry(batch.expiration_date)
-                        ? 'pi pi-exclamation-triangle'
-                        : ''
-                  "
-                />
-              } @else {
-                -
-              }
-            </td>
-            <td class="relative">
-              <div class="flex items-center gap-2">
-                <p-button
-                  icon="pi pi-cart-arrow-down"
-                  [rounded]="true"
-                  severity="secondary"
-                  (onClick)="withdrawBatch(batch)"
-                />
-                <p-button
-                  icon="pi pi-pencil"
-                  [rounded]="true"
-                  severity="secondary"
-                  (onClick)="editBatch(batch)"
-                />
-                <p-button
-                  icon="pi pi-trash"
-                  [rounded]="true"
-                  severity="secondary"
-                  (onClick)="deleteBatch(batch)"
-                />
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="6" class="text-center">No batches found.</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
+    <p-tabs [(value)]="tabsValue">
+      <p-tablist>
+        <p-tab value="batches">
+          <span i18n="@@assetDetailBatchesAccordionHeader">Batches</span>
+        </p-tab>
+        <p-tab value="withdrawals">
+          <span i18n="@@assetDetailWithdrawalsAccordionHeader">Withdrawals</span>
+        </p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="batches">
+          <div>
+            <p-table
+              #dt
+              [value]="batches"
+              [loading]="loading"
+              size="large"
+              stripedRows
+              [globalFilterFields]="['denomination', 'serial_number', 'location.denomination']"
+              class="p-datatable-sm"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="denomination">
+                    <span i18n="@@thBatch">Batch</span>
+                    <p-sortIcon field="denomination" />
+                  </th>
+                  <th pSortableColumn="serial_number">S/N <p-sortIcon field="serial_number" /></th>
+                  <th pSortableColumn="location.denomination">
+                    <span i18n="@@thLocation">Location</span>
+                    <p-sortIcon field="location.denomination" />
+                  </th>
+                  <th pSortableColumn="quantity">
+                    <span i18n="@@thQtyShort">Qty</span>
+                    <p-sortIcon field="quantity" />
+                  </th>
+                  <th pSortableColumn="inefficient_quantity">
+                    <p-sortIcon field="inefficient_quantity" class="mr-2" />
+                    <i class="pi pi-exclamation-triangle font-bold text-xl pt-1"></i>
+                  </th>
+                  <th pSortableColumn="expiration_date">
+                    Exp. Date <p-sortIcon field="expiration_date" />
+                  </th>
+                  <th style="width: 4rem"></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-batch>
+                <tr>
+                  <td class="font-bold">{{ batch.denomination }}</td>
+                  <td>{{ batch.serial_number }}</td>
+                  <td>
+                    <app-location-display [location]="batch.location" />
+                  </td>
+                  <td>{{ batch.quantity }}</td>
+                  <td>{{ batch.inefficient_quantity }}</td>
+                  <td>
+                    @if (batch.expiration_date) {
+                      <p-tag
+                        [value]="(batch.expiration_date | date: 'fullDate') ?? ''"
+                        [severity]="
+                          isExpired(batch.expiration_date)
+                            ? 'danger'
+                            : isNearExpiry(batch.expiration_date)
+                              ? 'warn'
+                              : 'success'
+                        "
+                        [icon]="
+                          isExpired(batch.expiration_date)
+                            ? 'pi pi-exclamation-circle'
+                            : isNearExpiry(batch.expiration_date)
+                              ? 'pi pi-exclamation-triangle'
+                              : ''
+                        "
+                      />
+                    } @else {
+                      -
+                    }
+                  </td>
+                  <td class="relative">
+                    <div class="flex items-center gap-2">
+                      <p-button
+                        icon="pi pi-cart-arrow-down"
+                        [rounded]="true"
+                        severity="secondary"
+                        (onClick)="withdrawBatch(batch)"
+                      />
+                      <p-button
+                        icon="pi pi-pencil"
+                        [rounded]="true"
+                        severity="secondary"
+                        (onClick)="editBatch(batch)"
+                      />
+                      <p-button
+                        icon="pi pi-trash"
+                        [rounded]="true"
+                        severity="secondary"
+                        (onClick)="deleteBatch(batch)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center">No batches found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="withdrawals">
+          <app-withdrawals-table
+            [withdrawals]="withdrawals"
+            [loading]="withdrawalsLoading"
+            [showAddButton]="false"
+            (onReturn)="openReturn($event)"
+            (onDetails)="openDetails($event)"
+          />
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+
+    <p-dialog
+      [(visible)]="returnDrawerVisible"
+      header="Return Asset"
+      [modal]="true"
+      [dismissableMask]="true"
+      [style]="{ width: '40rem' }"
+      [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
+    >
+      <ng-template pTemplate="content">
+        @if (returnDrawerVisible && selectedWithdrawal) {
+          <app-withdrawal-return-form
+            [withdrawal]="selectedWithdrawal"
+            (onSave)="onReturnSave()"
+            (onCancel)="onReturnCancel()"
+          />
+        }
+      </ng-template>
+    </p-dialog>
   </div>
 }

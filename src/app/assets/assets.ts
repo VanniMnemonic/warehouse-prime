@@ -19,6 +19,7 @@ import { Router } from '@angular/router';
 import { ToolbarModule } from 'primeng/toolbar';
 import { WithdrawalService } from '../services/withdrawal.service';
 import { WithdrawalForm } from '../withdrawals/withdrawal-form/withdrawal-form';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-assets',
@@ -38,6 +39,7 @@ import { WithdrawalForm } from '../withdrawals/withdrawal-form/withdrawal-form';
     TagModule,
     ImageDisplay,
     ToolbarModule,
+    TooltipModule,
   ],
   templateUrl: './assets.html',
   styleUrl: './assets.css',

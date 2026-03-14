@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, inject } from '@angular/core';
+import { Component, NgZone, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -25,12 +25,12 @@ import { Subscription } from 'rxjs';
   templateUrl: './asset-detail-page.html',
   styleUrl: './asset-detail-page.css',
 })
-export class AssetDetailPage {
+export class AssetDetailPage implements OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private assetService = inject(AssetService);
   private withdrawalService = inject(WithdrawalService);
-  private cdr = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
 
   asset: any = null;
   loading = true;
@@ -70,38 +70,42 @@ export class AssetDetailPage {
     this.routeSub?.unsubscribe();
   }
 
-  private safeDetectChanges() {
-    if (!this.destroyed) {
-      this.cdr.detectChanges();
-    }
-  }
-
   async loadAsset(force = false) {
     const idParam = this.route.snapshot.paramMap.get('id');
     const assetId = idParam ? Number(idParam) : NaN;
     if (!Number.isFinite(assetId)) {
-      this.asset = null;
-      this.loading = false;
-      this.safeDetectChanges();
+      if (this.destroyed) return;
+      this.zone.run(() => {
+        this.asset = null;
+        this.loading = false;
+      });
       return;
     }
 
     if (!force && this.asset?.id === assetId) {
-      this.loading = false;
-      this.safeDetectChanges();
+      if (this.destroyed) return;
+      this.zone.run(() => {
+        this.loading = false;
+      });
       return;
     }
 
     try {
-      this.loading = true;
-      this.safeDetectChanges();
+      if (this.destroyed) return;
+      this.zone.run(() => {
+        this.loading = true;
+      });
       const assets = await this.assetService.getAll();
       if (this.destroyed) return;
-      this.asset = assets.find((a: any) => a.id === assetId) ?? null;
+      const selected = assets.find((a: any) => a.id === assetId) ?? null;
+      this.zone.run(() => {
+        this.asset = selected;
+      });
     } finally {
       if (this.destroyed) return;
-      this.loading = false;
-      this.safeDetectChanges();
+      this.zone.run(() => {
+        this.loading = false;
+      });
     }
   }
 

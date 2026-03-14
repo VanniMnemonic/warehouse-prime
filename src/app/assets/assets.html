@@ -40,45 +40,70 @@
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
+        <!-- Image -->
         <th></th>
+
+        <!-- Denomination -->
         <th pSortableColumn="denomination">
           <span i18n="@@thDenomination">Denomination</span>
-          <p-sortIcon field="denomination" />
+          <p-sortIcon field="denomination" class="ml-2" />
         </th>
-        <th pSortableColumn="part_number">Part Number<p-sortIcon field="part_number" /></th>
+
+        <!-- Part Number -->
+        <th pSortableColumn="part_number">
+          <span i18n="@@thPartNumber">Part Number</span>
+          <p-sortIcon field="part_number" class="ml-2" />
+        </th>
+
+        <!-- Barcode -->
         <th pSortableColumn="barcode">
           <span i18n="@@thBarcode">Barcode</span>
-          <p-sortIcon field="barcode" />
+          <p-sortIcon field="barcode" class="ml-2" />
         </th>
-        <th pSortableColumn="min_stock" class="text-right">
-          <p-sortIcon field="min_stock" class="mr-2" />
-          Min Stock
+
+        <!-- Min Stock -->
+        <th pSortableColumn="min_stock" class="text-center">
+          <span i18n="@@thMinStock">Min Stock</span>
+          <p-sortIcon field="min_stock" class="ml-2" />
         </th>
-        <th pSortableColumn="total_quantity" class="text-right">
-          <p-sortIcon field="total_quantity" class="mr-2" />
+
+        <!-- Quantity -->
+        <th pSortableColumn="total_quantity" class="text-center">
           <span i18n="@@thQuantity">Quantity</span>
         </th>
-        <th pSortableColumn="withdrawn_quantity" class="text-right" style="width: 6rem">
-          <i class="pi pi-cart-arrow-down font-bold text-xl pt-1"></i>
-        </th>
-        <th pSortableColumn="inefficient_quantity" class="text-right" style="width: 6rem">
-          <p-sortIcon field="inefficient_quantity" class="mr-2" />
+
+        <!-- Inefficient Quantity -->
+        <th pSortableColumn="inefficient_quantity" class="text-center" style="width: 6rem">
           <i class="pi pi-exclamation-triangle font-bold text-xl pt-1"></i>
         </th>
+
+        <!-- Withdrawn Quantity -->
+        <th pSortableColumn="withdrawn_quantity" class="text-center" style="width: 6rem">
+          <i class="pi pi-cart-arrow-down font-bold text-xl pt-1"></i>
+        </th>
+
+        <!-- Below Min Stock -->
         <th pSortableColumn="is_below_min_stock" class="text-center" style="width: 6rem">
           <i class="pi pi-angle-double-down font-bold text-xl pt-1"></i>
         </th>
+
+        <!-- Near Expiry Batches -->
         <th pSortableColumn="has_near_expiry_batches" class="text-center" style="width: 6rem">
           <i class="pi pi-clock font-bold text-xl pt-1"></i>
         </th>
+
+        <!-- Expired Batches -->
         <th pSortableColumn="has_expired_batches" class="text-center" style="width: 6rem">
           <i class="pi pi-calendar-times font-bold text-xl pt-1"></i>
         </th>
-        <th style="width: 4rem"></th>
+
+        <!-- Actions -->
+        <th></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-asset>
       <tr>
+        <!-- Image -->
         <td>
           <app-image-display
             [image]="$any(getSafeUrl(asset.image_path))"
@@ -88,22 +113,46 @@
             icon="pi pi-box"
           />
         </td>
+
+        <!-- Denomination -->
         <td class="font-bold">{{ asset.denomination }}</td>
+
+        <!-- Part Number -->
         <td>{{ asset.part_number }}</td>
+
+        <!-- Barcode -->
         <td>{{ asset.barcode }}</td>
-        <td class="text-right">{{ asset.min_stock }}</td>
-        <td class="text-right">
+
+        <!-- Min Stock -->
+        <td class="text-center font-bold">{{ asset.min_stock }}</td>
+
+        <!-- Quantity -->
+        <td class="text-center font-bold">
           <p-tag
             [value]="asset.total_quantity.toString()"
             [severity]="getQuantitySeverity(asset)"
           />
         </td>
-        <td class="text-right font-bold text-muted-color">
-          {{ asset.withdrawn_quantity }}
+
+        <!-- Inefficient Quantity -->
+        <td class="text-center font-bold text-muted-color">
+          @if ((asset.inefficient_quantity || 0) > 0) {
+            <p-tag
+              [value]="asset.inefficient_quantity.toString()"
+              severity="danger"
+              icon="pi pi-exclamation-triangle"
+            />
+          }
         </td>
-        <td class="text-right font-bold text-muted-color">
-          {{ asset.inefficient_quantity }}
+
+        <!-- Withdrawn Quantity -->
+        <td class="text-center font-bold text-muted-color">
+          @if ((asset.withdrawn_quantity || 0) > 0) {
+            {{ asset.withdrawn_quantity }}
+          }
         </td>
+
+        <!-- Below Min Stock -->
         <td class="text-center">
           @if (asset.is_below_min_stock) {
             <p-tag severity="danger" class="p-2 pr-1">
@@ -111,6 +160,8 @@
             </p-tag>
           }
         </td>
+
+        <!-- Near Expiry Batches -->
         <td class="text-center">
           @if (asset.has_near_expiry_batches) {
             <p-tag severity="warn" class="p-2 pr-1">
@@ -118,6 +169,8 @@
             </p-tag>
           }
         </td>
+
+        <!-- Expired Batches -->
         <td class="text-center">
           @if (asset.has_expired_batches) {
             <p-tag severity="danger" class="p-2 pr-1">
@@ -125,6 +178,8 @@
             </p-tag>
           }
         </td>
+
+        <!-- Actions -->
         <td class="relative">
           <div class="flex items-center gap-2">
             <p-button
@@ -132,24 +187,36 @@
               [rounded]="true"
               severity="secondary"
               (onClick)="openDetail(asset)"
+              pTooltip="View details"
+              i18n-pTooltip="@@assetViewDetailsTooltip"
+              tooltipPosition="top"
             />
             <p-button
               icon="pi pi-cart-arrow-down"
               [rounded]="true"
               severity="secondary"
               (onClick)="openWithdraw(asset)"
+              pTooltip="Withdraw"
+              i18n-pTooltip="@@assetWithdrawTooltip"
+              tooltipPosition="top"
             />
             <p-button
               icon="pi pi-plus"
               [rounded]="true"
               severity="secondary"
               (onClick)="openAddBatch(asset)"
+              pTooltip="Add batch"
+              i18n-pTooltip="@@assetAddBatchTooltip"
+              tooltipPosition="top"
             />
             <p-button
               icon="pi pi-pencil"
               [rounded]="true"
               severity="secondary"
               (onClick)="openEditAsset(asset)"
+              pTooltip="Edit asset"
+              i18n-pTooltip="@@assetEditTooltip"
+              tooltipPosition="top"
             />
           </div>
         </td>
