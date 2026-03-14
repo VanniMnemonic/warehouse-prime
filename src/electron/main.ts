@@ -167,7 +167,8 @@ async function startUiServer(distRoot: string) {
     const normalized = path.posix.normalize(decoded);
     const safePath = normalized.replace(/^(\.\.(\/|\\|$))+/, '');
 
-    const filePath = path.join(distRoot, safePath);
+    const safeRelativePath = safePath.replace(/^\/+/, '');
+    const filePath = path.join(distRoot, safeRelativePath);
     const resolved = path.resolve(filePath);
     const resolvedRoot = path.resolve(distRoot);
     if (!resolved.startsWith(resolvedRoot)) {
@@ -433,7 +434,16 @@ ipcMain.handle('get-withdrawals-by-user', async (event, userId: number) => {
   const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
   return await withdrawalRepository.find({
     where: { user_id: userId },
-    relations: ['batch', 'batch.asset'],
+    relations: ['user', 'batch', 'batch.asset'],
+    order: { date: 'DESC' },
+  });
+});
+
+ipcMain.handle('get-withdrawals-by-asset', async (event, assetId: number) => {
+  const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
+  return await withdrawalRepository.find({
+    where: { batch: { asset_id: assetId } },
+    relations: ['user', 'batch', 'batch.asset'],
     order: { date: 'DESC' },
   });
 });

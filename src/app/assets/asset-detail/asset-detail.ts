@@ -16,7 +16,11 @@ import { LocationDisplay } from '../../shared/components/location-display';
 import { DomSanitizer } from '@angular/platform-browser';
 import { NotesComponent } from '../../shared/components/notes/notes';
 import { ImageDisplay } from '../../shared/components/image-display/image-display';
-import { AccordionModule } from 'primeng/accordion';
+import { TabsModule } from 'primeng/tabs';
+import { WithdrawalsTable } from '../../withdrawals/withdrawals-table/withdrawals-table';
+import { WithdrawalService } from '../../services/withdrawal.service';
+import { DialogModule } from 'primeng/dialog';
+import { WithdrawalReturnForm } from '../../withdrawals/withdrawal-return-form/withdrawal-return-form';
 
 @Component({
   selector: 'app-asset-detail',
@@ -35,7 +39,10 @@ import { AccordionModule } from 'primeng/accordion';
     LocationDisplay,
     NotesComponent,
     ImageDisplay,
-    AccordionModule,
+    TabsModule,
+    WithdrawalsTable,
+    DialogModule,
+    WithdrawalReturnForm,
   ],
   templateUrl: './asset-detail.html',
   styleUrl: './asset-detail.css',
@@ -49,12 +56,18 @@ export class AssetDetail {
 
   messageService = inject(MessageService);
   batchService = inject(BatchService);
+  withdrawalService = inject(WithdrawalService);
   cdr = inject(ChangeDetectorRef);
   sanitizer = inject(DomSanitizer);
 
   batches: any[] = [];
   loading: boolean = true;
   searchValue: string | undefined;
+  withdrawals: any[] = [];
+  withdrawalsLoading: boolean = true;
+  returnDrawerVisible: boolean = false;
+  selectedWithdrawal: any = null;
+  tabsValue: string = 'batches';
 
   // Computed signal for image URL to ensure immediate updates
   imageUrl = computed(() => {
@@ -68,9 +81,12 @@ export class AssetDetail {
       const a = this.asset();
       if (a && a.id) {
         this.loadBatches(a.id);
+        this.loadWithdrawals(a.id);
       } else {
         this.loading = false;
         this.batches = [];
+        this.withdrawalsLoading = false;
+        this.withdrawals = [];
         this.cdr.detectChanges();
       }
     });
@@ -119,6 +135,17 @@ export class AssetDetail {
     }
   }
 
+  async loadWithdrawals(assetId: number) {
+    try {
+      this.withdrawalsLoading = true;
+      this.cdr.detectChanges();
+      this.withdrawals = await this.withdrawalService.getByAsset(assetId);
+    } finally {
+      this.withdrawalsLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
   copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
     this.messageService.add({
@@ -130,5 +157,26 @@ export class AssetDetail {
 
   edit() {
     this.onEdit.emit(this.asset());
+  }
+
+  openDetails(withdrawal: any) {
+    console.log('View details for:', withdrawal);
+  }
+
+  openReturn(withdrawal: any) {
+    this.selectedWithdrawal = withdrawal;
+    this.returnDrawerVisible = true;
+  }
+
+  async onReturnSave() {
+    this.returnDrawerVisible = false;
+    const a = this.asset();
+    if (a?.id) {
+      await Promise.all([this.loadBatches(a.id), this.loadWithdrawals(a.id)]);
+    }
+  }
+
+  onReturnCancel() {
+    this.returnDrawerVisible = false;
   }
 }

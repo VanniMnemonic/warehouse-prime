@@ -356,7 +356,7 @@
       </trans-unit>
       <trans-unit id="withdrawalAvailableQuantityLabel" datatype="html">
         <source>Available Quantity</source>
-        <target>Quantità disponibile</target>
+        <target>Q.tà disponibile</target>
       </trans-unit>
       <trans-unit id="withdrawalSummaryUser" datatype="html">
         <source>User</source>
@@ -368,7 +368,7 @@
       </trans-unit>
       <trans-unit id="withdrawalQuantityLabel" datatype="html">
         <source>Quantity</source>
-        <target>Quantità</target>
+        <target>Q.tà</target>
       </trans-unit>
       <trans-unit id="withdrawalAvailableInline" datatype="html">
         <source>Available: <x id="INTERPOLATION" equiv-text="{{ selectedBatch?.quantity || selectedAsset?.totalAvailable || 0 }}"/></source>
@@ -426,6 +426,14 @@
         <source>Failed to return asset</source>
         <target>Impossibile restituire l'asset</target>
       </trans-unit>
+      <trans-unit id="assetDetailBatchesAccordionHeader" datatype="html">
+        <source>Batches</source>
+        <target>Lotti</target>
+      </trans-unit>
+      <trans-unit id="assetDetailWithdrawalsAccordionHeader" datatype="html">
+        <source>Withdrawals</source>
+        <target>Prelievi</target>
+      </trans-unit>
       <trans-unit id="thBatch" datatype="html">
         <source>Batch</source>
         <target>Lotto</target>
@@ -441,6 +449,10 @@
       <trans-unit id="thDenomination" datatype="html">
         <source>Denomination</source>
         <target>Denominazione</target>
+      </trans-unit>
+      <trans-unit id="thPartNumber" datatype="html">
+        <source>Part Number</source>
+        <target>Codice parte</target>
       </trans-unit>
       <trans-unit id="thBarcode" datatype="html">
         <source>Barcode</source>
@@ -469,6 +481,30 @@
       <trans-unit id="thBatchSN" datatype="html">
         <source>Batch S/N</source>
         <target>Lotto S/N</target>
+      </trans-unit>
+      <trans-unit id="thDate" datatype="html">
+        <source>Date</source>
+        <target>Data</target>
+      </trans-unit>
+      <trans-unit id="thMinStock" datatype="html">
+        <source>Min Stock</source>
+        <target>Scorta minima</target>
+      </trans-unit>
+      <trans-unit id="assetViewDetailsTooltip" datatype="html">
+        <source>View details</source>
+        <target>Vedi dettagli</target>
+      </trans-unit>
+      <trans-unit id="assetWithdrawTooltip" datatype="html">
+        <source>Withdraw</source>
+        <target>Preleva</target>
+      </trans-unit>
+      <trans-unit id="assetAddBatchTooltip" datatype="html">
+        <source>Add batch</source>
+        <target>Aggiungi lotto</target>
+      </trans-unit>
+      <trans-unit id="assetEditTooltip" datatype="html">
+        <source>Edit asset</source>
+        <target>Modifica asset</target>
       </trans-unit>
       <trans-unit id="userFormUploadImageChooseLabel" datatype="html">
         <source>Upload Image</source>

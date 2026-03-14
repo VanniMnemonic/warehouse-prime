@@ -28,42 +28,56 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">70</context>
+          <context context-type="linenumber">72</context>
         </context-group>
       </trans-unit>
       <trans-unit id="assetDetailTitle" datatype="html">
         <source>Asset Detail</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.ts</context>
-          <context context-type="linenumber">45</context>
+          <context context-type="linenumber">48</context>
         </context-group>
       </trans-unit>
       <trans-unit id="assetLabel" datatype="html">
         <source>Asset</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.ts</context>
-          <context context-type="linenumber">49</context>
+          <context context-type="linenumber">52</context>
         </context-group>
       </trans-unit>
       <trans-unit id="editBatchForHeader" datatype="html">
         <source>Edit Batch for <x id="assetName" equiv-text="assetName"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.ts</context>
-          <context context-type="linenumber">50</context>
+          <context context-type="linenumber">53</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="assetDetailBatchesAccordionHeader" datatype="html">
+        <source>Batches</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
+          <context context-type="linenumber">88,90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="assetDetailWithdrawalsAccordionHeader" datatype="html">
+        <source>Withdrawals</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
+          <context context-type="linenumber">91,95</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thBatch" datatype="html">
         <source>Batch</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
-          <context context-type="linenumber">98,99</context>
+          <context context-type="linenumber">110,111</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thLocation" datatype="html">
         <source>Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
-          <context context-type="linenumber">103,104</context>
+          <context context-type="linenumber">115,116</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/users.html</context>
@@ -78,15 +92,11 @@
         <source>Qty</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
-          <context context-type="linenumber">107,108</context>
+          <context context-type="linenumber">119,120</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/users/user-detail/user-detail.html</context>
-          <context context-type="linenumber">87,88</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">60,61</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">65,66</context>
         </context-group>
       </trans-unit>
       <trans-unit id="assetFormUploadImageChooseLabel" datatype="html">
@@ -187,7 +197,7 @@
           <context context-type="linenumber">26,27</context>
         </context-group>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
           <context context-type="linenumber">31,32</context>
         </context-group>
       </trans-unit>
@@ -202,32 +212,74 @@
         <source>Denomination</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.html</context>
-          <context context-type="linenumber">45,46</context>
+          <context context-type="linenumber">48,49</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="thPartNumber" datatype="html">
+        <source>Part Number</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/assets.html</context>
+          <context context-type="linenumber">54,55</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thBarcode" datatype="html">
         <source>Barcode</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.html</context>
-          <context context-type="linenumber">50,51</context>
+          <context context-type="linenumber">60,61</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/users.html</context>
           <context context-type="linenumber">61,62</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="thMinStock" datatype="html">
+        <source>Min Stock</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/assets.html</context>
+          <context context-type="linenumber">66,67</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="thQuantity" datatype="html">
         <source>Quantity</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.html</context>
-          <context context-type="linenumber">59,61</context>
+          <context context-type="linenumber">72,75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="assetViewDetailsTooltip" datatype="html">
+        <source>View details</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/assets.html</context>
+          <context context-type="linenumber">190,191</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="assetWithdrawTooltip" datatype="html">
+        <source>Withdraw</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/assets.html</context>
+          <context context-type="linenumber">199,200</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="assetAddBatchTooltip" datatype="html">
+        <source>Add batch</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/assets.html</context>
+          <context context-type="linenumber">208,209</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="assetEditTooltip" datatype="html">
+        <source>Edit asset</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/assets.html</context>
+          <context context-type="linenumber">217,218</context>
         </context-group>
       </trans-unit>
       <trans-unit id="addAssetDialogHeader" datatype="html">
         <source>Add Asset</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">71</context>
+          <context context-type="linenumber">73</context>
         </context-group>
       </trans-unit>
       <trans-unit id="appTitle" datatype="html">
@@ -537,36 +589,7 @@
         <source>User Detail</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-detail-page/user-detail-page.ts</context>
-          <context context-type="linenumber">32</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="returnAssetTooltip" datatype="html">
-        <source>Return Asset</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/users/user-detail/user-detail.html</context>
-          <context context-type="linenumber">138,139</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">144,145</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="actionsButton" datatype="html">
-        <source>Actions</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/users/user-detail/user-detail.html</context>
-          <context context-type="linenumber">143</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="menuViewDetails" datatype="html">
-        <source>View Details</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/users/user-detail/user-detail.ts</context>
-          <context context-type="linenumber">62</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">152,153</context>
+          <context context-type="linenumber">35</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormStepProfile" datatype="html">
@@ -1062,29 +1085,36 @@
       <trans-unit id="addWithdrawalButton" datatype="html">
         <source>Add Withdrawal</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">38,39</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">39,40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="thDate" datatype="html">
+        <source>Date</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">51,52</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thBatchSN" datatype="html">
         <source>Batch S/N</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">56,57</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">61,62</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalStatusHeader" datatype="html">
         <source>Status</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">64,65</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">69,70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalStatusReturned" datatype="html">
         <source>Returned</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">108</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">113</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalStatusPartiallyReturned" datatype="html">
@@ -1092,29 +1122,43 @@
                   withdrawal.quantity || 0
                 }}"/>)</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">111,114</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">116,119</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalStatusActive" datatype="html">
         <source>Active</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">118</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">123</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalStatusConsumed" datatype="html">
         <source>Consumed</source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">120</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">125</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalStatusInefficientCount" datatype="html">
         <source>Inefficient: <x id="INTERPOLATION" equiv-text="{{ withdrawal.inefficient_quantity || 0 }}"/></source>
         <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals.html</context>
-          <context context-type="linenumber">128,129</context>
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">133,134</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="returnAssetTooltip" datatype="html">
+        <source>Return Asset</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">149,150</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="menuViewDetails" datatype="html">
+        <source>View Details</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">157,158</context>
         </context-group>
       </trans-unit>
     </body>
