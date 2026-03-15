@@ -19,6 +19,10 @@ export class WithdrawalService {
     return (await this.electronService.invoke('get-withdrawals')) ?? [];
   }
 
+  async getOverdue(): Promise<any[]> {
+    return (await this.electronService.invoke('get-withdrawals-overdue')) ?? [];
+  }
+
   async create(withdrawal: any): Promise<any> {
     return await this.electronService.invoke('add-withdrawal', withdrawal);
   }

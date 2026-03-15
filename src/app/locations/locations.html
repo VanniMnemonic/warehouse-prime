@@ -1,39 +1,31 @@
 <div class="card overflow-x-auto p-4">
-  @if (activeSpeedDialLocationId() !== null) {
-    <div
-      class="fixed inset-0"
-      [style]="{ backgroundColor: 'rgba(0, 0, 0, 0.25)', zIndex: 1000 }"
-      (click)="closeSpeedDial()"
-    ></div>
-  }
-  <div class="flex justify-end gap-2 mb-4">
-    <p-button
-      icon="pi pi-sitemap"
-      label="Hierarchy"
-      i18n-label="@@locationsHierarchyButton"
-      severity="secondary"
-      [rounded]="true"
-      [disabled]="loading() || data().length === 0"
-      (onClick)="openHierarchy()"
-    />
-    <p-button
-      icon="pi pi-plus"
-      label="Add Location"
-      i18n-label="@@addLocationButton"
-      [rounded]="true"
-      (onClick)="addRootLocation()"
-    />
-  </div>
+  <p-contextMenu #nodeMenu [model]="nodeMenuItems()" appendTo="body" />
   @if (loading()) {
     <div class="p-6 text-center text-muted-color" i18n="@@loading">Loading...</div>
   } @else if (data().length === 0) {
     <div class="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <div class="text-center text-muted-color" i18n="@@noLocationsYet">No locations yet.</div>
+      <p-button
+        icon="pi pi-plus"
+        label="Add Location"
+        i18n-label="@@addLocationButton"
+        [rounded]="true"
+        (onClick)="addRootLocation()"
+      />
     </div>
   } @else {
     <p-organizationChart [value]="data()" [collapsible]="true">
       <ng-template let-node pTemplate="default">
-        <div class="p-2 text-center min-w-32 flex flex-col gap-1 relative group">
+        <div
+          class="p-2 text-center min-w-32 flex flex-col gap-1 relative group cursor-context-menu rounded-lg transition-colors hover:bg-surface-50 dark:hover:bg-surface-800/40 hover:ring-1 hover:ring-surface-300 dark:hover:ring-surface-600"
+          (contextmenu)="openNodeMenu($event, node.data)"
+          (click)="onOrgNodeClick(node.data)"
+          [style.border]="
+            moveSourceLocationId() === node.data.id
+              ? '2px solid var(--p-primary-color)'
+              : '2px solid transparent'
+          "
+        >
           <div class="font-bold">{{ node.data.denomination }}</div>
           @if (node.data.description) {
             <div class="text-sm opacity-80">{{ node.data.description }}</div>
@@ -44,25 +36,100 @@
               {{ node.data.phone }}
             </div>
           }
-          <div class="absolute -top-2 -right-3">
-            <p-speeddial
-              [model]="getNodeActions(node.data)"
-              [visible]="activeSpeedDialLocationId() === node.data.id"
-              (visibleChange)="onSpeedDialVisibleChange(node.data.id, $event)"
-              direction="left"
-              [style]="{ position: 'absolute', right: '0', top: '0' }"
-              [buttonProps]="{ rounded: true, text: true, severity: 'secondary', size: 'small' }"
-              [tooltipOptions]="{ tooltipPosition: 'left' }"
-              showIcon="pi pi-ellipsis-v"
-              hideIcon="pi pi-times"
-              [hideOnClickOutside]="true"
-            />
-          </div>
         </div>
       </ng-template>
     </p-organizationChart>
   }
 </div>
+
+<p-drawer
+  [visible]="relatedDrawerVisible()"
+  (visibleChange)="$event ? relatedDrawerVisible.set(true) : closeRelatedDrawer()"
+  position="right"
+  [style]="{ width: '36rem' }"
+  appendTo="body"
+  [modal]="false"
+>
+  <ng-template pTemplate="header">
+    <div class="flex flex-col">
+      <div class="font-bold text-lg">
+        {{ relatedLocation()?.denomination }}
+      </div>
+      <div class="text-sm text-muted-color">
+        @if (relatedDrawerMode() === 'users') {
+          <span i18n="@@locationsRelatedUsersTitle">Users</span>
+        } @else {
+          <span i18n="@@locationsRelatedBatchesTitle">Batches</span>
+        }
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    @if (relatedLoading()) {
+      <div class="p-4 text-center text-muted-color" i18n="@@loading">Loading...</div>
+    } @else if (relatedDrawerMode() === 'users') {
+      <p-table [value]="relatedUsers()" dataKey="id" [tableStyle]="{ 'min-width': '34rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th i18n="@@thName">Name</th>
+            <th i18n="@@thEmail">Email</th>
+            <th class="text-center" style="width: 5rem">
+              <i class="pi pi-shopping-cart text-lg"></i>
+            </th>
+            <th style="width: 4rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-user>
+          <tr>
+            <td class="font-bold">{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ user.email }}</td>
+            <td class="text-center">
+              @if (user.active_withdrawals > 0) {
+                <p-tag [value]="user.active_withdrawals.toString()" severity="warn" />
+              }
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-eye"
+                [rounded]="true"
+                severity="secondary"
+                (onClick)="openUserFromDrawer(user)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    } @else {
+      <p-table [value]="relatedBatches()" dataKey="id" [tableStyle]="{ 'min-width': '34rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th i18n="@@thAsset">Asset</th>
+            <th i18n="@@thSerial">Serial</th>
+            <th class="text-center" i18n="@@thQty" style="width: 6rem">Qty</th>
+            <th style="width: 4rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-batch>
+          <tr>
+            <td class="font-bold">{{ batch.asset?.denomination }}</td>
+            <td>{{ batch.serial_number }}</td>
+            <td class="text-center">
+              <p-tag [value]="(batch.quantity ?? 0).toString()" severity="info" />
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-eye"
+                [rounded]="true"
+                severity="secondary"
+                (onClick)="openAssetFromBatch(batch)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  </ng-template>
+</p-drawer>
 
 <p-drawer
   [visible]="hierarchyDrawerVisible()"
@@ -140,53 +207,5 @@
         (onCancel)="drawerVisible.set(false)"
       />
     }
-  </ng-template>
-</p-dialog>
-
-<p-dialog
-  [visible]="batchesDialogVisible()"
-  (visibleChange)="batchesDialogVisible.set($event)"
-  [header]="(selectedLocationForBatches()?.denomination ?? '') + ' - Batches'"
-  [modal]="true"
-  [dismissableMask]="true"
-  appendTo="body"
-  [style]="{ width: '60rem' }"
-  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
->
-  <ng-template pTemplate="content">
-    <p-table
-      [value]="batches()"
-      [loading]="batchesLoading()"
-      dataKey="id"
-      [tableStyle]="{ 'min-width': '50rem' }"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Asset</th>
-          <th>Serial</th>
-          <th class="text-center">Qty</th>
-          <th style="width: 4rem"></th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-batch>
-        <tr>
-          <td class="font-bold">{{ batch.asset?.denomination }}</td>
-          <td>{{ batch.serial_number }}</td>
-          <td class="text-center">
-            <p-tag [value]="(batch.quantity ?? 0).toString()" severity="info" />
-          </td>
-          <td class="relative">
-            <div class="flex items-center gap-2">
-              <p-button
-                icon="pi pi-eye"
-                [rounded]="true"
-                severity="secondary"
-                (onClick)="openAssetFromBatch(batch)"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
   </ng-template>
 </p-dialog>

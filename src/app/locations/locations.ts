@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { OrganizationChartModule } from 'primeng/organizationchart';
 import { MenuItem, TreeNode } from 'primeng/api';
 import { LocationService } from '../services/location.service';
@@ -10,10 +10,11 @@ import { DrawerModule } from 'primeng/drawer';
 import { TreeModule } from 'primeng/tree';
 import { DragDropModule } from 'primeng/dragdrop';
 import { TreeDragDropService } from 'primeng/api';
-import { SpeedDialModule } from 'primeng/speeddial';
-import { TooltipModule } from 'primeng/tooltip';
+import { ContextMenu } from 'primeng/contextmenu';
+import { ContextMenuModule } from 'primeng/contextmenu';
 import { Router } from '@angular/router';
 import { BatchService } from '../services/batch.service';
+import { UserService } from '../services/user.service';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
@@ -26,23 +27,32 @@ import { TagModule } from 'primeng/tag';
     DrawerModule,
     TreeModule,
     DragDropModule,
-    SpeedDialModule,
-    TooltipModule,
+    ContextMenuModule,
     TableModule,
     TagModule,
     LocationForm,
     CommonModule,
   ],
   templateUrl: './locations.html',
-  styleUrl: './locations.css',
+  // styleUrl: './locations.css',
   providers: [TreeDragDropService],
 })
 export class Locations implements OnInit {
   locationService = inject(LocationService);
   batchService = inject(BatchService);
+  userService = inject(UserService);
   router = inject(Router);
 
-  activeSpeedDialLocationId = signal<number | null>(null);
+  @ViewChild('nodeMenu') nodeMenu?: ContextMenu;
+  nodeMenuItems = signal<MenuItem[]>([]);
+  moveSourceLocationId = signal<number | null>(null);
+
+  relatedDrawerVisible = signal(false);
+  relatedDrawerMode = signal<'users' | 'batches'>('users');
+  relatedLoading = signal(false);
+  relatedLocation = signal<any>(null);
+  relatedUsers = signal<any[]>([]);
+  relatedBatches = signal<any[]>([]);
 
   data = signal<TreeNode[]>([]);
   locations = signal<any[]>([]);
@@ -55,11 +65,6 @@ export class Locations implements OnInit {
   hierarchySelection = signal<any>(null);
   hierarchyDirty = signal(false);
   hierarchySaving = signal(false);
-
-  batchesDialogVisible = signal(false);
-  batchesLoading = signal(false);
-  selectedLocationForBatches = signal<any>(null);
-  batches = signal<any[]>([]);
 
   ngOnInit() {
     void this.loadLocations();
@@ -200,14 +205,11 @@ export class Locations implements OnInit {
   async viewBatches(location: any) {
     const id = Number(location?.id);
     if (!Number.isFinite(id)) return;
-    this.selectedLocationForBatches.set(location);
-    this.batchesDialogVisible.set(true);
-    this.batchesLoading.set(true);
     try {
       const batches = await this.batchService.getByLocation(id);
-      this.batches.set(batches);
-    } finally {
-      this.batchesLoading.set(false);
+      return batches;
+    } catch {
+      return [];
     }
   }
 
@@ -218,23 +220,126 @@ export class Locations implements OnInit {
     this.router.navigate(['/assets', assetId], { state: { asset } });
   }
 
-  closeSpeedDial() {
-    this.activeSpeedDialLocationId.set(null);
+  openUserFromDrawer(user: any) {
+    const id = Number(user?.id);
+    if (!Number.isFinite(id)) return;
+    this.router.navigate(['/users', id], { state: { user } });
   }
 
-  onSpeedDialVisibleChange(locationId: number, visible: boolean) {
-    if (visible) {
-      this.activeSpeedDialLocationId.set(locationId);
-    } else if (this.activeSpeedDialLocationId() === locationId) {
-      this.activeSpeedDialLocationId.set(null);
+  closeRelatedDrawer() {
+    this.relatedDrawerVisible.set(false);
+    this.relatedLocation.set(null);
+    this.relatedUsers.set([]);
+    this.relatedBatches.set([]);
+    this.relatedLoading.set(false);
+  }
+
+  async openRelatedUsers(location: any) {
+    const locationId = Number(location?.id);
+    if (!Number.isFinite(locationId)) return;
+    this.relatedDrawerMode.set('users');
+    this.relatedLocation.set(location);
+    this.relatedDrawerVisible.set(true);
+    this.relatedLoading.set(true);
+    try {
+      const users = await this.userService.getAll();
+      this.relatedUsers.set(users.filter((u: any) => Number(u?.location?.id) === locationId));
+    } finally {
+      this.relatedLoading.set(false);
+    }
+  }
+
+  async openRelatedBatches(location: any) {
+    const locationId = Number(location?.id);
+    if (!Number.isFinite(locationId)) return;
+    this.relatedDrawerMode.set('batches');
+    this.relatedLocation.set(location);
+    this.relatedDrawerVisible.set(true);
+    this.relatedLoading.set(true);
+    try {
+      const batches = await this.batchService.getByLocation(locationId);
+      this.relatedBatches.set(batches);
+    } finally {
+      this.relatedLoading.set(false);
+    }
+  }
+
+  openNodeMenu(event: Event, location: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.nodeMenuItems.set(this.getNodeActions(location));
+    queueMicrotask(() => {
+      this.nodeMenu?.show(event as any);
+    });
+  }
+
+  private hideNodeMenu() {
+    this.nodeMenu?.hide();
+  }
+
+  private findTreeNodeById(nodes: TreeNode[], id: number): TreeNode | null {
+    const key = String(id);
+    for (const node of nodes) {
+      if ((node as any)?.key === key) return node;
+      const children = (node.children ?? []) as TreeNode[];
+      if (children.length) {
+        const found = this.findTreeNodeById(children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  startMove(location: any) {
+    const id = Number(location?.id);
+    if (!Number.isFinite(id)) return;
+    this.moveSourceLocationId.set(id);
+  }
+
+  cancelMove() {
+    this.moveSourceLocationId.set(null);
+  }
+
+  async onOrgNodeClick(targetLocation: any) {
+    const sourceId = this.moveSourceLocationId();
+    if (sourceId === null) return;
+
+    const targetId = Number(targetLocation?.id);
+    if (!Number.isFinite(targetId)) return;
+
+    if (targetId === sourceId) {
+      this.cancelMove();
+      return;
+    }
+
+    const sourceNode = this.findTreeNodeById(this.data(), sourceId);
+    if (sourceNode && this.nodeContainsKey(sourceNode, String(targetId))) {
+      return;
+    }
+
+    const siblings = this.locations().filter((l: any) => Number(l?.parent_id ?? 0) === targetId);
+    const maxSort = siblings.reduce((acc: number, l: any) => {
+      const so = Number(l?.sort_order ?? 0);
+      return Number.isFinite(so) ? Math.max(acc, so) : acc;
+    }, -1);
+    const nextSortOrder = maxSort + 1;
+
+    try {
+      await this.locationService.updateHierarchy([
+        { id: sourceId, parent_id: targetId, sort_order: nextSortOrder },
+      ]);
+      this.cancelMove();
+      await this.loadLocations();
+    } catch (error) {
+      console.error(error);
     }
   }
 
   getNodeActions(location: any): MenuItem[] {
-    const close = () => this.closeSpeedDial();
+    const close = () => this.hideNodeMenu();
     return [
       {
-        label: 'Aggiungi',
+        label: $localize`:@@locationsMenuAdd:Add`,
         icon: 'pi pi-plus',
         command: () => {
           close();
@@ -242,7 +347,7 @@ export class Locations implements OnInit {
         },
       },
       {
-        label: 'Modifica',
+        label: $localize`:@@locationsMenuEdit:Edit`,
         icon: 'pi pi-pencil',
         command: () => {
           close();
@@ -250,27 +355,27 @@ export class Locations implements OnInit {
         },
       },
       {
-        label: 'Sposta',
+        label: $localize`:@@locationsMenuMove:Move`,
         icon: 'pi pi-sitemap',
         command: () => {
           close();
-          this.openHierarchyForMove(location);
+          this.startMove(location);
         },
       },
       {
-        label: 'Utenti',
+        label: $localize`:@@locationsMenuUsers:Users`,
         icon: 'pi pi-users',
         command: () => {
           close();
-          this.viewUsers(location);
+          void this.openRelatedUsers(location);
         },
       },
       {
-        label: 'Lotti',
+        label: $localize`:@@locationsMenuBatches:Batches`,
         icon: 'pi pi-box',
         command: () => {
           close();
-          void this.viewBatches(location);
+          void this.openRelatedBatches(location);
         },
       },
     ];

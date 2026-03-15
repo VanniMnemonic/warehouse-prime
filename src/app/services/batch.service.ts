@@ -26,4 +26,14 @@ export class BatchService {
   async getByLocation(locationId: number): Promise<any[]> {
     return (await this.electronService.invoke('get-batches-by-location', locationId)) ?? [];
   }
+
+  async getExpiringWithinDays(days: number): Promise<any[]> {
+    return (
+      (await this.electronService.invoke('get-batches-expiring-within-days', days)) ?? []
+    );
+  }
+
+  async getExpired(): Promise<any[]> {
+    return (await this.electronService.invoke('get-batches-expired')) ?? [];
+  }
 }

@@ -1,6 +1,152 @@
-<div
-  class="flex flex-col items-center justify-center h-full min-h-[50vh] text-muted-color opacity-50"
->
-  <i class="pi pi-briefcase text-6xl mb-4"></i>
-  <h1 class="text-4xl font-bold text-center">Dashboard under construction</h1>
-</div>
+@if (loading()) {
+  <div class="p-6 text-center text-muted-color" i18n="@@loading">Loading...</div>
+} @else {
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="card p-4 overflow-auto">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-lg font-bold" i18n="@@dashboardInefficientAssetsTitle">Inefficient Assets</div>
+        <p-tag
+          [value]="inefficientAssets().length.toString()"
+          severity="warn"
+        />
+      </div>
+      <p-table [value]="inefficientAssets()" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th i18n="@@thAsset">Asset</th>
+            <th class="text-center" i18n="@@dashboardThInefficientQty">Inefficient</th>
+            <th class="text-center" i18n="@@dashboardThTotalQty">Total</th>
+            <th style="width: 4rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-asset>
+          <tr>
+            <td class="font-bold">{{ asset.denomination }}</td>
+            <td class="text-center">
+              <p-tag [value]="(asset.inefficient_quantity ?? 0).toString()" severity="danger" />
+            </td>
+            <td class="text-center">
+              <p-tag [value]="(asset.total_quantity ?? 0).toString()" severity="info" />
+            </td>
+            <td>
+              <p-button icon="pi pi-eye" [rounded]="true" severity="secondary" (onClick)="openAsset(asset)" />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="card p-4 overflow-auto">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-lg font-bold" i18n="@@dashboardExpiringBatchesTitle">Batches Expiring in 30 Days</div>
+        <p-tag
+          [value]="expiringBatches().length.toString()"
+          severity="warn"
+        />
+      </div>
+      <p-table [value]="expiringBatches()" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th i18n="@@thAsset">Asset</th>
+            <th i18n="@@thSerial">Serial</th>
+            <th i18n="@@dashboardThExpires">Expires</th>
+            <th style="width: 4rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-batch>
+          <tr>
+            <td class="font-bold">{{ batch.asset?.denomination }}</td>
+            <td>{{ batch.serial_number }}</td>
+            <td>{{ batch.expiration_date | date: 'shortDate' }}</td>
+            <td>
+              <p-button
+                icon="pi pi-eye"
+                [rounded]="true"
+                severity="secondary"
+                (onClick)="openAssetFromBatch(batch)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="card p-4 overflow-auto">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-lg font-bold" i18n="@@dashboardExpiredBatchesTitle">Expired Batches</div>
+        <p-tag
+          [value]="expiredBatches().length.toString()"
+          severity="danger"
+        />
+      </div>
+      <p-table [value]="expiredBatches()" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th i18n="@@thAsset">Asset</th>
+            <th i18n="@@thSerial">Serial</th>
+            <th i18n="@@dashboardThExpiredOn">Expired On</th>
+            <th style="width: 4rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-batch>
+          <tr>
+            <td class="font-bold">{{ batch.asset?.denomination }}</td>
+            <td>{{ batch.serial_number }}</td>
+            <td>{{ batch.expiration_date | date: 'shortDate' }}</td>
+            <td>
+              <p-button
+                icon="pi pi-eye"
+                [rounded]="true"
+                severity="secondary"
+                (onClick)="openAssetFromBatch(batch)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div class="card p-4 overflow-auto">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-lg font-bold" i18n="@@dashboardOverdueWithdrawalsTitle">Overdue Withdrawals</div>
+        <p-tag
+          [value]="overdueWithdrawals().length.toString()"
+          severity="danger"
+        />
+      </div>
+      <p-table [value]="overdueWithdrawals()" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th i18n="@@tabUsers">Users</th>
+            <th i18n="@@thAsset">Asset</th>
+            <th class="text-center" i18n="@@dashboardThOutstanding">Outstanding</th>
+            <th i18n="@@dashboardThExpectedReturn">Expected Return</th>
+            <th class="text-center" i18n="@@dashboardThOverdueDays">Days</th>
+            <th style="width: 4rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-w>
+          <tr>
+            <td class="font-bold">{{ w.user?.first_name }} {{ w.user?.last_name }}</td>
+            <td>{{ w.batch?.asset?.denomination }}</td>
+            <td class="text-center">
+              <p-tag [value]="getOutstandingQty(w).toString()" severity="warn" />
+            </td>
+            <td>{{ w.expected_return_date | date: 'shortDate' }}</td>
+            <td class="text-center">
+              <p-tag [value]="getOverdueDays(w).toString()" severity="danger" />
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-eye"
+                [rounded]="true"
+                severity="secondary"
+                (onClick)="openWithdrawal(w)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+}

@@ -58,6 +58,94 @@
         <source>Delete</source>
         <target>Elimina</target>
       </trans-unit>
+      <trans-unit id="locationsMenuAdd" datatype="html">
+        <source>Add</source>
+        <target>Aggiungi</target>
+      </trans-unit>
+      <trans-unit id="locationsMenuEdit" datatype="html">
+        <source>Edit</source>
+        <target>Modifica</target>
+      </trans-unit>
+      <trans-unit id="locationsMenuMove" datatype="html">
+        <source>Move</source>
+        <target>Sposta</target>
+      </trans-unit>
+      <trans-unit id="locationsMenuUsers" datatype="html">
+        <source>Users</source>
+        <target>Utenti</target>
+      </trans-unit>
+      <trans-unit id="locationsMenuBatches" datatype="html">
+        <source>Batches</source>
+        <target>Lotti</target>
+      </trans-unit>
+      <trans-unit id="locationsRelatedUsersTitle" datatype="html">
+        <source>Users</source>
+        <target>Utenti</target>
+      </trans-unit>
+      <trans-unit id="locationsRelatedBatchesTitle" datatype="html">
+        <source>Batches</source>
+        <target>Lotti</target>
+      </trans-unit>
+      <trans-unit id="thName" datatype="html">
+        <source>Name</source>
+        <target>Nome</target>
+      </trans-unit>
+      <trans-unit id="thAsset" datatype="html">
+        <source>Asset</source>
+        <target>Asset</target>
+      </trans-unit>
+      <trans-unit id="thSerial" datatype="html">
+        <source>Serial</source>
+        <target>Seriale</target>
+      </trans-unit>
+      <trans-unit id="thQty" datatype="html">
+        <source>Qty</source>
+        <target>Qtà</target>
+      </trans-unit>
+      <trans-unit id="dashboardInefficientAssetsTitle" datatype="html">
+        <source>Inefficient Assets</source>
+        <target>Asset inefficienti</target>
+      </trans-unit>
+      <trans-unit id="dashboardThInefficientQty" datatype="html">
+        <source>Inefficient</source>
+        <target>Inefficiente</target>
+      </trans-unit>
+      <trans-unit id="dashboardThTotalQty" datatype="html">
+        <source>Total</source>
+        <target>Totale</target>
+      </trans-unit>
+      <trans-unit id="dashboardExpiringBatchesTitle" datatype="html">
+        <source>Batches Expiring in 30 Days</source>
+        <target>Lotti in scadenza (30 giorni)</target>
+      </trans-unit>
+      <trans-unit id="dashboardExpiredBatchesTitle" datatype="html">
+        <source>Expired Batches</source>
+        <target>Lotti scaduti</target>
+      </trans-unit>
+      <trans-unit id="dashboardThExpires" datatype="html">
+        <source>Expires</source>
+        <target>Scade</target>
+      </trans-unit>
+      <trans-unit id="dashboardThExpiredOn" datatype="html">
+        <source>Expired On</source>
+        <target>Scaduto il</target>
+      </trans-unit>
+      <trans-unit id="dashboardOverdueWithdrawalsTitle" datatype="html">
+        <source>Overdue Withdrawals</source>
+        <target>Prelievi oltre la data prevista</target>
+      </trans-unit>
+      <trans-unit id="dashboardThOutstanding" datatype="html">
+        <source>Outstanding</source>
+        <target>Da restituire</target>
+      </trans-unit>
+      <trans-unit id="dashboardThExpectedReturn" datatype="html">
+        <source>Expected Return</source>
+        <target>Restituzione prevista</target>
+      </trans-unit>
+      <trans-unit id="dashboardThOverdueDays" datatype="html">
+        <source>Days</source>
+        <target>Giorni</target>
+      </trans-unit>
       <trans-unit id="appTitle" datatype="html">
         <source>Warehouse Prime</source>
         <target>Warehouse Prime</target>

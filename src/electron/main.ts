@@ -11,7 +11,7 @@ import { Location } from './entities/Location';
 import { Asset } from './entities/Asset';
 import { Batch } from './entities/Batch';
 import { Withdrawal } from './entities/Withdrawal';
-import { In, IsNull } from 'typeorm';
+import { Between, In, IsNull, LessThan } from 'typeorm';
 import { NoteService } from './services/note.service';
 import { BackupService } from './services/backup.service';
 
@@ -184,9 +184,21 @@ async function startUiServer(distRoot: string) {
         finalPath = path.join(finalPath, 'index.html');
       }
     } catch {
+      if (/(^|\/)styles-[^\/]+\.css$/.test(safeRelativePath)) {
+        const fallbackRelativePath = safeRelativePath.replace(/styles-[^\/]+\.css$/, 'styles.css');
+        const fallbackPath = path.resolve(path.join(distRoot, fallbackRelativePath));
+        if (fallbackPath.startsWith(resolvedRoot) && fs.existsSync(fallbackPath)) {
+          finalPath = fallbackPath;
+        } else {
+          res.writeHead(404);
+          res.end();
+          return;
+        }
+      } else {
       res.writeHead(404);
       res.end();
       return;
+      }
     }
 
     try {
@@ -484,6 +496,20 @@ ipcMain.handle('get-withdrawals', async () => {
   });
 });
 
+ipcMain.handle('get-withdrawals-overdue', async () => {
+  const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
+  const now = new Date();
+  return await withdrawalRepository.find({
+    where: {
+      must_return: true,
+      return_date: IsNull(),
+      expected_return_date: LessThan(now),
+    },
+    relations: ['user', 'batch', 'batch.asset'],
+    order: { expected_return_date: 'ASC' },
+  });
+});
+
 ipcMain.handle('get-withdrawals-by-user', async (event, userId: number) => {
   const withdrawalRepository = AppDataSource.getRepository(Withdrawal);
   return await withdrawalRepository.find({
@@ -623,6 +649,28 @@ ipcMain.handle('get-batches-by-location', async (event, locationId: number) => {
     where: { location: { id: locationId } },
     relations: ['asset', 'location', 'location.parent'],
     order: { id: 'ASC' },
+  });
+});
+
+ipcMain.handle('get-batches-expiring-within-days', async (event, days: number) => {
+  const batchRepository = AppDataSource.getRepository(Batch);
+  const now = new Date();
+  const until = new Date(now);
+  until.setDate(now.getDate() + Math.max(0, Number(days) || 0));
+  return await batchRepository.find({
+    where: { expiration_date: Between(now, until) },
+    relations: ['asset', 'location', 'location.parent'],
+    order: { expiration_date: 'ASC' },
+  });
+});
+
+ipcMain.handle('get-batches-expired', async () => {
+  const batchRepository = AppDataSource.getRepository(Batch);
+  const now = new Date();
+  return await batchRepository.find({
+    where: { expiration_date: LessThan(now) },
+    relations: ['asset', 'location', 'location.parent'],
+    order: { expiration_date: 'DESC' },
   });
 });
 

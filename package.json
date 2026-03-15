@@ -8,7 +8,7 @@
     "build": "ng build",
     "build:localize": "ng build --localize",
     "build:electron": "tsc -p tsconfig.electron.json",
-    "dev:localize": "ng build --watch --configuration development --localize",
+    "dev:localize": "ng build --watch --configuration development --localize --output-hashing=none",
     "extract-i18n": "ng extract-i18n --output-path src/locale",
     "watch": "ng build --watch --configuration development",
     "serve:dist": "npx http-server dist/prime/browser -p 4200 -c-1",
