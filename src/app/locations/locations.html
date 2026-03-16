@@ -185,13 +185,7 @@
 <p-dialog
   [visible]="drawerVisible()"
   (visibleChange)="drawerVisible.set($event)"
-  [header]="
-    editingLocation()
-      ? 'Edit Location'
-      : selectedLocation()
-        ? 'Add Sub-Location to ' + selectedLocation().denomination
-        : 'Add Root Location'
-  "
+  [header]="getLocationDialogHeader()"
   [modal]="true"
   [dismissableMask]="true"
   appendTo="body"

@@ -168,6 +168,19 @@ export class Locations implements OnInit {
     this.drawerVisible.set(true);
   }
 
+  getLocationDialogHeader(): string {
+    const editing = this.editingLocation();
+    if (editing) {
+      return $localize`:@@locationsDialogEditHeader:Edit Location`;
+    }
+    const parent = this.selectedLocation();
+    if (parent) {
+      const denomination = String(parent?.denomination ?? '');
+      return $localize`:@@locationsDialogAddSubHeader:Add Sub-Location to ${denomination}:locationName:`;
+    }
+    return $localize`:@@locationsDialogAddRootHeader:Add Root Location`;
+  }
+
   openHierarchy() {
     this.hierarchyData.set(this.buildTree(this.locations(), { expanded: true }));
     this.hierarchySelection.set(null);

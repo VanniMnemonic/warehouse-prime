@@ -12,21 +12,30 @@ import { MessageService } from 'primeng/api';
   template: `
     <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4">
       <div class="flex flex-col gap-1">
-        <label for="denomination" class="font-bold">Denomination</label>
+        <label for="denomination" class="font-bold" i18n="@@locationFormDenominationLabel">
+          Denomination
+        </label>
         <input pInputText id="denomination" formControlName="denomination" />
       </div>
       <div class="flex flex-col gap-1">
-        <label for="description" class="font-bold">Description</label>
+        <label for="description" class="font-bold" i18n="@@locationFormDescriptionLabel">
+          Description
+        </label>
         <textarea pTextarea id="description" formControlName="description" rows="3"></textarea>
       </div>
       <div class="flex flex-col gap-1">
-        <label for="phone" class="font-bold">Phone</label>
+        <label for="phone" class="font-bold" i18n="@@locationFormPhoneLabel">Phone</label>
         <input pInputText id="phone" formControlName="phone" />
       </div>
 
       <div class="flex justify-end gap-2 mt-4">
-        <p-button label="Cancel" severity="secondary" (onClick)="cancel()" />
-        <p-button label="Save" type="submit" [disabled]="form.invalid" />
+        <p-button
+          label="Cancel"
+          i18n-label="@@cancelButton"
+          severity="secondary"
+          (onClick)="cancel()"
+        />
+        <p-button label="Save" i18n-label="@@saveButton" type="submit" [disabled]="form.invalid" />
       </div>
     </form>
   `,

@@ -86,6 +86,18 @@
         <source>Batches</source>
         <target>Lotti</target>
       </trans-unit>
+      <trans-unit id="locationsDialogEditHeader" datatype="html">
+        <source>Edit Location</source>
+        <target>Modifica posizione</target>
+      </trans-unit>
+      <trans-unit id="locationsDialogAddSubHeader" datatype="html">
+        <source>Add Sub-Location to <x id="locationName" equiv-text="locationName"/></source>
+        <target>Aggiungi sotto-posizione a <x id="locationName" equiv-text="locationName"/></target>
+      </trans-unit>
+      <trans-unit id="locationsDialogAddRootHeader" datatype="html">
+        <source>Add Root Location</source>
+        <target>Aggiungi posizione principale</target>
+      </trans-unit>
       <trans-unit id="thName" datatype="html">
         <source>Name</source>
         <target>Nome</target>
@@ -813,6 +825,18 @@
       <trans-unit id="assetFormBarcodeLabel" datatype="html">
         <source>Barcode</source>
         <target>Codice a barre</target>
+      </trans-unit>
+      <trans-unit id="locationFormDenominationLabel" datatype="html">
+        <source>Denomination</source>
+        <target>Denominazione</target>
+      </trans-unit>
+      <trans-unit id="locationFormDescriptionLabel" datatype="html">
+        <source>Description</source>
+        <target>Descrizione</target>
+      </trans-unit>
+      <trans-unit id="locationFormPhoneLabel" datatype="html">
+        <source>Phone</source>
+        <target>Telefono</target>
       </trans-unit>
       <trans-unit id="assetFormMinStockLabel" datatype="html">
         <source>Minimum Stock</source>
