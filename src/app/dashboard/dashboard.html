@@ -1,152 +1,297 @@
 @if (loading()) {
   <div class="p-6 text-center text-muted-color" i18n="@@loading">Loading...</div>
 } @else {
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <div class="card p-4 overflow-auto">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-lg font-bold" i18n="@@dashboardInefficientAssetsTitle">Inefficient Assets</div>
-        <p-tag
-          [value]="inefficientAssets().length.toString()"
-          severity="warn"
-        />
-      </div>
-      <p-table [value]="inefficientAssets()" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th i18n="@@thAsset">Asset</th>
-            <th class="text-center" i18n="@@dashboardThInefficientQty">Inefficient</th>
-            <th class="text-center" i18n="@@dashboardThTotalQty">Total</th>
-            <th style="width: 4rem"></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-asset>
-          <tr>
-            <td class="font-bold">{{ asset.denomination }}</td>
-            <td class="text-center">
-              <p-tag [value]="(asset.inefficient_quantity ?? 0).toString()" severity="danger" />
-            </td>
-            <td class="text-center">
-              <p-tag [value]="(asset.total_quantity ?? 0).toString()" severity="info" />
-            </td>
-            <td>
-              <p-button icon="pi pi-eye" [rounded]="true" severity="secondary" (onClick)="openAsset(asset)" />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
+  <div class="p-4 sm:p-6 lg:p-8">
+    <div class="max-w-screen-2xl mx-auto flex flex-col gap-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex flex-col min-w-0">
+          <h2 class="text-2xl font-bold m-0" i18n="@@dashboardTitle">Dashboard</h2>
+          <span class="text-muted-color" i18n="@@dashboardSubtitle"
+            >Quick overview of critical items.</span
+          >
+        </div>
 
-    <div class="card p-4 overflow-auto">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-lg font-bold" i18n="@@dashboardExpiringBatchesTitle">Batches Expiring in 30 Days</div>
-        <p-tag
-          [value]="expiringBatches().length.toString()"
-          severity="warn"
+        <p-button
+          icon="pi pi-refresh"
+          [rounded]="true"
+          severity="secondary"
+          (onClick)="loadDashboard()"
+          ariaLabel="Refresh dashboard"
+          i18n-ariaLabel="@@dashboardRefreshAria"
         />
       </div>
-      <p-table [value]="expiringBatches()" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th i18n="@@thAsset">Asset</th>
-            <th i18n="@@thSerial">Serial</th>
-            <th i18n="@@dashboardThExpires">Expires</th>
-            <th style="width: 4rem"></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-batch>
-          <tr>
-            <td class="font-bold">{{ batch.asset?.denomination }}</td>
-            <td>{{ batch.serial_number }}</td>
-            <td>{{ batch.expiration_date | date: 'shortDate' }}</td>
-            <td>
-              <p-button
-                icon="pi pi-eye"
-                [rounded]="true"
-                severity="secondary"
-                (onClick)="openAssetFromBatch(batch)"
-              />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
 
-    <div class="card p-4 overflow-auto">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-lg font-bold" i18n="@@dashboardExpiredBatchesTitle">Expired Batches</div>
-        <p-tag
-          [value]="expiredBatches().length.toString()"
-          severity="danger"
-        />
-      </div>
-      <p-table [value]="expiredBatches()" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th i18n="@@thAsset">Asset</th>
-            <th i18n="@@thSerial">Serial</th>
-            <th i18n="@@dashboardThExpiredOn">Expired On</th>
-            <th style="width: 4rem"></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-batch>
-          <tr>
-            <td class="font-bold">{{ batch.asset?.denomination }}</td>
-            <td>{{ batch.serial_number }}</td>
-            <td>{{ batch.expiration_date | date: 'shortDate' }}</td>
-            <td>
-              <p-button
-                icon="pi pi-eye"
-                [rounded]="true"
-                severity="secondary"
-                (onClick)="openAssetFromBatch(batch)"
-              />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card p-4 flex flex-col gap-3 h-[26rem]">
+          <div class="flex items-center justify-between gap-3">
+            <div class="text-lg font-bold truncate" i18n="@@dashboardInefficientAssetsTitle">
+              Inefficient Assets
+            </div>
+            <p-tag [value]="inefficientAssets().length.toString()" severity="warn" />
+          </div>
 
-    <div class="card p-4 overflow-auto">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-lg font-bold" i18n="@@dashboardOverdueWithdrawalsTitle">Overdue Withdrawals</div>
-        <p-tag
-          [value]="overdueWithdrawals().length.toString()"
-          severity="danger"
-        />
+          <div class="flex-1 min-h-0">
+            <p-table
+              [value]="inefficientAssets()"
+              dataKey="id"
+              [stripedRows]="true"
+              [rowHover]="true"
+              [scrollable]="true"
+              scrollHeight="flex"
+              styleClass="p-datatable-sm"
+              [tableStyle]="{ width: '100%' }"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th i18n="@@thAsset">Asset</th>
+                  <th class="text-center" i18n="@@dashboardThInefficientQty">Inefficient</th>
+                  <th class="text-center" i18n="@@dashboardThTotalQty">Total</th>
+                  <th style="width: 4rem"></th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-asset>
+                <tr>
+                  <td class="font-bold">{{ asset.denomination }}</td>
+                  <td class="text-center">
+                    <p-tag
+                      [value]="(asset.inefficient_quantity ?? 0).toString()"
+                      severity="danger"
+                    />
+                  </td>
+                  <td class="text-center">
+                    <p-tag [value]="(asset.total_quantity ?? 0).toString()" severity="info" />
+                  </td>
+                  <td class="text-right">
+                    <p-button
+                      icon="pi pi-eye"
+                      [rounded]="true"
+                      severity="secondary"
+                      (onClick)="openAsset(asset)"
+                      ariaLabel="View asset"
+                      i18n-ariaLabel="@@dashboardViewAssetAria"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td
+                    colspan="4"
+                    class="py-10 text-center text-muted-color"
+                    i18n="@@dashboardEmptyInefficientAssets"
+                  >
+                    No inefficient assets found.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <div class="card p-4 flex flex-col gap-3 h-[26rem]">
+          <div class="flex items-center justify-between gap-3">
+            <div class="text-lg font-bold truncate" i18n="@@dashboardExpiringBatchesTitle">
+              Batches Expiring in 30 Days
+            </div>
+            <p-tag [value]="expiringBatches().length.toString()" severity="warn" />
+          </div>
+
+          <div class="flex-1 min-h-0">
+            <p-table
+              [value]="expiringBatches()"
+              dataKey="id"
+              [stripedRows]="true"
+              [rowHover]="true"
+              [scrollable]="true"
+              scrollHeight="flex"
+              styleClass="p-datatable-sm"
+              [tableStyle]="{ width: '100%' }"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th i18n="@@thAsset">Asset</th>
+                  <th class="hidden md:table-cell" i18n="@@thSerial">Serial</th>
+                  <th i18n="@@dashboardThExpires">Expires</th>
+                  <th style="width: 4rem"></th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-batch>
+                <tr>
+                  <td>
+                    <div class="font-bold">{{ batch.asset?.denomination }}</div>
+                    <div class="text-sm text-muted-color md:hidden">{{ batch.serial_number }}</div>
+                  </td>
+                  <td class="hidden md:table-cell">{{ batch.serial_number }}</td>
+                  <td>{{ batch.expiration_date | date: 'shortDate' }}</td>
+                  <td class="text-right">
+                    <p-button
+                      icon="pi pi-eye"
+                      [rounded]="true"
+                      severity="secondary"
+                      (onClick)="openAssetFromBatch(batch)"
+                      ariaLabel="View asset"
+                      i18n-ariaLabel="@@dashboardViewAssetFromBatchAria"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td
+                    colspan="4"
+                    class="py-10 text-center text-muted-color"
+                    i18n="@@dashboardEmptyExpiringBatches"
+                  >
+                    No expiring batches.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <div class="card p-4 flex flex-col gap-3 h-[26rem]">
+          <div class="flex items-center justify-between gap-3">
+            <div class="text-lg font-bold truncate" i18n="@@dashboardExpiredBatchesTitle">
+              Expired Batches
+            </div>
+            <p-tag [value]="expiredBatches().length.toString()" severity="danger" />
+          </div>
+
+          <div class="flex-1 min-h-0">
+            <p-table
+              [value]="expiredBatches()"
+              dataKey="id"
+              [stripedRows]="true"
+              [rowHover]="true"
+              [scrollable]="true"
+              scrollHeight="flex"
+              styleClass="p-datatable-sm"
+              [tableStyle]="{ width: '100%' }"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th i18n="@@thAsset">Asset</th>
+                  <th class="hidden md:table-cell" i18n="@@thSerial">Serial</th>
+                  <th i18n="@@dashboardThExpiredOn">Expired On</th>
+                  <th style="width: 4rem"></th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-batch>
+                <tr>
+                  <td>
+                    <div class="font-bold">{{ batch.asset?.denomination }}</div>
+                    <div class="text-sm text-muted-color md:hidden">{{ batch.serial_number }}</div>
+                  </td>
+                  <td class="hidden md:table-cell">{{ batch.serial_number }}</td>
+                  <td>{{ batch.expiration_date | date: 'shortDate' }}</td>
+                  <td class="text-right">
+                    <p-button
+                      icon="pi pi-eye"
+                      [rounded]="true"
+                      severity="secondary"
+                      (onClick)="openAssetFromBatch(batch)"
+                      ariaLabel="View asset"
+                      i18n-ariaLabel="@@dashboardViewAssetFromExpiredBatchAria"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td
+                    colspan="4"
+                    class="py-10 text-center text-muted-color"
+                    i18n="@@dashboardEmptyExpiredBatches"
+                  >
+                    No expired batches.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+
+        <div class="card p-4 flex flex-col gap-3 h-[26rem]">
+          <div class="flex items-center justify-between gap-3">
+            <div class="text-lg font-bold truncate" i18n="@@dashboardOverdueWithdrawalsTitle">
+              Overdue Withdrawals
+            </div>
+            <p-tag [value]="overdueWithdrawals().length.toString()" severity="danger" />
+          </div>
+
+          <div class="flex-1 min-h-0">
+            <p-table
+              [value]="overdueWithdrawals()"
+              dataKey="id"
+              [stripedRows]="true"
+              [rowHover]="true"
+              [scrollable]="true"
+              scrollHeight="flex"
+              styleClass="p-datatable-sm"
+              [tableStyle]="{ width: '100%' }"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th i18n="@@tabUsers">Users</th>
+                  <th class="hidden lg:table-cell" i18n="@@thAsset">Asset</th>
+                  <th class="text-center" i18n="@@dashboardThOutstanding">Outstanding</th>
+                  <th i18n="@@dashboardThExpectedReturn">Expected Return</th>
+                  <th class="text-center" i18n="@@dashboardThOverdueDays">Days</th>
+                  <th style="width: 4rem"></th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-w>
+                <tr>
+                  <td>
+                    <div class="font-bold">{{ w.user?.first_name }} {{ w.user?.last_name }}</div>
+                    <div class="text-sm text-muted-color lg:hidden">
+                      {{ w.batch?.asset?.denomination }}
+                    </div>
+                  </td>
+                  <td class="hidden lg:table-cell">{{ w.batch?.asset?.denomination }}</td>
+                  <td class="text-center">
+                    <p-tag [value]="getOutstandingQty(w).toString()" severity="warn" />
+                  </td>
+                  <td>{{ w.expected_return_date | date: 'shortDate' }}</td>
+                  <td class="text-center">
+                    <p-tag [value]="getOverdueDays(w).toString()" severity="danger" />
+                  </td>
+                  <td class="text-right">
+                    <p-button
+                      icon="pi pi-eye"
+                      [rounded]="true"
+                      severity="secondary"
+                      (onClick)="openWithdrawal(w)"
+                      ariaLabel="View withdrawal"
+                      i18n-ariaLabel="@@dashboardViewWithdrawalAria"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td
+                    colspan="6"
+                    class="py-10 text-center text-muted-color"
+                    i18n="@@dashboardEmptyOverdueWithdrawals"
+                  >
+                    No overdue withdrawals.
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
       </div>
-      <p-table [value]="overdueWithdrawals()" dataKey="id" [tableStyle]="{ 'min-width': '30rem' }">
-        <ng-template pTemplate="header">
-          <tr>
-            <th i18n="@@tabUsers">Users</th>
-            <th i18n="@@thAsset">Asset</th>
-            <th class="text-center" i18n="@@dashboardThOutstanding">Outstanding</th>
-            <th i18n="@@dashboardThExpectedReturn">Expected Return</th>
-            <th class="text-center" i18n="@@dashboardThOverdueDays">Days</th>
-            <th style="width: 4rem"></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-w>
-          <tr>
-            <td class="font-bold">{{ w.user?.first_name }} {{ w.user?.last_name }}</td>
-            <td>{{ w.batch?.asset?.denomination }}</td>
-            <td class="text-center">
-              <p-tag [value]="getOutstandingQty(w).toString()" severity="warn" />
-            </td>
-            <td>{{ w.expected_return_date | date: 'shortDate' }}</td>
-            <td class="text-center">
-              <p-tag [value]="getOverdueDays(w).toString()" severity="danger" />
-            </td>
-            <td>
-              <p-button
-                icon="pi pi-eye"
-                [rounded]="true"
-                severity="secondary"
-                (onClick)="openWithdrawal(w)"
-              />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
     </div>
   </div>
 }

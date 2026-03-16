@@ -1,7 +1,11 @@
 {
   "name": "prime",
-  "version": "0.0.0",
+  "version": "0.3.0",
   "main": "src/electron/main.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VanniMnemonic/prime.git"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -33,6 +37,7 @@
     "@angular/router": "^21.2.0",
     "@primeuix/themes": "^2.0.3",
     "archiver": "^7.0.1",
+    "electron-updater": "^6.8.3",
     "primeicons": "^7.0.0",
     "primelocale": "^2.3.1",
     "primeng": "^21.1.3",
@@ -69,7 +74,11 @@
     "appId": "com.warehouse.prime",
     "productName": "Warehouse Prime",
     "asar": true,
-    "publish": null,
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
     "files": [
       "dist-electron/**/*",
       "dist/prime/**/*",

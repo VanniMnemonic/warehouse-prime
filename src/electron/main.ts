@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import sharp from 'sharp';
 import 'reflect-metadata';
 import { AppDataSource } from './data-source';
+import { autoUpdater, type ProgressInfo, type UpdateInfo } from 'electron-updater';
 import { User } from './entities/User';
 import { Title } from './entities/Title';
 import { Location } from './entities/Location';
@@ -16,6 +17,88 @@ import { NoteService } from './services/note.service';
 import { BackupService } from './services/backup.service';
 
 let win: BrowserWindow | null = null;
+
+type UpdateState = {
+  supported: boolean;
+  status: 'idle' | 'checking' | 'available' | 'not_available' | 'downloading' | 'downloaded' | 'error';
+  lastCheckedAt?: string;
+  info?: { version: string; releaseName?: string; releaseDate?: string } | null;
+  progress?: { percent: number; transferred: number; total: number } | null;
+  error?: string | null;
+};
+
+const updateState: UpdateState = {
+  supported: false,
+  status: 'idle',
+  info: null,
+  progress: null,
+  error: null,
+};
+
+function isDevMode(): boolean {
+  return process.argv.includes('--dev') || process.env['NODE_ENV'] === 'development';
+}
+
+function isUpdaterSupported(): boolean {
+  return app.isPackaged && !isDevMode();
+}
+
+function toMinimalUpdateInfo(info: UpdateInfo): UpdateState['info'] {
+  return {
+    version: info.version,
+    releaseName: info.releaseName ?? undefined,
+    releaseDate: info.releaseDate ?? undefined,
+  };
+}
+
+let updaterInitialized = false;
+function initAutoUpdater() {
+  updateState.supported = isUpdaterSupported();
+  if (!updateState.supported || updaterInitialized) return;
+  updaterInitialized = true;
+
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('checking-for-update', () => {
+    updateState.status = 'checking';
+    updateState.error = null;
+    updateState.progress = null;
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    updateState.status = 'available';
+    updateState.info = toMinimalUpdateInfo(info);
+    updateState.error = null;
+  });
+
+  autoUpdater.on('update-not-available', (info) => {
+    updateState.status = 'not_available';
+    updateState.info = toMinimalUpdateInfo(info);
+    updateState.error = null;
+  });
+
+  autoUpdater.on('download-progress', (progress: ProgressInfo) => {
+    updateState.status = 'downloading';
+    updateState.progress = {
+      percent: progress.percent,
+      transferred: progress.transferred,
+      total: progress.total,
+    };
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    updateState.status = 'downloaded';
+    updateState.info = toMinimalUpdateInfo(info);
+    updateState.error = null;
+    updateState.progress = null;
+  });
+
+  autoUpdater.on('error', (err) => {
+    updateState.status = 'error';
+    updateState.error = err instanceof Error ? err.message : String(err);
+  });
+}
 
 async function seedDatabase() {
   const titleRepository = AppDataSource.getRepository(Title);
@@ -264,6 +347,8 @@ function createWindow() {
 }
 
 app.on('ready', () => {
+  initAutoUpdater();
+
   // Register 'local-resource' protocol to serve local files
   protocol.registerFileProtocol('local-resource', (request, callback) => {
     const url = request.url.replace('local-resource://', '');
@@ -289,6 +374,60 @@ app.on('ready', () => {
   } catch (error) {
     console.error('Failed to clear database file:', error);
   }
+
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion();
+  });
+
+  ipcMain.handle('get-update-status', () => {
+    updateState.supported = isUpdaterSupported();
+    return { ...updateState };
+  });
+
+  ipcMain.handle('check-for-updates', async () => {
+    initAutoUpdater();
+    if (!updateState.supported) return { ...updateState };
+    if (updateState.status === 'checking') return { ...updateState };
+
+    updateState.lastCheckedAt = new Date().toISOString();
+    updateState.status = 'checking';
+    updateState.error = null;
+    updateState.progress = null;
+
+    try {
+      const result = await autoUpdater.checkForUpdates();
+      updateState.info = result?.updateInfo ? toMinimalUpdateInfo(result.updateInfo) : updateState.info;
+    } catch (err) {
+      updateState.status = 'error';
+      updateState.error = err instanceof Error ? err.message : String(err);
+    }
+
+    return { ...updateState };
+  });
+
+  ipcMain.handle('download-update', async () => {
+    initAutoUpdater();
+    if (!updateState.supported) return false;
+    if (updateState.status !== 'available' && updateState.status !== 'downloading') return false;
+
+    try {
+      updateState.status = 'downloading';
+      await autoUpdater.downloadUpdate();
+      return true;
+    } catch (err) {
+      updateState.status = 'error';
+      updateState.error = err instanceof Error ? err.message : String(err);
+      return false;
+    }
+  });
+
+  ipcMain.handle('quit-and-install-update', () => {
+    initAutoUpdater();
+    if (!updateState.supported) return false;
+    if (updateState.status !== 'downloaded') return false;
+    autoUpdater.quitAndInstall();
+    return true;
+  });
 
   AppDataSource.initialize().then(async () => {
     console.log('Data Source has been initialized!');
@@ -320,6 +459,12 @@ app.on('ready', () => {
     });
 
     createWindow();
+
+    if (updateState.supported) {
+      setTimeout(() => {
+        autoUpdater.checkForUpdates().catch(() => {});
+      }, 2500);
+    }
   });
 });
 
