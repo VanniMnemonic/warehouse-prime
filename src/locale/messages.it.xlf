@@ -406,6 +406,10 @@
         <source>Press Enter to search</source>
         <target>Premi Invio per cercare</target>
       </trans-unit>
+      <trans-unit id="selectButton" datatype="html">
+        <source>Select</source>
+        <target>Seleziona</target>
+      </trans-unit>
       <trans-unit id="withdrawalUserRole" datatype="html">
         <source>Role: <x id="INTERPOLATION" equiv-text="{{ selectedUser.role }}"/></source>
         <target>Ruolo: <x id="INTERPOLATION" equiv-text="{{ selectedUser.role }}"/></target>
@@ -413,6 +417,14 @@
       <trans-unit id="withdrawalChangeUserTooltip" datatype="html">
         <source>Change User</source>
         <target>Cambia utente</target>
+      </trans-unit>
+      <trans-unit id="withdrawalManualSearchUserTooltip" datatype="html">
+        <source>Manual search</source>
+        <target>Ricerca manuale</target>
+      </trans-unit>
+      <trans-unit id="withdrawalSelectUserDialogHeader" datatype="html">
+        <source>Select User</source>
+        <target>Seleziona utente</target>
       </trans-unit>
       <trans-unit id="withdrawalSelectedUserLabel" datatype="html">
         <source>Selected User</source>
@@ -445,6 +457,14 @@
       <trans-unit id="withdrawalChangeAssetTooltip" datatype="html">
         <source>Change Asset</source>
         <target>Cambia asset</target>
+      </trans-unit>
+      <trans-unit id="withdrawalManualSearchAssetTooltip" datatype="html">
+        <source>Manual search</source>
+        <target>Ricerca manuale</target>
+      </trans-unit>
+      <trans-unit id="withdrawalSelectAssetDialogHeader" datatype="html">
+        <source>Select Asset</source>
+        <target>Seleziona asset</target>
       </trans-unit>
       <trans-unit id="withdrawalMultipleLocations" datatype="html">
         <source>Multiple Locations</source>
@@ -720,7 +740,7 @@
       </trans-unit>
       <trans-unit id="assetFormPartNumberLabel" datatype="html">
         <source>Part Number</source>
-        <target>Numero parte</target>
+        <target>Part Number</target>
       </trans-unit>
       <trans-unit id="assetFormBarcodeLabel" datatype="html">
         <source>Barcode</source>

@@ -46,12 +46,12 @@ export class ImageDisplay {
     'object-fit': 'cover',
     width: this.width(),
     height: this.height(),
-    aspectRatio: '1/1',
+    'aspect-ratio': '1 / 1',
   }));
 
   containerStyle = computed(() => ({
     width: this.width(),
     height: this.height(),
-    aspectRatio: '1 / 1',
+    'aspect-ratio': '1 / 1',
   }));
 }

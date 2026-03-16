@@ -14,20 +14,30 @@
             @if (!selectedUser) {
               <div class="flex flex-col gap-2">
                 <label for="userBarcode" i18n="@@withdrawalUserBarcodeLabel">User Barcode</label>
-                <p-iconfield iconPosition="left">
-                  <p-inputicon class="pi pi-barcode" />
-                  <input
-                    #userBarcodeInput
-                    pInputText
-                    id="userBarcode"
-                    [(ngModel)]="userBarcode"
-                    (keydown.enter)="searchUser(); activateCallback(2)"
-                    placeholder="Scan user barcode..."
-                    i18n-placeholder="@@withdrawalUserBarcodePlaceholder"
-                    autofocus
-                    class="w-full"
+                <div class="flex items-center gap-2">
+                  <p-iconfield iconPosition="left" class="flex-1">
+                    <p-inputicon class="pi pi-barcode" />
+                    <input
+                      #userBarcodeInput
+                      pInputText
+                      id="userBarcode"
+                      [(ngModel)]="userBarcode"
+                      (keydown.enter)="searchUser(); activateCallback(2)"
+                      placeholder="Scan user barcode..."
+                      i18n-placeholder="@@withdrawalUserBarcodePlaceholder"
+                      autofocus
+                      class="w-full"
+                    />
+                  </p-iconfield>
+                  <p-button
+                    icon="pi pi-search"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="openUserSearch()"
+                    pTooltip="Manual search"
+                    i18n-pTooltip="@@withdrawalManualSearchUserTooltip"
                   />
-                </p-iconfield>
+                </div>
                 <small class="text-muted-color" i18n="@@pressEnterToSearch">Press Enter to search</small>
               </div>
             } @else {
@@ -117,20 +127,30 @@
                 <label for="assetBarcode" i18n="@@withdrawalAssetBatchBarcodeLabel"
                   >Asset/Batch Barcode</label
                 >
-                <p-iconfield iconPosition="left">
-                  <p-inputicon styleClass="pi pi-barcode" />
-                  <input
-                    #assetBarcodeInput
-                    pInputText
-                    id="assetBarcode"
-                    [(ngModel)]="assetBarcode"
-                    (keydown.enter)="searchAsset(); activateCallback(3)"
-                    placeholder="Scan asset or batch barcode..."
-                    i18n-placeholder="@@withdrawalAssetBatchBarcodePlaceholder"
-                    class="w-full"
-                    autofocus
+                <div class="flex items-center gap-2">
+                  <p-iconfield iconPosition="left" class="flex-1">
+                    <p-inputicon styleClass="pi pi-barcode" />
+                    <input
+                      #assetBarcodeInput
+                      pInputText
+                      id="assetBarcode"
+                      [(ngModel)]="assetBarcode"
+                      (keydown.enter)="searchAsset(); activateCallback(3)"
+                      placeholder="Scan asset or batch barcode..."
+                      i18n-placeholder="@@withdrawalAssetBatchBarcodePlaceholder"
+                      class="w-full"
+                      autofocus
+                    />
+                  </p-iconfield>
+                  <p-button
+                    icon="pi pi-search"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="openAssetSearch()"
+                    pTooltip="Manual search"
+                    i18n-pTooltip="@@withdrawalManualSearchAssetTooltip"
                   />
-                </p-iconfield>
+                </div>
                 <small class="text-muted-color" i18n="@@pressEnterToSearch">Press Enter to search</small>
               </div>
             } @else {
@@ -389,3 +409,155 @@
     </p-step-panels>
   </p-stepper>
 </div>
+
+<p-dialog
+  [visible]="userSearchVisible()"
+  (visibleChange)="userSearchVisible.set($event)"
+  header="Select User"
+  i18n-header="@@withdrawalSelectUserDialogHeader"
+  [modal]="true"
+  [dismissableMask]="true"
+  appendTo="body"
+  [style]="{ width: '60rem' }"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+>
+  <ng-template pTemplate="content">
+    <p-table
+      #dtUsers
+      [value]="userSearchUsers()"
+      [loading]="userSearchLoading()"
+      dataKey="id"
+      [globalFilterFields]="['first_name', 'last_name', 'email', 'barcode']"
+      [scrollable]="true"
+      scrollHeight="60vh"
+    >
+      <ng-template pTemplate="caption">
+        <p-iconfield iconPosition="left" class="w-full">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="userSearchValue"
+            (input)="dtUsers.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Search keyword"
+            i18n-placeholder="@@searchKeywordPlaceholder"
+            class="w-full"
+          />
+        </p-iconfield>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem"></th>
+          <th i18n="@@thName">Name</th>
+          <th i18n="@@thEmail">Email</th>
+          <th i18n="@@thBarcode">Barcode</th>
+          <th style="width: 4rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            <app-image-display
+              [image]="user.image_path"
+              width="48px"
+              height="48px"
+              shape="circle"
+              icon="pi pi-user"
+            />
+          </td>
+          <td class="font-bold">{{ user.first_name }} {{ user.last_name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.barcode }}</td>
+          <td>
+            <p-button
+              icon="pi pi-check"
+              [rounded]="true"
+              severity="secondary"
+              (onClick)="selectUserFromSearch(user)"
+              pTooltip="Select"
+              i18n-pTooltip="@@selectButton"
+            />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [visible]="assetSearchVisible()"
+  (visibleChange)="assetSearchVisible.set($event)"
+  header="Select Asset"
+  i18n-header="@@withdrawalSelectAssetDialogHeader"
+  [modal]="true"
+  [dismissableMask]="true"
+  appendTo="body"
+  [style]="{ width: '60rem' }"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+>
+  <ng-template pTemplate="content">
+    <p-table
+      #dtAssets
+      [value]="assetSearchAssets()"
+      [loading]="assetSearchLoading()"
+      dataKey="id"
+      [globalFilterFields]="['denomination', 'part_number', 'barcode']"
+      [scrollable]="true"
+      scrollHeight="60vh"
+    >
+      <ng-template pTemplate="caption">
+        <p-iconfield iconPosition="left" class="w-full">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="assetSearchValue"
+            (input)="dtAssets.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Search keyword"
+            i18n-placeholder="@@searchKeywordPlaceholder"
+            class="w-full"
+          />
+        </p-iconfield>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem"></th>
+          <th i18n="@@thDenomination">Denomination</th>
+          <th i18n="@@thPartNumber">Part Number</th>
+          <th i18n="@@thBarcode">Barcode</th>
+          <th style="width: 4rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-asset>
+        <tr>
+          <td>
+            <app-image-display
+              [image]="asset.image_path"
+              width="48px"
+              height="48px"
+              shape="square"
+              icon="pi pi-box"
+            />
+          </td>
+          <td class="font-bold">{{ asset.denomination }}</td>
+          <td>{{ asset.part_number }}</td>
+          <td>{{ asset.barcode }}</td>
+          <td>
+            <p-button
+              icon="pi pi-check"
+              [rounded]="true"
+              severity="secondary"
+              (onClick)="selectAssetFromSearch(asset)"
+              pTooltip="Select"
+              i18n-pTooltip="@@selectButton"
+            />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-template>
+</p-dialog>

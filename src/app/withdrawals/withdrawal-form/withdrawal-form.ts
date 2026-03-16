@@ -20,12 +20,14 @@ import { UserService } from '../../services/user.service';
 import { BatchService } from '../../services/batch.service';
 import { AssetService } from '../../services/asset.service';
 import { MessageService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SliderModule } from 'primeng/slider';
 import { ToastModule } from 'primeng/toast';
 import { ImageDisplay } from '../../shared/components/image-display/image-display';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-withdrawal-form',
@@ -37,6 +39,8 @@ import { ImageDisplay } from '../../shared/components/image-display/image-displa
     IconFieldModule,
     InputIconModule,
     InputTextModule,
+    DialogModule,
+    TableModule,
     InputNumberModule,
     DatePickerModule,
     CheckboxModule,
@@ -66,10 +70,18 @@ export class WithdrawalForm implements AfterViewInit {
   // Step 1: User Selection
   userBarcode = '';
   selectedUser: any = null;
+  userSearchVisible = signal(false);
+  userSearchLoading = signal(false);
+  userSearchUsers = signal<any[]>([]);
+  userSearchValue = '';
 
   // Step 2: Asset Selection
   assetBarcode = '';
   selectedBatch: any = null;
+  assetSearchVisible = signal(false);
+  assetSearchLoading = signal(false);
+  assetSearchAssets = signal<any[]>([]);
+  assetSearchValue = '';
 
   // Step 3: Details
   quantity = 1;
@@ -234,6 +246,47 @@ export class WithdrawalForm implements AfterViewInit {
         detail: 'Failed to search asset',
       });
     }
+  }
+
+  async openUserSearch() {
+    this.userSearchValue = '';
+    this.userSearchVisible.set(true);
+    this.userSearchLoading.set(true);
+    try {
+      const users = await this.userService.getAll();
+      this.userSearchUsers.set(users ?? []);
+    } finally {
+      this.userSearchLoading.set(false);
+    }
+  }
+
+  selectUserFromSearch(user: any) {
+    this.selectedUser = user;
+    this.userSearchVisible.set(false);
+    this.userBarcode = '';
+    setTimeout(() => {
+      if (this.assetBarcodeInput) {
+        this.assetBarcodeInput.nativeElement.focus();
+      }
+    }, 100);
+  }
+
+  async openAssetSearch() {
+    this.assetSearchValue = '';
+    this.assetSearchVisible.set(true);
+    this.assetSearchLoading.set(true);
+    try {
+      const assets = await this.assetService.getAll();
+      this.assetSearchAssets.set(assets ?? []);
+    } finally {
+      this.assetSearchLoading.set(false);
+    }
+  }
+
+  async selectAssetFromSearch(asset: any) {
+    await this.selectAsset(asset, true);
+    this.assetSearchVisible.set(false);
+    this.assetBarcode = '';
   }
 
   submit() {
