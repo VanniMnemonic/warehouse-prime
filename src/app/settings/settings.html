@@ -3,6 +3,100 @@
     
     <div class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
         <div class="flex flex-col">
+            <span class="text-xl font-semibold" i18n="@@settingsUpdatesTitle">Updates</span>
+            <span class="text-muted-color" i18n="@@settingsUpdatesDescription">Check for and install application updates.</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2">
+                <span class="text-muted-color" i18n="@@settingsVersionLabel">Version</span>
+                <span class="font-medium">{{ appVersion || '-' }}</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="text-muted-color" i18n="@@settingsUpdateStatusLabel">Status</span>
+                @switch (updateStatus) {
+                    @case ('checking') {
+                        <p-tag value="Checking..." i18n-value="@@settingsUpdateStatusChecking" severity="info" />
+                    }
+                    @case ('available') {
+                        <p-tag value="Update available" i18n-value="@@settingsUpdateStatusAvailable" severity="warn" />
+                    }
+                    @case ('not_available') {
+                        <p-tag value="Up to date" i18n-value="@@settingsUpdateStatusNotAvailable" severity="success" />
+                    }
+                    @case ('downloading') {
+                        <p-tag value="Downloading..." i18n-value="@@settingsUpdateStatusDownloading" severity="info" />
+                    }
+                    @case ('downloaded') {
+                        <p-tag value="Ready to install" i18n-value="@@settingsUpdateStatusDownloaded" severity="success" />
+                    }
+                    @case ('error') {
+                        <p-tag value="Update error" i18n-value="@@settingsUpdateStatusError" severity="danger" />
+                    }
+                    @default {
+                        <p-tag value="Idle" i18n-value="@@settingsUpdateStatusIdle" severity="secondary" />
+                    }
+                }
+            </div>
+
+            @if (updateAvailableVersion) {
+                <p-tag [value]="'v' + updateAvailableVersion" severity="secondary" />
+            }
+        </div>
+
+        @if (!updateSupported) {
+            <div class="text-sm text-muted-color" i18n="@@settingsUpdatesUnsupported">
+                Updates are available only in the installed app.
+            </div>
+        }
+
+        @if (updateStatus === 'downloading' && updateProgressPercent !== null) {
+            <div class="text-sm text-muted-color">Scaricamento: {{ updateProgressPercent }}%</div>
+        }
+
+        @if (updateError) {
+            <div class="text-sm text-red-600 dark:text-red-400">{{ updateError }}</div>
+        }
+
+        <div class="flex flex-wrap gap-4">
+            <p-button
+                label="Check Updates"
+                i18n-label="@@settingsCheckUpdatesButton"
+                icon="pi pi-refresh"
+                severity="secondary"
+                (onClick)="checkUpdates()"
+                [disabled]="!updateSupported"
+                [loading]="updateLoading"
+            />
+
+            @if (updateStatus === 'available') {
+                <p-button
+                    label="Download Update"
+                    i18n-label="@@settingsDownloadUpdateButton"
+                    icon="pi pi-download"
+                    severity="secondary"
+                    (onClick)="downloadUpdate()"
+                    [disabled]="!updateSupported"
+                    [loading]="updateLoading"
+                />
+            }
+
+            @if (updateStatus === 'downloaded') {
+                <p-button
+                    label="Install & Restart"
+                    i18n-label="@@settingsInstallRestartButton"
+                    icon="pi pi-refresh"
+                    severity="success"
+                    (onClick)="installUpdate()"
+                    [disabled]="!updateSupported"
+                />
+            }
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
+        <div class="flex flex-col">
             <span class="text-xl font-semibold" i18n="@@settingsDataManagementTitle">Data Management</span>
             <span class="text-muted-color" i18n="@@settingsDataManagementDescription">Export or import your data.</span>
         </div>

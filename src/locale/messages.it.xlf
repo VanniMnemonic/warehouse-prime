@@ -158,6 +158,50 @@
         <source>Days</source>
         <target>Giorni</target>
       </trans-unit>
+      <trans-unit id="dashboardTitle" datatype="html">
+        <source>Dashboard</source>
+        <target>Dashboard</target>
+      </trans-unit>
+      <trans-unit id="dashboardSubtitle" datatype="html">
+        <source>Quick overview of critical items.</source>
+        <target>Panoramica rapida degli elementi critici.</target>
+      </trans-unit>
+      <trans-unit id="dashboardRefreshAria" datatype="html">
+        <source>Refresh dashboard</source>
+        <target>Aggiorna dashboard</target>
+      </trans-unit>
+      <trans-unit id="dashboardViewAssetAria" datatype="html">
+        <source>View asset</source>
+        <target>Visualizza asset</target>
+      </trans-unit>
+      <trans-unit id="dashboardViewAssetFromBatchAria" datatype="html">
+        <source>View asset</source>
+        <target>Visualizza asset</target>
+      </trans-unit>
+      <trans-unit id="dashboardViewAssetFromExpiredBatchAria" datatype="html">
+        <source>View asset</source>
+        <target>Visualizza asset</target>
+      </trans-unit>
+      <trans-unit id="dashboardViewWithdrawalAria" datatype="html">
+        <source>View withdrawal</source>
+        <target>Visualizza prelievo</target>
+      </trans-unit>
+      <trans-unit id="dashboardEmptyInefficientAssets" datatype="html">
+        <source>No inefficient assets found.</source>
+        <target>Nessun asset inefficiente trovato.</target>
+      </trans-unit>
+      <trans-unit id="dashboardEmptyExpiringBatches" datatype="html">
+        <source>No expiring batches.</source>
+        <target>Nessun lotto in scadenza.</target>
+      </trans-unit>
+      <trans-unit id="dashboardEmptyExpiredBatches" datatype="html">
+        <source>No expired batches.</source>
+        <target>Nessun lotto scaduto.</target>
+      </trans-unit>
+      <trans-unit id="dashboardEmptyOverdueWithdrawals" datatype="html">
+        <source>No overdue withdrawals.</source>
+        <target>Nessun prelievo in ritardo.</target>
+      </trans-unit>
       <trans-unit id="appTitle" datatype="html">
         <source>Warehouse Prime</source>
         <target>Warehouse Prime</target>
@@ -189,6 +233,66 @@
       <trans-unit id="settingsTitle" datatype="html">
         <source>Settings</source>
         <target>Impostazioni</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdatesTitle" datatype="html">
+        <source>Updates</source>
+        <target>Aggiornamenti</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdatesDescription" datatype="html">
+        <source>Check for and install application updates.</source>
+        <target>Controlla e installa gli aggiornamenti dell'applicazione.</target>
+      </trans-unit>
+      <trans-unit id="settingsVersionLabel" datatype="html">
+        <source>Version</source>
+        <target>Versione</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateStatusLabel" datatype="html">
+        <source>Status</source>
+        <target>Stato</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateStatusIdle" datatype="html">
+        <source>Idle</source>
+        <target>Inattivo</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateStatusChecking" datatype="html">
+        <source>Checking...</source>
+        <target>Controllo...</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateStatusAvailable" datatype="html">
+        <source>Update available</source>
+        <target>Aggiornamento disponibile</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateStatusNotAvailable" datatype="html">
+        <source>Up to date</source>
+        <target>Aggiornato</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateStatusDownloading" datatype="html">
+        <source>Downloading...</source>
+        <target>Download...</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateStatusDownloaded" datatype="html">
+        <source>Ready to install</source>
+        <target>Pronto per l'installazione</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateStatusError" datatype="html">
+        <source>Update error</source>
+        <target>Errore aggiornamento</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdatesUnsupported" datatype="html">
+        <source>Updates are available only in the installed app.</source>
+        <target>Gli aggiornamenti sono disponibili solo nell'app installata.</target>
+      </trans-unit>
+      <trans-unit id="settingsCheckUpdatesButton" datatype="html">
+        <source>Check Updates</source>
+        <target>Controlla aggiornamenti</target>
+      </trans-unit>
+      <trans-unit id="settingsDownloadUpdateButton" datatype="html">
+        <source>Download Update</source>
+        <target>Scarica aggiornamento</target>
+      </trans-unit>
+      <trans-unit id="settingsInstallRestartButton" datatype="html">
+        <source>Install &amp; Restart</source>
+        <target>Installa e riavvia</target>
       </trans-unit>
       <trans-unit id="settingsDataManagementTitle" datatype="html">
         <source>Data Management</source>
@@ -233,6 +337,22 @@
       <trans-unit id="toastSuccessSummary" datatype="html">
         <source>Success</source>
         <target>Successo</target>
+      </trans-unit>
+      <trans-unit id="toastUpdatesSummary" datatype="html">
+        <source>Updates</source>
+        <target>Aggiornamenti</target>
+      </trans-unit>
+      <trans-unit id="toastUpdateAvailableDetail" datatype="html">
+        <source>An update is available.</source>
+        <target>È disponibile un aggiornamento.</target>
+      </trans-unit>
+      <trans-unit id="toastNoUpdatesDetail" datatype="html">
+        <source>You are on the latest version.</source>
+        <target>Stai usando l'ultima versione.</target>
+      </trans-unit>
+      <trans-unit id="toastUpdateCheckFailedDetail" datatype="html">
+        <source>Failed to check for updates.</source>
+        <target>Impossibile controllare gli aggiornamenti.</target>
       </trans-unit>
       <trans-unit id="toastResetDatabaseSuccessDetail" datatype="html">
         <source>Database has been reset. Please restart the app.</source>

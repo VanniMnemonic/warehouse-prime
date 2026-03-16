@@ -7,6 +7,7 @@ const fs = tslib_1.__importStar(require("fs"));
 const sharp_1 = tslib_1.__importDefault(require("sharp"));
 require("reflect-metadata");
 const data_source_1 = require("./data-source");
+const electron_updater_1 = require("electron-updater");
 const User_1 = require("./entities/User");
 const Title_1 = require("./entities/Title");
 const Location_1 = require("./entities/Location");
@@ -17,6 +18,68 @@ const typeorm_1 = require("typeorm");
 const note_service_1 = require("./services/note.service");
 const backup_service_1 = require("./services/backup.service");
 let win = null;
+const updateState = {
+    supported: false,
+    status: 'idle',
+    info: null,
+    progress: null,
+    error: null,
+};
+function isDevMode() {
+    return process.argv.includes('--dev') || process.env['NODE_ENV'] === 'development';
+}
+function isUpdaterSupported() {
+    return electron_1.app.isPackaged && !isDevMode();
+}
+function toMinimalUpdateInfo(info) {
+    return {
+        version: info.version,
+        releaseName: info.releaseName ?? undefined,
+        releaseDate: info.releaseDate ?? undefined,
+    };
+}
+let updaterInitialized = false;
+function initAutoUpdater() {
+    updateState.supported = isUpdaterSupported();
+    if (!updateState.supported || updaterInitialized)
+        return;
+    updaterInitialized = true;
+    electron_updater_1.autoUpdater.autoDownload = false;
+    electron_updater_1.autoUpdater.autoInstallOnAppQuit = true;
+    electron_updater_1.autoUpdater.on('checking-for-update', () => {
+        updateState.status = 'checking';
+        updateState.error = null;
+        updateState.progress = null;
+    });
+    electron_updater_1.autoUpdater.on('update-available', (info) => {
+        updateState.status = 'available';
+        updateState.info = toMinimalUpdateInfo(info);
+        updateState.error = null;
+    });
+    electron_updater_1.autoUpdater.on('update-not-available', (info) => {
+        updateState.status = 'not_available';
+        updateState.info = toMinimalUpdateInfo(info);
+        updateState.error = null;
+    });
+    electron_updater_1.autoUpdater.on('download-progress', (progress) => {
+        updateState.status = 'downloading';
+        updateState.progress = {
+            percent: progress.percent,
+            transferred: progress.transferred,
+            total: progress.total,
+        };
+    });
+    electron_updater_1.autoUpdater.on('update-downloaded', (info) => {
+        updateState.status = 'downloaded';
+        updateState.info = toMinimalUpdateInfo(info);
+        updateState.error = null;
+        updateState.progress = null;
+    });
+    electron_updater_1.autoUpdater.on('error', (err) => {
+        updateState.status = 'error';
+        updateState.error = err instanceof Error ? err.message : String(err);
+    });
+}
 async function seedDatabase() {
     const titleRepository = data_source_1.AppDataSource.getRepository(Title_1.Title);
     const locationRepository = data_source_1.AppDataSource.getRepository(Location_1.Location);
@@ -248,6 +311,7 @@ function createWindow() {
     });
 }
 electron_1.app.on('ready', () => {
+    initAutoUpdater();
     // Register 'local-resource' protocol to serve local files
     electron_1.protocol.registerFileProtocol('local-resource', (request, callback) => {
         const url = request.url.replace('local-resource://', '');
@@ -273,6 +337,59 @@ electron_1.app.on('ready', () => {
     catch (error) {
         console.error('Failed to clear database file:', error);
     }
+    electron_1.ipcMain.handle('get-app-version', () => {
+        return electron_1.app.getVersion();
+    });
+    electron_1.ipcMain.handle('get-update-status', () => {
+        updateState.supported = isUpdaterSupported();
+        return { ...updateState };
+    });
+    electron_1.ipcMain.handle('check-for-updates', async () => {
+        initAutoUpdater();
+        if (!updateState.supported)
+            return { ...updateState };
+        if (updateState.status === 'checking')
+            return { ...updateState };
+        updateState.lastCheckedAt = new Date().toISOString();
+        updateState.status = 'checking';
+        updateState.error = null;
+        updateState.progress = null;
+        try {
+            const result = await electron_updater_1.autoUpdater.checkForUpdates();
+            updateState.info = result?.updateInfo ? toMinimalUpdateInfo(result.updateInfo) : updateState.info;
+        }
+        catch (err) {
+            updateState.status = 'error';
+            updateState.error = err instanceof Error ? err.message : String(err);
+        }
+        return { ...updateState };
+    });
+    electron_1.ipcMain.handle('download-update', async () => {
+        initAutoUpdater();
+        if (!updateState.supported)
+            return false;
+        if (updateState.status !== 'available' && updateState.status !== 'downloading')
+            return false;
+        try {
+            updateState.status = 'downloading';
+            await electron_updater_1.autoUpdater.downloadUpdate();
+            return true;
+        }
+        catch (err) {
+            updateState.status = 'error';
+            updateState.error = err instanceof Error ? err.message : String(err);
+            return false;
+        }
+    });
+    electron_1.ipcMain.handle('quit-and-install-update', () => {
+        initAutoUpdater();
+        if (!updateState.supported)
+            return false;
+        if (updateState.status !== 'downloaded')
+            return false;
+        electron_updater_1.autoUpdater.quitAndInstall();
+        return true;
+    });
     data_source_1.AppDataSource.initialize().then(async () => {
         console.log('Data Source has been initialized!');
         // Handle Notes
@@ -295,6 +412,11 @@ electron_1.app.on('ready', () => {
             return await backupService.importBackup();
         });
         createWindow();
+        if (updateState.supported) {
+            setTimeout(() => {
+                electron_updater_1.autoUpdater.checkForUpdates().catch(() => { });
+            }, 2500);
+        }
     });
 });
 electron_1.app.on('window-all-closed', () => {
