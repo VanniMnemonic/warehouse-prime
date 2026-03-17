@@ -1,16 +1,19 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ElectronService } from '../services/electron';
-import { BackupService } from '../services/backup.service';
 import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { BackupService } from '../services/backup.service';
+import { ElectronService } from '../services/electron';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-settings',
-  imports: [CommonModule, ButtonModule, ConfirmDialogModule, ToastModule, TagModule],
+  imports: [CommonModule, FormsModule, ButtonModule, ConfirmDialogModule, ToastModule, TagModule, ToggleSwitchModule],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
   providers: [ConfirmationService, MessageService],
@@ -20,6 +23,7 @@ export class Settings implements OnInit, OnDestroy {
   backupService = inject(BackupService);
   confirmationService = inject(ConfirmationService);
   messageService = inject(MessageService);
+  themeService = inject(ThemeService);
 
   loading = false;
 

@@ -1,6 +1,28 @@
 <div class="card p-6 flex flex-col gap-4">
     <h2 class="text-2xl font-bold" i18n="@@settingsTitle">Settings</h2>
-    
+
+    <div class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
+        <div class="flex flex-col">
+            <span class="text-xl font-semibold" i18n="@@settingsAppearanceTitle">Appearance</span>
+            <span class="text-muted-color" i18n="@@settingsAppearanceDescription">Customize the look and feel of the application.</span>
+        </div>
+
+        <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-1">
+                <span class="font-medium" i18n="@@settingsDarkModeLabel">Dark mode</span>
+                <span class="text-sm text-muted-color" i18n="@@settingsDarkModeHint">Switch between light and dark theme.</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <i class="pi pi-sun text-muted-color"></i>
+                <p-toggleswitch
+                    [ngModel]="themeService.isDark()"
+                    (ngModelChange)="themeService.setDark($event)"
+                />
+                <i class="pi pi-moon text-muted-color"></i>
+            </div>
+        </div>
+    </div>
+
     <div class="flex flex-col gap-4 p-4 border rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-950">
         <div class="flex flex-col">
             <span class="text-xl font-semibold" i18n="@@settingsUpdatesTitle">Updates</span>
@@ -47,12 +69,14 @@
 
         @if (!updateSupported) {
             <div class="text-sm text-muted-color" i18n="@@settingsUpdatesUnsupported">
-                Updates are available only in the installed app.
+                Updates are only available in the packaged app, not in development mode.
             </div>
         }
 
         @if (updateStatus === 'downloading' && updateProgressPercent !== null) {
-            <div class="text-sm text-muted-color">Scaricamento: {{ updateProgressPercent }}%</div>
+            <div class="text-sm text-muted-color" i18n="@@settingsUpdateDownloadingProgress">
+                Downloading: {{ updateProgressPercent }}%
+            </div>
         }
 
         @if (updateError) {
@@ -100,23 +124,23 @@
             <span class="text-xl font-semibold" i18n="@@settingsDataManagementTitle">Data Management</span>
             <span class="text-muted-color" i18n="@@settingsDataManagementDescription">Export or import your data.</span>
         </div>
-        
+
         <div class="flex gap-4">
-            <p-button 
-                label="Export Backup" 
+            <p-button
+                label="Export Backup"
                 i18n-label="@@settingsExportBackup"
-                icon="pi pi-download" 
-                severity="secondary" 
-                (onClick)="exportBackup()" 
+                icon="pi pi-download"
+                severity="secondary"
+                (onClick)="exportBackup()"
                 [loading]="loading"
             />
-            
-            <p-button 
-                label="Import Backup" 
+
+            <p-button
+                label="Import Backup"
                 i18n-label="@@settingsImportBackup"
-                icon="pi pi-upload" 
-                severity="secondary" 
-                (onClick)="importBackup()" 
+                icon="pi pi-upload"
+                severity="secondary"
+                (onClick)="importBackup()"
                 [loading]="loading"
             />
         </div>
@@ -127,23 +151,23 @@
             <span class="text-xl font-semibold text-red-600 dark:text-red-400" i18n="@@settingsDangerZoneTitle">Danger Zone</span>
             <span class="text-muted-color" i18n="@@settingsDangerZoneDescription">Manage database and data state. These actions cannot be undone.</span>
         </div>
-        
+
         <div class="flex gap-4">
-            <p-button 
-                label="Reset Database" 
+            <p-button
+                label="Reset Database"
                 i18n-label="@@settingsResetDatabase"
-                icon="pi pi-trash" 
-                severity="danger" 
-                (onClick)="resetDatabase()" 
+                icon="pi pi-trash"
+                severity="danger"
+                (onClick)="resetDatabase()"
                 [loading]="loading"
             />
-            
-            <p-button 
-                label="Seed Mock Data" 
+
+            <p-button
+                label="Seed Mock Data"
                 i18n-label="@@settingsSeedMockData"
-                icon="pi pi-database" 
-                severity="warn" 
-                (onClick)="seedDatabase()" 
+                icon="pi pi-database"
+                severity="warn"
+                (onClick)="seedDatabase()"
                 [loading]="loading"
             />
         </div>

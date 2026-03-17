@@ -16,6 +16,21 @@ import { BackupService } from './services/backup.service';
 import { NoteService } from './services/note.service';
 import { getDataPath } from './user-data';
 
+// Must be called before app.ready so the 'app' scheme is treated as a
+// standard secure origin.  Without this, <script type="module"> tags and
+// fetch() calls inside the renderer are blocked by Chromium's security model.
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'app',
+    privileges: {
+      standard: true,   // enables relative URL resolution (base href, etc.)
+      secure: true,     // treated as HTTPS-equivalent (allows ES modules)
+      supportFetchAPI: true,
+      corsEnabled: true,
+    },
+  },
+]);
+
 let win: BrowserWindow | null = null;
 
 type UpdateState = {
@@ -216,94 +231,7 @@ function contentTypeForPath(filePath: string): string {
   }
 }
 
-async function startUiServer(distRoot: string) {
-  const http = await import('http');
-  const server = http.createServer((req, res) => {
-    const locale = getLocale();
-    const reqUrl = req.url ?? '/';
-    const pathname = reqUrl.split('?')[0] ?? '/';
 
-    if (pathname === '/') {
-      const localizedIndex = path.join(distRoot, locale, 'index.html');
-      const rootIndex = path.join(distRoot, 'index.html');
-
-      if (fs.existsSync(localizedIndex)) {
-        res.writeHead(302, { Location: `/${locale}/` });
-        res.end();
-        return;
-      }
-
-      if (fs.existsSync(rootIndex)) {
-        try {
-          const file = fs.readFileSync(rootIndex);
-          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-          res.end(file);
-        } catch {
-          res.writeHead(500);
-          res.end();
-        }
-        return;
-      }
-    }
-
-    const decoded = decodeURIComponent(pathname);
-    const normalized = path.posix.normalize(decoded);
-    const safePath = normalized.replace(/^(\.\.(\/|\\|$))+/, '');
-
-    const safeRelativePath = safePath.replace(/^\/+/, '');
-    const filePath = path.join(distRoot, safeRelativePath);
-    const resolved = path.resolve(filePath);
-    const resolvedRoot = path.resolve(distRoot);
-    if (!resolved.startsWith(resolvedRoot)) {
-      res.writeHead(403);
-      res.end();
-      return;
-    }
-
-    let finalPath = resolved;
-    try {
-      const stat = fs.statSync(finalPath);
-      if (stat.isDirectory()) {
-        finalPath = path.join(finalPath, 'index.html');
-      }
-    } catch {
-      if (/(^|\/)styles-[^\/]+\.css$/.test(safeRelativePath)) {
-        const fallbackRelativePath = safeRelativePath.replace(/styles-[^\/]+\.css$/, 'styles.css');
-        const fallbackPath = path.resolve(path.join(distRoot, fallbackRelativePath));
-        if (fallbackPath.startsWith(resolvedRoot) && fs.existsSync(fallbackPath)) {
-          finalPath = fallbackPath;
-        } else {
-          res.writeHead(404);
-          res.end();
-          return;
-        }
-      } else {
-        res.writeHead(404);
-        res.end();
-        return;
-      }
-    }
-
-    try {
-      const data = fs.readFileSync(finalPath);
-      res.setHeader('Content-Type', contentTypeForPath(finalPath));
-      res.setHeader('Cache-Control', 'no-store');
-      res.writeHead(200);
-      res.end(data);
-    } catch {
-      res.writeHead(500);
-      res.end();
-    }
-  });
-
-  return await new Promise<{ server: any; port: number }>((resolve) => {
-    server.listen(0, '127.0.0.1', () => {
-      const addr = server.address();
-      const port = typeof addr === 'object' && addr ? addr.port : 0;
-      resolve({ server, port });
-    });
-  });
-}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -328,17 +256,8 @@ function createWindow() {
     const locale = getLocale();
     const distRoot = path.join(app.getAppPath(), 'dist', 'prime', 'browser');
     const hasLocalizedUi = fs.existsSync(path.join(distRoot, locale, 'index.html'));
-
-    startUiServer(distRoot).then(({ server, port }) => {
-      if (!win) return;
-      const entryPath = hasLocalizedUi ? `/${locale}/` : `/`;
-      win.loadURL(`http://127.0.0.1:${port}${entryPath}`);
-      win.on('closed', () => {
-        try {
-          server.close();
-        } catch { }
-      });
-    });
+    const entryPath = hasLocalizedUi ? `app://app/${locale}/` : `app://app/`;
+    win.loadURL(entryPath);
   }
 
   win.on('closed', () => {
@@ -348,6 +267,47 @@ function createWindow() {
 
 app.on('ready', () => {
   initAutoUpdater();
+
+  // Serve the Angular build output via the 'app://' scheme.
+  // Using protocol.handle (instead of a custom HTTP server) means Electron
+  // resolves paths inside the ASAR archive natively, which fixes 404 errors
+  // for .js files on Windows where the HTTP-server + ASAR combo was unreliable.
+  const appDistRoot = path.join(app.getAppPath(), 'dist', 'prime', 'browser');
+  protocol.handle('app', (request) => {
+    try {
+      const { pathname } = new URL(request.url);
+      const decoded = decodeURIComponent(pathname);
+
+      // Resolve to an absolute path and guard against directory traversal.
+      const resolved = path.normalize(path.join(appDistRoot, decoded));
+      const rootWithSep = appDistRoot.endsWith(path.sep)
+        ? appDistRoot
+        : appDistRoot + path.sep;
+      if (!resolved.startsWith(rootWithSep) && resolved !== appDistRoot) {
+        return new Response('Forbidden', { status: 403 });
+      }
+
+      let filePath = resolved;
+      let stat: fs.Stats;
+      try {
+        stat = fs.statSync(filePath);
+      } catch {
+        return new Response('Not Found', { status: 404 });
+      }
+
+      if (stat.isDirectory()) {
+        filePath = path.join(filePath, 'index.html');
+      }
+
+      const data = fs.readFileSync(filePath);
+      return new Response(data, {
+        headers: { 'content-type': contentTypeForPath(filePath) },
+      });
+    } catch (err) {
+      console.error('app:// protocol error:', err);
+      return new Response('Internal Server Error', { status: 500 });
+    }
+  });
 
   // Register 'local-resource' protocol to serve local files
   protocol.registerFileProtocol('local-resource', (request, callback) => {

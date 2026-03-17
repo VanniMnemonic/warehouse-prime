@@ -2,3 +2,6 @@
 @import 'tailwindcss';
 @import "tailwindcss-primeui";
 @import 'primeicons/primeicons.css';
+
+/* Use class-based dark mode: add/remove the 'dark' class on <html> */
+@custom-variant dark (&:where(.dark, .dark *));

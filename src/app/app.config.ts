@@ -1,10 +1,10 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { providePrimeNG } from 'primeng/config';
+import { provideRouter } from '@angular/router';
 import Aura from '@primeuix/themes/aura';
-import { routes } from './app.routes';
 import { it } from 'primelocale/js/it.js';
+import { providePrimeNG } from 'primeng/config';
+import { routes } from './app.routes';
 
 const appLocale = (globalThis as any).$localize?.locale as string | undefined;
 const primeTranslation = appLocale?.startsWith('it') ? it : undefined;
@@ -19,6 +19,7 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Aura,
         options: {
+          darkModeSelector: '.dark',
           cssLayer: {
             name: 'primeng',
             order: 'theme, base, primeng',

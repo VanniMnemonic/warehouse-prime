@@ -1,0 +1,3 @@
+:host {
+  --p-tabs-tabpanel-padding: var(--p-tabs-tab-padding, 0.875rem) 0;
+}

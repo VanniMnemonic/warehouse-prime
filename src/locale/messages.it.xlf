@@ -279,8 +279,8 @@
         <target>Errore aggiornamento</target>
       </trans-unit>
       <trans-unit id="settingsUpdatesUnsupported" datatype="html">
-        <source>Updates are available only in the installed app.</source>
-        <target>Gli aggiornamenti sono disponibili solo nell'app installata.</target>
+        <source>Updates are only available in the packaged app, not in development mode.</source>
+        <target>Gli aggiornamenti sono disponibili solo nell'app pacchettizzata, non in modalità sviluppo.</target>
       </trans-unit>
       <trans-unit id="settingsCheckUpdatesButton" datatype="html">
         <source>Check Updates</source>
@@ -405,6 +405,10 @@
       <trans-unit id="toastImportBackupErrorDetail" datatype="html">
         <source>Failed to import backup.</source>
         <target>Impossibile importare il backup.</target>
+      </trans-unit>
+      <trans-unit id="Notes" datatype="html">
+        <source>Notes</source>
+        <target>Note</target>
       </trans-unit>
       <trans-unit id="noNotesYet" datatype="html">
         <source>No notes yet.</source>
@@ -969,6 +973,26 @@
       <trans-unit id="addBatchForHeader" datatype="html">
         <source>Add Batch for <x id="assetName" equiv-text="assetName"/></source>
         <target>Aggiungi lotto per <x id="assetName" equiv-text="assetName"/></target>
+      </trans-unit>
+      <trans-unit id="settingsAppearanceTitle" datatype="html">
+        <source>Appearance</source>
+        <target>Aspetto</target>
+      </trans-unit>
+      <trans-unit id="settingsAppearanceDescription" datatype="html">
+        <source>Customize the look and feel of the application.</source>
+        <target>Personalizza l'aspetto dell'applicazione.</target>
+      </trans-unit>
+      <trans-unit id="settingsDarkModeLabel" datatype="html">
+        <source>Dark mode</source>
+        <target>Modalità scura</target>
+      </trans-unit>
+      <trans-unit id="settingsDarkModeHint" datatype="html">
+        <source>Switch between light and dark theme.</source>
+        <target>Passa tra il tema chiaro e quello scuro.</target>
+      </trans-unit>
+      <trans-unit id="settingsUpdateDownloadingProgress" datatype="html">
+        <source>Downloading: <x id="INTERPOLATION" equiv-text="{{ updateProgressPercent }}"/>%</source>
+        <target>Scaricamento: <x id="INTERPOLATION" equiv-text="{{ updateProgressPercent }}"/>%</target>
       </trans-unit>
       <trans-unit id="batchFormCurrentTotalLabel" datatype="html">
         <source>Current Total: <x id="INTERPOLATION" equiv-text="{{ asset().total_quantity }}"/></source>

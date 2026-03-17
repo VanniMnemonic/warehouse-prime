@@ -1,8 +1,8 @@
 @if (floating()) {
   <div
-    class="fixed right-4 top-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-auto rounded-xl border border-surface-200 bg-surface-0/90 p-4 shadow-sm backdrop-blur dark:border-surface-700 dark:bg-surface-900/90"
+    class="fixed right-4 top-4 z-50 w-90 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-auto rounded-xl border border-surface-200 bg-surface-0/90 p-4 shadow-sm backdrop-blur dark:border-surface-700 dark:bg-surface-900/90"
   >
-    <h3 class="text-lg font-bold mb-2">Notes</h3>
+    <h3 class="text-lg font-bold mb-2" i18n="@@Notes">Notes</h3>
     <div class="flex flex-col gap-2 h-full">
       <p-scrollPanel [style]="scrollPanelStyle()">
         <div class="flex flex-col gap-1">
@@ -15,7 +15,7 @@
             >
               <div class="flex flex-col gap-1 flex-1 min-w-0">
                 <div class="max-h-24 overflow-y-auto pr-2">
-                  <span class="break-words">{{ note.content }}</span>
+                  <span class="wrap-break-word">{{ note.content }}</span>
                 </div>
                 <span class="text-xs text-muted-color">{{ note.created_at | date: 'medium' }}</span>
               </div>
