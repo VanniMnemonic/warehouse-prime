@@ -38,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-portable
-          path: release/**
+          path: release/*.exe
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -47,6 +47,6 @@ jobs:
           name: ${{ github.ref_name }}
           draft: false
           prerelease: false
-          files: release/**/*.exe
+          files: release/*.exe
         env:
           GITHUB_TOKEN: ${{ github.token }}
