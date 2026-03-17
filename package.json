@@ -92,7 +92,12 @@
     },
     "win": {
       "target": [
-        "nsis"
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     }
   }

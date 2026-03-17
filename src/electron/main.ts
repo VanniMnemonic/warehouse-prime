@@ -1,20 +1,20 @@
 import { app, BrowserWindow, ipcMain, protocol } from 'electron';
-import * as path from 'path';
-import * as url from 'url';
-import * as fs from 'fs';
-import sharp from 'sharp';
-import 'reflect-metadata';
-import { AppDataSource } from './data-source';
 import { autoUpdater, type ProgressInfo, type UpdateInfo } from 'electron-updater';
-import { User } from './entities/User';
-import { Title } from './entities/Title';
-import { Location } from './entities/Location';
+import * as fs from 'fs';
+import * as path from 'path';
+import 'reflect-metadata';
+import sharp from 'sharp';
+import { Between, In, IsNull, LessThan } from 'typeorm';
+import { AppDataSource } from './data-source';
 import { Asset } from './entities/Asset';
 import { Batch } from './entities/Batch';
+import { Location } from './entities/Location';
+import { Title } from './entities/Title';
+import { User } from './entities/User';
 import { Withdrawal } from './entities/Withdrawal';
-import { Between, In, IsNull, LessThan } from 'typeorm';
-import { NoteService } from './services/note.service';
 import { BackupService } from './services/backup.service';
+import { NoteService } from './services/note.service';
+import { getDataPath } from './user-data';
 
 let win: BrowserWindow | null = null;
 
@@ -278,9 +278,9 @@ async function startUiServer(distRoot: string) {
           return;
         }
       } else {
-      res.writeHead(404);
-      res.end();
-      return;
+        res.writeHead(404);
+        res.end();
+        return;
       }
     }
 
@@ -336,7 +336,7 @@ function createWindow() {
       win.on('closed', () => {
         try {
           server.close();
-        } catch {}
+        } catch { }
       });
     });
   }
@@ -351,9 +351,17 @@ app.on('ready', () => {
 
   // Register 'local-resource' protocol to serve local files
   protocol.registerFileProtocol('local-resource', (request, callback) => {
-    const url = request.url.replace('local-resource://', '');
     try {
-      return callback(decodeURIComponent(url));
+      // Strip the protocol prefix to obtain the raw path segment.
+      // On Windows, path.join() uses '\' so stored URLs may contain either
+      // backslashes (old data) or forward slashes (new data after this fix).
+      // Chromium normalises backslashes to '/' before the request arrives here,
+      // so we only ever see forward slashes at this point; path.normalize then
+      // converts them back to the OS-native separator so the FS call succeeds.
+      let filePath = request.url.replace(/^local-resource:\/\//, '');
+      filePath = decodeURIComponent(filePath);
+      filePath = path.normalize(filePath);
+      return callback(filePath);
     } catch (error) {
       console.error(error);
       return callback('404');
@@ -361,7 +369,9 @@ app.on('ready', () => {
   });
 
   try {
-    const userDataPath = app.getPath('userData');
+    const userDataPath = getDataPath();
+    // Ensure the data directory exists (important for first run in portable mode)
+    fs.mkdirSync(userDataPath, { recursive: true });
     const dbPath = path.join(userDataPath, 'prime.sqlite');
     const clearedMarkerPath = path.join(userDataPath, '.prime-db-cleared');
 
@@ -462,7 +472,7 @@ app.on('ready', () => {
 
     if (updateState.supported) {
       setTimeout(() => {
-        autoUpdater.checkForUpdates().catch(() => {});
+        autoUpdater.checkForUpdates().catch(() => { });
       }, 2500);
     }
   });
@@ -675,7 +685,7 @@ ipcMain.handle('get-withdrawals-by-asset', async (event, assetId: number) => {
 
 ipcMain.handle('upload-image', async (event, filePath: string) => {
   try {
-    const userDataPath = app.getPath('userData');
+    const userDataPath = getDataPath();
     const imagesDir = path.join(userDataPath, 'images');
 
     if (!fs.existsSync(imagesDir)) {
@@ -692,7 +702,11 @@ ipcMain.handle('upload-image', async (event, filePath: string) => {
       })
       .toFile(destinationPath);
 
-    return `local-resource://${destinationPath}`;
+    // Always use forward slashes in the URL regardless of OS.
+    // On Windows, path.join() returns backslash-separated paths which produce
+    // an invalid URL and break the custom protocol handler in the renderer.
+    const urlPath = destinationPath.split(path.sep).join('/');
+    return `local-resource://${urlPath}`;
   } catch (error) {
     console.error('Error uploading image:', error);
     throw error;

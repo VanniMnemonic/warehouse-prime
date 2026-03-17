@@ -1,11 +1,13 @@
-import { app, dialog } from 'electron';
+import archiver from 'archiver';
+import { dialog } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-import archiver from 'archiver';
+import { Database } from 'sqlite3';
 import unzipper from 'unzipper';
+import { getDataPath } from '../user-data';
 
 export class BackupService {
-  private userDataPath = app.getPath('userData');
+  private userDataPath = getDataPath();
   private dbPath = path.join(this.userDataPath, 'prime.sqlite');
   private imagesDir = path.join(this.userDataPath, 'images');
 
@@ -88,6 +90,11 @@ export class BackupService {
         fs.cpSync(extractedImagesDir, this.imagesDir, { recursive: true, force: true });
       }
 
+      // Rewrite image_path values to point to the current machine's imagesDir.
+      // The restored DB may contain absolute paths from a different machine or
+      // OS user account, and will always need forward-slash URLs.
+      await this.normalizeImagePaths();
+
       // Cleanup
       fs.rmSync(tempExtractPath, { recursive: true, force: true });
 
@@ -96,5 +103,78 @@ export class BackupService {
       console.error('Import failed:', error);
       throw error;
     }
+  }
+
+  /**
+   * Rewrites every `image_path` value in the `asset` and `user` tables so that
+   * it points to the current machine's images directory and uses forward slashes
+   * in the `local-resource://` URL (required on Windows).
+   *
+   * This is called after a backup restore so that images display correctly even
+   * when the backup was created on a different machine or OS user account.
+   */
+  private normalizeImagePaths(): Promise<void> {
+    // Always use forward slashes inside URLs regardless of OS
+    const normalizedImagesDir = this.imagesDir.split(path.sep).join('/');
+
+    return new Promise<void>((resolve, reject) => {
+      const db = new Database(this.dbPath, (openErr) => {
+        if (openErr) {
+          reject(openErr);
+          return;
+        }
+      });
+
+      const fixTable = (table: string): Promise<void> =>
+        new Promise<void>((res, rej) => {
+          db.all(
+            `SELECT id, image_path FROM "${table}" WHERE image_path IS NOT NULL AND image_path != ''`,
+            (err, rows: Array<{ id: number; image_path: string }>) => {
+              if (err) {
+                rej(err);
+                return;
+              }
+
+              const updates = rows.map(
+                (row) =>
+                  new Promise<void>((rs, rj) => {
+                    // Extract the bare filename from whatever absolute path was stored,
+                    // handling both forward and back slash separators.
+                    const bare = row.image_path
+                      .replace(/^local-resource:\/\//, '')
+                      .replace(/\\/g, '/');
+                    const filename = bare.substring(bare.lastIndexOf('/') + 1);
+
+                    if (!filename) {
+                      rs();
+                      return;
+                    }
+
+                    const newPath = `local-resource://${normalizedImagesDir}/${filename}`;
+                    db.run(
+                      `UPDATE "${table}" SET image_path = ? WHERE id = ?`,
+                      [newPath, row.id],
+                      (updateErr) => (updateErr ? rj(updateErr) : rs()),
+                    );
+                  }),
+              );
+
+              Promise.all(updates)
+                .then(() => res())
+                .catch(rej);
+            },
+          );
+        });
+
+      Promise.all([fixTable('asset'), fixTable('user')])
+        .then(() => {
+          db.close();
+          resolve();
+        })
+        .catch((err) => {
+          db.close();
+          reject(err);
+        });
+    });
   }
 }
