@@ -1,16 +1,16 @@
+import path from 'path';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { User } from './entities/User';
 import { Asset } from './entities/Asset';
 import { Batch } from './entities/Batch';
-import { Withdrawal } from './entities/Withdrawal';
 import { Location } from './entities/Location';
-import { Title } from './entities/Title';
 import { Note } from './entities/Note';
-import path from 'path';
-import { app } from 'electron';
+import { Title } from './entities/Title';
+import { User } from './entities/User';
+import { Withdrawal } from './entities/Withdrawal';
+import { getDataPath } from './user-data';
 
-const dbPath = path.join(app.getPath('userData'), 'prime.sqlite');
+const dbPath = path.join(getDataPath(), 'prime.sqlite');
 
 export const AppDataSource = new DataSource({
   type: 'sqlite',
