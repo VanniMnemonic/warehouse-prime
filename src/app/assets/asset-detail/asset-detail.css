@@ -1,3 +1,4 @@
-:host {
-  --p-tabs-tabpanel-padding: var(--p-tabs-tab-padding, 0.875rem) 0;
+:host ::ng-deep .p-tabpanels {
+  padding-left: 0;
+  padding-right: 0;
 }
