@@ -966,6 +966,46 @@
         <source>Minimum Stock is required and must be non-negative.</source>
         <target>La scorta minima è obbligatoria e non può essere negativa.</target>
       </trans-unit>
+      <trans-unit id="addBatchForHeader" datatype="html">
+        <source>Add Batch for <x id="assetName" equiv-text="assetName"/></source>
+        <target>Aggiungi lotto per <x id="assetName" equiv-text="assetName"/></target>
+      </trans-unit>
+      <trans-unit id="batchFormCurrentTotalLabel" datatype="html">
+        <source>Current Total: <x id="INTERPOLATION" equiv-text="{{ asset().total_quantity }}"/></source>
+        <target>Totale corrente: <x id="INTERPOLATION" equiv-text="{{ asset().total_quantity }}"/></target>
+      </trans-unit>
+      <trans-unit id="batchFormDenominationLabel" datatype="html">
+        <source>Batch Denomination</source>
+        <target>Denominazione lotto</target>
+      </trans-unit>
+      <trans-unit id="batchFormSerialNumberLabel" datatype="html">
+        <source>Serial Number</source>
+        <target>Numero seriale</target>
+      </trans-unit>
+      <trans-unit id="batchFormQuantityLabel" datatype="html">
+        <source>Quantity</source>
+        <target>Quantità</target>
+      </trans-unit>
+      <trans-unit id="batchFormExpirationDateLabel" datatype="html">
+        <source>Expiration Date</source>
+        <target>Data di scadenza</target>
+      </trans-unit>
+      <trans-unit id="batchFormLocationLabel" datatype="html">
+        <source>Location</source>
+        <target>Posizione</target>
+      </trans-unit>
+      <trans-unit id="batchFormLocationPlaceholder" datatype="html">
+        <source>Select a Location</source>
+        <target>Seleziona una posizione</target>
+      </trans-unit>
+      <trans-unit id="batchFormUpdateButton" datatype="html">
+        <source>Update Batch</source>
+        <target>Aggiorna lotto</target>
+      </trans-unit>
+      <trans-unit id="batchFormCreateButton" datatype="html">
+        <source>Create Batch</source>
+        <target>Crea lotto</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

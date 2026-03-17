@@ -1,25 +1,25 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { AssetService } from '../services/asset.service';
-import { BatchService } from '../services/batch.service';
-import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
+import { ImageModule } from 'primeng/image';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { ImageModule } from 'primeng/image';
-import { DialogModule } from 'primeng/dialog';
-import { AssetForm } from './asset-form/asset-form';
-import { AssetBatchForm } from './asset-batch-form/asset-batch-form';
+import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { DomSanitizer } from '@angular/platform-browser';
-import { ImageDisplay } from '../shared/components/image-display/image-display';
-import { ActivatedRoute, Router } from '@angular/router';
 import { ToolbarModule } from 'primeng/toolbar';
-import { WithdrawalService } from '../services/withdrawal.service';
-import { WithdrawalForm } from '../withdrawals/withdrawal-form/withdrawal-form';
 import { TooltipModule } from 'primeng/tooltip';
+import { AssetService } from '../services/asset.service';
+import { BatchService } from '../services/batch.service';
+import { WithdrawalService } from '../services/withdrawal.service';
+import { ImageDisplay } from '../shared/components/image-display/image-display';
+import { WithdrawalForm } from '../withdrawals/withdrawal-form/withdrawal-form';
+import { AssetBatchForm } from './asset-batch-form/asset-batch-form';
+import { AssetForm } from './asset-form/asset-form';
 
 @Component({
   selector: 'app-assets',
@@ -83,6 +83,13 @@ export class Assets implements OnInit {
     return this.editingAsset
       ? $localize`:@@editAssetDialogHeader:Edit Asset`
       : $localize`:@@addAssetDialogHeader:Add Asset`;
+  }
+
+  getBatchDialogHeader(): string {
+    const assetName = this.selectedAsset?.denomination ?? $localize`:@@assetLabel:Asset`;
+    return this.selectedBatch
+      ? $localize`:@@editBatchForHeader:Edit Batch for ${assetName}:assetName:`
+      : $localize`:@@addBatchForHeader:Add Batch for ${assetName}:assetName:`;
   }
 
   openAddBatch(asset: any) {

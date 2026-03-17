@@ -259,10 +259,7 @@
 
 <p-dialog
   [(visible)]="batchFormDrawerVisible"
-  [header]="
-    (selectedBatch ? 'Edit Batch for ' : 'Add Batch for ') +
-    (selectedAsset?.denomination || 'Asset')
-  "
+  [header]="getBatchDialogHeader()"
   [modal]="true"
   [dismissableMask]="true"
   [style]="{ width: '40rem' }"
