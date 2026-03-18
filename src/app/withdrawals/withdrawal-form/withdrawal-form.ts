@@ -28,6 +28,8 @@ import { SliderModule } from 'primeng/slider';
 import { ToastModule } from 'primeng/toast';
 import { ImageDisplay } from '../../shared/components/image-display/image-display';
 import { TableModule } from 'primeng/table';
+import { UserSelected } from '../../shared/components/user-display/user-selected';
+import { UserSummary } from '../../shared/components/user-display/user-summary';
 
 @Component({
   selector: 'app-withdrawal-form',
@@ -47,6 +49,8 @@ import { TableModule } from 'primeng/table';
     SliderModule,
     ToastModule,
     ImageDisplay,
+    UserSelected,
+    UserSummary,
   ],
   templateUrl: './withdrawal-form.html',
   styleUrl: './withdrawal-form.css',

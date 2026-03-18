@@ -99,7 +99,8 @@ Save to `{@artifacts_path}/plan.md`. If the feature is trivial and doesn't warra
 - Remove `copyToClipboard` internal template logic (keep method, wire via output)
 - Run lint and typecheck
 
-### [ ] Step: Refactor withdrawal-form.html and withdrawal-form.ts
+### [x] Step: Refactor withdrawal-form.html and withdrawal-form.ts
+<!-- chat-id: 18337efb-eedd-4bd7-9de9-633d30d3bcde -->
 - Replace selected user card in step 1 with `<app-user-selected [user]="selectedUser" (onClear)="selectedUser = null; userBarcode = ''" />`
 - Replace summary card in step 2 with `<app-user-summary [user]="selectedUser" (onEdit)="activateCallback(1)" />`
 - Replace summary card in step 3 with `<app-user-summary [user]="selectedUser" size="sm" (onEdit)="activateCallback(1)" />`
