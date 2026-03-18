@@ -18,7 +18,8 @@ Do not make assumptions on important decisions — get clarification first.
 
 ## Workflow Steps
 
-### [ ] Step: Technical Specification
+### [x] Step: Technical Specification
+<!-- chat-id: c582a67e-bdfc-4a34-af06-250e7ec53252 -->
 
 Assess the task's difficulty, as underestimating it leads to poor outcomes.
 - easy: Straightforward implementation, trivial bug fix or feature
@@ -52,16 +53,54 @@ Save to `{@artifacts_path}/plan.md`. If the feature is trivial and doesn't warra
 
 ---
 
-### [ ] Step: Implementation
+### [ ] Step: Create UserTableItem sub-component
+- Create `src/app/shared/components/user-display/user-table-item.ts`
+- Renders `<td>` cells: image, title, first_name, last_name, email, location, barcode, active_withdrawals badge
+- Host uses `display: contents` to be transparent inside `<tr>`
+- Import and use `ImageDisplay`, `LocationDisplay`, PrimeNG `TagModule`
+- Write basic unit test (renders without errors, displays user name)
 
-Implement the task according to the technical specification and general engineering best practices.
+### [ ] Step: Create UserFullDetail sub-component
+- Create `src/app/shared/components/user-display/user-full-detail.ts`
+- Renders large image, title, full name, email with copy button, location
+- Output: `copyEmail` event (string)
+- Import `ImageDisplay`, `LocationDisplay`, PrimeNG `ButtonModule`, `TooltipModule`
+- Write basic unit test
 
-1. Break the task into steps where possible.
-2. Implement the required changes in the codebase
-3. If relevant, write unit tests alongside each change.
-4. Run relevant tests and linters in the end of each step.
-5. Perform basic manual verification if applicable.
-6. After completion, write a report to `{@artifacts_path}/report.md` describing:
-   - What was implemented
-   - How the solution was tested
-   - The biggest issues or challenges encountered
+### [ ] Step: Create UserSelected sub-component
+- Create `src/app/shared/components/user-display/user-selected.ts`
+- Renders selected user card (step 1 of withdrawal form): image (circle), name, email, role, × clear button, check icon
+- Output: `onClear` event
+- Import `ImageDisplay`, PrimeNG `ButtonModule`
+- Write basic unit test
+
+### [ ] Step: Create UserSummary sub-component
+- Create `src/app/shared/components/user-display/user-summary.ts`
+- Renders compact/dimmed user summary card: image, name, label ("Selected User" or "User"), edit button
+- Input: `size?: 'sm' | 'md'` (controls image dimensions and layout for step 2 vs step 3)
+- Output: `onEdit` event
+- Import `ImageDisplay`, PrimeNG `ButtonModule`
+- Write basic unit test
+
+### [ ] Step: Refactor users.html and users.ts
+- Replace the inline `<td>` cells in `<ng-template pTemplate="body" let-user>` with `<app-user-table-item [user]="user" />`
+- Add `UserTableItem` to imports in `users.ts`
+- Run lint and typecheck; verify no regressions
+
+### [ ] Step: Refactor user-detail.html and user-detail.ts
+- Replace the header block (image + name/email/location block) with `<app-user-full-detail [user]="user()" (copyEmail)="copyToClipboard($event)" />`
+- Add `UserFullDetail` to imports in `user-detail.ts`
+- Remove `copyToClipboard` internal template logic (keep method, wire via output)
+- Run lint and typecheck
+
+### [ ] Step: Refactor withdrawal-form.html and withdrawal-form.ts
+- Replace selected user card in step 1 with `<app-user-selected [user]="selectedUser" (onClear)="selectedUser = null; userBarcode = ''" />`
+- Replace summary card in step 2 with `<app-user-summary [user]="selectedUser" (onEdit)="activateCallback(1)" />`
+- Replace summary card in step 3 with `<app-user-summary [user]="selectedUser" size="sm" (onEdit)="activateCallback(1)" />`
+- Add `UserSelected`, `UserSummary` to imports in `withdrawal-form.ts`
+- Run lint and typecheck
+
+### [ ] Step: Final verification and report
+- Run `npx tsc --noEmit` and fix any type errors
+- Run existing tests (`npx ng test --watch=false`)
+- Write report to `.zenflow/tasks/new-task-d854/report.md`
