@@ -69,7 +69,8 @@ Save to `{@artifacts_path}/plan.md`. If the feature is trivial and doesn't warra
 - Import `ImageDisplay`, `LocationDisplay`, PrimeNG `ButtonModule`, `TooltipModule`
 - Write basic unit test
 
-### [ ] Step: Create UserSelected sub-component
+### [x] Step: Create UserSelected sub-component
+<!-- chat-id: 64f9aca7-24ba-471d-8a3c-a12f540cccaf -->
 - Create `src/app/shared/components/user-display/user-selected.ts`
 - Renders selected user card (step 1 of withdrawal form): image (circle), name, email, role, × clear button, check icon
 - Output: `onClear` event
