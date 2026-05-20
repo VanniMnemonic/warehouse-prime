@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import type { Location } from '../../shared/types/models';
 import { ElectronService } from './electron';
 
 @Injectable({
@@ -7,15 +8,15 @@ import { ElectronService } from './electron';
 export class LocationService {
   private electronService = inject(ElectronService);
 
-  async getAll(): Promise<any[]> {
+  async getAll(): Promise<Location[]> {
     return (await this.electronService.invoke('get-locations')) ?? [];
   }
 
-  async create(location: any): Promise<any> {
+  async create(location: Record<string, unknown>): Promise<Location> {
     return await this.electronService.invoke('add-location', location);
   }
 
-  async update(location: any): Promise<any> {
+  async update(location: Record<string, unknown>): Promise<Location> {
     return await this.electronService.invoke('update-location', location);
   }
 

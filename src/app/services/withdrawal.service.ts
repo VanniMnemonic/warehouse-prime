@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import type { Withdrawal } from '../../shared/types/models';
 import { ElectronService } from './electron';
 
 @Injectable({
@@ -7,24 +8,27 @@ import { ElectronService } from './electron';
 export class WithdrawalService {
   private electronService = inject(ElectronService);
 
-  async getByUser(userId: number): Promise<any[]> {
+  async getByUser(userId: number): Promise<Withdrawal[]> {
     return (await this.electronService.invoke('get-withdrawals-by-user', userId)) ?? [];
   }
 
-  async getByAsset(assetId: number): Promise<any[]> {
+  async getByAsset(assetId: number): Promise<Withdrawal[]> {
     return (await this.electronService.invoke('get-withdrawals-by-asset', assetId)) ?? [];
   }
 
-  async getAll(): Promise<any[]> {
+  async getAll(): Promise<Withdrawal[]> {
     return (await this.electronService.invoke('get-withdrawals')) ?? [];
   }
 
-  async getOverdue(): Promise<any[]> {
+  async getOverdue(): Promise<Withdrawal[]> {
     return (await this.electronService.invoke('get-withdrawals-overdue')) ?? [];
   }
 
-  async create(withdrawal: any): Promise<any> {
-    return await this.electronService.invoke('add-withdrawal', withdrawal);
+  // The withdrawal form composes the payload from multiple controls
+  // (asset / batch / quantity / must_return / dates) — typing it tightly
+  // here would force the form into a typed FormGroup, out of scope.
+  async create(withdrawal: unknown): Promise<Withdrawal[]> {
+    return (await this.electronService.invoke('add-withdrawal', withdrawal)) ?? [];
   }
 
   async return(
@@ -32,7 +36,7 @@ export class WithdrawalService {
     returnDate: Date,
     returnedQuantity: number,
     inefficientQuantity: number,
-  ): Promise<any> {
+  ): Promise<Withdrawal> {
     return await this.electronService.invoke('return-withdrawal', {
       id: withdrawalId,
       date: returnDate,
@@ -41,7 +45,11 @@ export class WithdrawalService {
     });
   }
 
-  async forceReturn(withdrawalId: number, returnDate: Date, returnedQuantity: number): Promise<any> {
+  async forceReturn(
+    withdrawalId: number,
+    returnDate: Date,
+    returnedQuantity: number,
+  ): Promise<Withdrawal> {
     return await this.electronService.invoke('force-return-withdrawal', {
       id: withdrawalId,
       date: returnDate,

@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { NoteService } from '../../../services/note.service';
+import { NoteService, type NoteEntityType } from '../../../services/note.service';
+import type { Note } from '../../../../shared/types/models';
 import { MessageService } from 'primeng/api';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 
@@ -19,14 +20,14 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
   `]
 })
 export class NotesComponent {
-  entityType = input.required<string>();
+  entityType = input.required<NoteEntityType>();
   entityId = input.required<number>();
   floating = input<boolean>(false);
-  
+
   noteService = inject(NoteService);
   messageService = inject(MessageService);
 
-  notes = signal<any[]>([]);
+  notes = signal<Note[]>([]);
   newNoteContent = signal('');
   loading = signal(false);
   scrollPanelStyle = computed(() => ({
@@ -60,10 +61,10 @@ export class NotesComponent {
     if (!this.newNoteContent().trim()) return;
 
     try {
-      const noteData: any = {
+      const noteData: Record<string, unknown> = {
         content: this.newNoteContent(),
       };
-      // Dynamic key for relation
+      // Dynamic key for relation: maps entityType="asset" -> asset_id, etc.
       noteData[`${this.entityType()}_id`] = this.entityId();
 
       await this.noteService.create(noteData);
