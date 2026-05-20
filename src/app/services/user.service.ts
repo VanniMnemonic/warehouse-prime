@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import type { User, UserWithDetails } from '../../shared/types/models';
 import { ElectronService } from './electron';
 
 @Injectable({
@@ -7,15 +8,17 @@ import { ElectronService } from './electron';
 export class UserService {
   private electronService = inject(ElectronService);
 
-  async getAll(): Promise<any[]> {
+  async getAll(): Promise<UserWithDetails[]> {
     return (await this.electronService.invoke('get-users')) ?? [];
   }
 
-  async create(user: any): Promise<any> {
+  // See AssetService for the rationale on `Record<string, unknown>` instead
+  // of `Partial<User>`.
+  async create(user: Record<string, unknown>): Promise<User> {
     return await this.electronService.invoke('add-user', user);
   }
 
-  async update(user: any): Promise<any> {
+  async update(user: Record<string, unknown>): Promise<User> {
     return await this.electronService.invoke('update-user', user);
   }
 

@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import type { Asset, AssetWithDetails } from '../../shared/types/models';
 import { ElectronService } from './electron';
 
 @Injectable({
@@ -7,15 +8,19 @@ import { ElectronService } from './electron';
 export class AssetService {
   private electronService = inject(ElectronService);
 
-  async getAll(): Promise<any[]> {
+  async getAll(): Promise<AssetWithDetails[]> {
     return (await this.electronService.invoke('get-assets')) ?? [];
   }
 
-  async create(asset: any): Promise<any> {
+  // `asset` is typed loosely because Angular FormGroups emit `null` for
+  // empty optional fields, which doesn't satisfy `Partial<Asset>`. The DB
+  // ignores extraneous nulls. Tighten once we move forms to typed
+  // FormGroups.
+  async create(asset: Record<string, unknown>): Promise<Asset> {
     return await this.electronService.invoke('add-asset', asset);
   }
 
-  async update(asset: any): Promise<any> {
+  async update(asset: Record<string, unknown>): Promise<Asset> {
     return await this.electronService.invoke('update-asset', asset);
   }
 
