@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TagModule } from 'primeng/tag';
 import { ImageDisplay } from '../image-display/image-display';
 import { LocationDisplay } from '../location-display';
@@ -9,7 +9,9 @@ import { LocationDisplay } from '../location-display';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <td>
+    
+    <!-- Image -->
+    <td class="px-6">
       <app-image-display
         [image]="user().image_path"
         width="60px"
@@ -18,22 +20,35 @@ import { LocationDisplay } from '../location-display';
         icon="pi pi-user"
       />
     </td>
-    <td>{{ user().title?.title }}</td>
-    <td>{{ user().first_name }}</td>
-    <td>{{ user().last_name }}</td>
-    <td>{{ user().email }}</td>
-    <td>
+
+    <!-- Title -->
+    <td class="px-6">{{ user().title?.title }}</td>
+    
+    <!-- First Name -->
+    <td class="px-6">{{ user().first_name }}</td>
+    
+    <!-- Last Name -->
+    <td class="px-6">{{ user().last_name }}</td>
+    
+    <!-- Email -->
+    <td class="px-6">{{ user().email }}</td>
+    
+    <!-- Location -->
+    <td class="px-6">
       @if (user().location) {
         <app-location-display [location]="user().location" />
       }
     </td>
-    <td>{{ user().barcode }}</td>
-    <td>
+    
+    <!-- Barcode -->
+    <td class="px-6">{{ user().barcode }}</td>
+    
+    <!-- Active Withdrawals -->
+    <td class="text-center">
       @if (user().active_withdrawals > 0) {
         <p-tag
           [value]="user().active_withdrawals.toString()"
           severity="warn"
-          class="text-center"
         />
       }
     </td>
