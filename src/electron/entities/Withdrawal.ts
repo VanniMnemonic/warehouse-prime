@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { User } from './User';
 import { Batch } from './Batch';
@@ -25,6 +26,7 @@ export class Withdrawal {
   @Column({ type: 'int', default: 0 })
   quantity!: number;
 
+  @Index()
   @Column()
   user_id!: number;
 
@@ -32,6 +34,7 @@ export class Withdrawal {
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
+  @Index()
   @Column()
   batch_id!: number;
 

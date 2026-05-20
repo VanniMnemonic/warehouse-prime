@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, Index } from 'typeorm';
 import { User } from './User';
 import { Batch } from './Batch';
 import { Note } from './Note';
@@ -17,6 +17,7 @@ export class Location {
   @Column({ nullable: true })
   phone?: string;
 
+  @Index()
   @Column({ nullable: true })
   parent_id?: number;
 

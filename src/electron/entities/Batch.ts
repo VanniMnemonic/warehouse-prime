@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, Index } from 'typeorm';
 import { Asset } from './Asset';
 import { Location } from './Location';
 import { Note } from './Note';
@@ -11,6 +11,7 @@ export class Batch {
   @Column()
   denomination!: string;
 
+  @Index()
   @Column()
   asset_id!: number;
 
@@ -21,6 +22,7 @@ export class Batch {
   @OneToMany(() => Note, (note) => note.batch)
   notes!: Note[];
 
+  @Index()
   @Column({ nullable: true })
   location_id?: number;
 
