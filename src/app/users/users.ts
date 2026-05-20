@@ -1,4 +1,12 @@
-import { Component, DestroyRef, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
@@ -17,6 +25,7 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { UserTableItem } from '../shared/components/user-display/user-table-item';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToolbarModule } from 'primeng/toolbar';
+import type { UserWithDetails } from '../../shared/types/models';
 
 @Component({
   selector: 'app-users',
@@ -39,97 +48,98 @@ import { ToolbarModule } from 'primeng/toolbar';
   ],
   templateUrl: './users.html',
   styleUrl: './users.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Users implements OnInit {
-  userService = inject(UserService);
-  cdr = inject(ChangeDetectorRef);
-  router = inject(Router);
-  route = inject(ActivatedRoute);
+  private userService = inject(UserService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
-  selectedUser: any;
   searchValue: string | undefined;
-  allUsers: any[] = [];
-  users: any[] = [];
-  loading: boolean = true;
-  formDrawerVisible: boolean = false;
-  editingUser: any = null;
-  locationIdFilter: number | null = null;
+
+  // All users loaded from the IPC layer (un-filtered). Source of truth.
+  protected readonly allUsers = signal<UserWithDetails[]>([]);
+
+  // Optional `?locationId=` filter applied to the table.
+  protected readonly locationIdFilter = signal<number | null>(null);
+
+  // Derived view: respects `locationIdFilter` when set.
+  protected readonly users = computed<UserWithDetails[]>(() => {
+    const filter = this.locationIdFilter();
+    const all = this.allUsers();
+    return filter == null
+      ? all
+      : all.filter((u) => Number(u?.location?.id) === filter);
+  });
+
+  protected readonly loading = signal(true);
+  protected readonly formDrawerVisible = signal(false);
+  protected readonly editingUser = signal<UserWithDetails | null>(null);
+  private selectedUser: UserWithDetails | null = null;
 
   ngOnInit() {
-    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      const raw = this.route.snapshot.queryParamMap.get('locationId');
-      const id = raw ? Number(raw) : NaN;
-      this.locationIdFilter = Number.isFinite(id) ? id : null;
-      const action = this.route.snapshot.queryParamMap.get('action');
-      if (action === 'add') {
-        this.openAddUser();
-        this.router.navigate([], {
-          queryParams: { action: null },
-          queryParamsHandling: 'merge',
-          replaceUrl: true,
-        });
-      }
-      void this.loadUsers();
-    });
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const raw = this.route.snapshot.queryParamMap.get('locationId');
+        const id = raw ? Number(raw) : NaN;
+        this.locationIdFilter.set(Number.isFinite(id) ? id : null);
+        const action = this.route.snapshot.queryParamMap.get('action');
+        if (action === 'add') {
+          this.openAddUser();
+          this.router.navigate([], {
+            queryParams: { action: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
+        }
+        void this.loadUsers();
+      });
   }
 
   getUserDialogHeader(): string {
-    return this.editingUser
+    return this.editingUser()
       ? $localize`:@@editUserDialogHeader:Edit User`
       : $localize`:@@addUserDialogHeader:Add User`;
   }
 
   async loadUsers() {
     try {
-      this.loading = true;
-      this.allUsers = await this.userService.getAll();
-      this.users = this.locationIdFilter
-        ? this.allUsers.filter((u) => Number(u?.location?.id) === this.locationIdFilter)
-        : this.allUsers;
+      this.loading.set(true);
+      this.allUsers.set(await this.userService.getAll());
     } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
+      this.loading.set(false);
     }
   }
 
-  openDetail(user: any) {
+  openDetail(user: UserWithDetails) {
     this.selectedUser = user;
     this.router.navigate(['/users', user.id], { state: { user } });
   }
 
   openAddUser(event?: Event) {
-    console.log('openAddUser clicked');
     event?.stopPropagation();
     event?.preventDefault();
-    this.editingUser = null;
-    this.formDrawerVisible = true;
-    console.log('formDrawerVisible set to:', this.formDrawerVisible);
-    this.cdr.detectChanges();
+    this.editingUser.set(null);
+    this.formDrawerVisible.set(true);
   }
 
-  openEditUser(user: any) {
-    console.log('openEditUser clicked for:', user);
-    this.editingUser = user;
-    this.formDrawerVisible = true;
-    console.log('formDrawerVisible set to:', this.formDrawerVisible);
+  openEditUser(user: UserWithDetails) {
+    this.editingUser.set(user);
+    this.formDrawerVisible.set(true);
   }
 
   async onFormSave() {
-    this.formDrawerVisible = false;
+    this.formDrawerVisible.set(false);
     await this.loadUsers();
-
     if (this.selectedUser) {
-      // Find the updated user in the refreshed list
-      const updatedUser = this.users.find((u) => u.id === this.selectedUser.id);
-      if (updatedUser) {
-        this.selectedUser = updatedUser;
-        this.cdr.detectChanges();
-      }
+      const refreshed = this.users().find((u) => u.id === this.selectedUser?.id);
+      if (refreshed) this.selectedUser = refreshed;
     }
   }
 
   onFormCancel() {
-    this.formDrawerVisible = false;
+    this.formDrawerVisible.set(false);
   }
 }
