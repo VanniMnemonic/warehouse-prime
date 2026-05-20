@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, Index } from 'typeorm';
 import { Location } from './Location';
 import { Title } from './Title';
 import { Note } from './Note';
@@ -7,6 +7,10 @@ import { Note } from './Note';
 export class User {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @Index()
+  @Column({ nullable: true })
+  title_id?: number;
 
   @ManyToOne(() => Title)
   @JoinColumn({ name: 'title_id' })
@@ -30,6 +34,7 @@ export class User {
   @Column({ nullable: true })
   mobile?: string;
 
+  @Index()
   @Column({ nullable: true })
   location_id?: number;
 

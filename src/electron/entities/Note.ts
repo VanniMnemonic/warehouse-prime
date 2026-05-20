@@ -5,6 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 import { Asset } from './Asset';
 import { Batch } from './Batch';
@@ -24,6 +25,7 @@ export class Note {
   @CreateDateColumn()
   created_at!: Date;
 
+  @Index()
   @Column({ nullable: true })
   asset_id?: number;
 
@@ -31,6 +33,7 @@ export class Note {
   @JoinColumn({ name: 'asset_id' })
   asset?: Asset;
 
+  @Index()
   @Column({ nullable: true })
   batch_id?: number;
 
@@ -38,6 +41,7 @@ export class Note {
   @JoinColumn({ name: 'batch_id' })
   batch?: Batch;
 
+  @Index()
   @Column({ nullable: true })
   location_id?: number;
 
@@ -45,6 +49,7 @@ export class Note {
   @JoinColumn({ name: 'location_id' })
   location?: Location;
 
+  @Index()
   @Column({ nullable: true })
   title_id?: number;
 
@@ -52,6 +57,7 @@ export class Note {
   @JoinColumn({ name: 'title_id' })
   title?: Title;
 
+  @Index()
   @Column({ nullable: true })
   user_id?: number;
 
@@ -59,6 +65,7 @@ export class Note {
   @JoinColumn({ name: 'user_id' })
   user?: User;
 
+  @Index()
   @Column({ nullable: true })
   withdrawal_id?: number;
 
