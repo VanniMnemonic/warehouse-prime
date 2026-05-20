@@ -54,12 +54,22 @@
               [rounded]="true"
               severity="secondary"
               (onClick)="openDetail(user)"
+              pTooltip="View user"
+              i18n-pTooltip="@@userViewDetailsTooltip"
+              tooltipPosition="top"
+              ariaLabel="View user"
+              i18n-ariaLabel="@@userViewDetailsTooltip"
             />
             <p-button
               icon="pi pi-pencil"
               [rounded]="true"
               severity="secondary"
               (onClick)="openEditUser(user)"
+              pTooltip="Edit user"
+              i18n-pTooltip="@@userEditTooltip"
+              tooltipPosition="top"
+              ariaLabel="Edit user"
+              i18n-ariaLabel="@@userEditTooltip"
             />
           </div>
         </td>

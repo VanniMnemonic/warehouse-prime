@@ -53,7 +53,16 @@
                   [style]="{ width: '100%' }"
                   class="flex-1"
                 />
-                <p-button icon="pi pi-plus" (onClick)="openTitleDialog()" type="button" />
+                <p-button
+                  icon="pi pi-plus"
+                  (onClick)="openTitleDialog()"
+                  type="button"
+                  pTooltip="Add title"
+                  i18n-pTooltip="@@titleAddTooltip"
+                  tooltipPosition="top"
+                  ariaLabel="Add title"
+                  i18n-ariaLabel="@@titleAddTooltip"
+                />
               </div>
             </div>
 
