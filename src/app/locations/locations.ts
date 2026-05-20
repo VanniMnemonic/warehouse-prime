@@ -1,5 +1,14 @@
-import { Component, DestroyRef, OnInit, ViewChild, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import type { Batch, Location, UserWithDetails } from '../../shared/types/models';
 import { OrganizationChartModule } from 'primeng/organizationchart';
 import { MenuItem, TreeNode } from 'primeng/api';
 import { LocationService } from '../services/location.service';
@@ -37,6 +46,7 @@ import { TagModule } from 'primeng/tag';
   templateUrl: './locations.html',
   // styleUrl: './locations.css',
   providers: [TreeDragDropService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Locations implements OnInit {
   locationService = inject(LocationService);
@@ -53,19 +63,19 @@ export class Locations implements OnInit {
   relatedDrawerVisible = signal(false);
   relatedDrawerMode = signal<'users' | 'batches'>('users');
   relatedLoading = signal(false);
-  relatedLocation = signal<any>(null);
-  relatedUsers = signal<any[]>([]);
-  relatedBatches = signal<any[]>([]);
+  relatedLocation = signal<Location | null>(null);
+  relatedUsers = signal<UserWithDetails[]>([]);
+  relatedBatches = signal<Batch[]>([]);
 
   data = signal<TreeNode[]>([]);
-  locations = signal<any[]>([]);
+  locations = signal<Location[]>([]);
   loading = signal(true);
   drawerVisible = signal(false);
-  selectedLocation = signal<any>(null);
-  editingLocation = signal<any>(null);
+  selectedLocation = signal<Location | null>(null);
+  editingLocation = signal<Location | null>(null);
   hierarchyDrawerVisible = signal(false);
   hierarchyData = signal<TreeNode[]>([]);
-  hierarchySelection = signal<any>(null);
+  hierarchySelection = signal<TreeNode | TreeNode[] | null | undefined>(null);
   hierarchyDirty = signal(false);
   hierarchySaving = signal(false);
 
