@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import unzipper from 'unzipper';
 import { AppDataSource } from '../data-source';
+import { buildLocalResourceUrl, extractImageFilename } from '../domain/image-path';
 import { Asset } from '../entities/Asset';
 import { User } from '../entities/User';
 import { getDataPath } from '../user-data';
@@ -142,17 +143,11 @@ export class BackupService {
    * goes through the same DB file as the rest of the app.
    */
   async normalizeImagePaths(): Promise<void> {
-    const normalizedImagesDir = this.imagesDir.split(path.sep).join('/');
-    const prefix = `local-resource://${normalizedImagesDir}/`;
-
-    await this.normalizeForEntity(Asset, prefix);
-    await this.normalizeForEntity(User, prefix);
+    await this.normalizeForEntity(Asset);
+    await this.normalizeForEntity(User);
   }
 
-  private async normalizeForEntity(
-    entity: typeof Asset | typeof User,
-    prefix: string,
-  ): Promise<void> {
+  private async normalizeForEntity(entity: typeof Asset | typeof User): Promise<void> {
     const repo = AppDataSource.getRepository(entity as any);
 
     // Volume is small (≤ assets + ≤ users on a single SQLite file); fetch all
@@ -160,18 +155,11 @@ export class BackupService {
     const rows = (await repo.find()) as Array<{ id: number; image_path?: string | null }>;
 
     for (const row of rows) {
-      const current = row.image_path;
-      if (!current) continue;
-
-      const bare = current
-        .replace(/^local-resource:\/\//, '')
-        .replace(/\\/g, '/');
-      const slashIdx = bare.lastIndexOf('/');
-      const filename = slashIdx >= 0 ? bare.substring(slashIdx + 1) : bare;
+      const filename = extractImageFilename(row.image_path);
       if (!filename) continue;
 
-      const next = `${prefix}${filename}`;
-      if (next !== current) {
+      const next = buildLocalResourceUrl(this.imagesDir, filename);
+      if (next !== row.image_path) {
         await repo.update(row.id, { image_path: next } as any);
       }
     }

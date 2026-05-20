@@ -19,6 +19,11 @@ import { getDataPath } from './user-data';
 import { EXPIRY_WARNING_DAYS } from './constants';
 import { setupLogger } from './logger';
 import { bootstrapDatabase } from './bootstrap-db';
+import {
+  allocateAcrossBatches,
+  pickValidBatchesForAsset,
+  sortBatchesForForceReturn,
+} from './domain/withdrawal-logic';
 
 // Must be called before app.ready so the 'app' scheme is treated as a
 // standard secure origin.  Without this, <script type="module"> tags and
@@ -1051,66 +1056,48 @@ handleIpc('add-withdrawal', async (event, withdrawalData: any) => {
     //    Filter out expired batches? The prompt says "if below not expired total", implying we should check expiration.
     //    Actually, "drop first from the ones with nearest expiration_date".
 
-    const batchesToUse: Batch[] = [];
+    let batchesToUse: Batch[] = [];
 
     if (batch) {
-      // Specific batch requested
+      // Specific batch requested -- use it as-is.
       const existingBatch = await queryRunner.manager.findOne(Batch, { where: { id: batch.id } });
       if (!existingBatch) throw new Error('Batch not found');
-      batchesToUse.push(existingBatch);
+      batchesToUse = [existingBatch];
     } else if (asset) {
-      // Asset requested, find best batches
+      // Asset requested -- pull every batch and let the domain helper
+      // pick the valid candidates ordered by nearest expiration.
       const availableBatches = await queryRunner.manager.find(Batch, {
         where: { asset: { id: asset.id } },
-        order: { expiration_date: 'ASC' }, // Nearest expiration first
       });
-
-      // Filter out batches with 0 quantity
-      // Also potentially filter out expired batches if required, but usually we want to use them up or flag them.
-      // Prompt says: "if below not expired total". This implies we should only count non-expired stock?
-      // Or maybe it means "withdraw as long as we have non-expired stock".
-      // Let's filter out strictly expired batches for now to be safe, or just use what's available.
-      // Usually, you can't withdraw expired goods for use.
-      const now = new Date();
-      const validBatches = availableBatches.filter(
-        (b) => b.quantity > 0 && (!b.expiration_date || new Date(b.expiration_date) >= now),
-      );
-
-      batchesToUse.push(...validBatches);
+      batchesToUse = pickValidBatchesForAsset(availableBatches, new Date());
     } else {
       throw new Error('Neither Asset nor Batch provided');
     }
 
-    for (const currentBatch of batchesToUse) {
-      if (remainingQuantity <= 0) break;
+    const { allocations, remaining } = allocateAcrossBatches(batchesToUse, remainingQuantity);
+    remainingQuantity = remaining;
 
-      const take = Math.min(currentBatch.quantity, remainingQuantity);
+    for (const { batch: currentBatch, take } of allocations) {
+      currentBatch.quantity -= take;
+      await queryRunner.manager.save(currentBatch);
 
-      if (take > 0) {
-        currentBatch.quantity -= take;
-        await queryRunner.manager.save(currentBatch);
+      const withdrawal = new Withdrawal();
+      withdrawal.user = user;
+      withdrawal.batch = currentBatch;
+      withdrawal.quantity = take;
+      withdrawal.date = new Date(date);
+      withdrawal.must_return = must_return;
+      withdrawal.expected_return_date = expected_return_date
+        ? new Date(expected_return_date)
+        : undefined;
+      withdrawal.return_date = undefined;
+      withdrawal.inefficient_quantity = 0;
 
-        const withdrawal = new Withdrawal();
-        withdrawal.user = user;
-        withdrawal.batch = currentBatch;
-        withdrawal.quantity = take;
-        withdrawal.date = new Date(date);
-        withdrawal.must_return = must_return;
-        withdrawal.expected_return_date = expected_return_date
-          ? new Date(expected_return_date)
-          : undefined;
-        withdrawal.return_date = undefined;
-        withdrawal.inefficient_quantity = 0;
-
-        const savedWithdrawal = await queryRunner.manager.save(withdrawal);
-        withdrawals.push(savedWithdrawal);
-
-        remainingQuantity -= take;
-      }
+      const savedWithdrawal = await queryRunner.manager.save(withdrawal);
+      withdrawals.push(savedWithdrawal);
     }
 
     if (remainingQuantity > 0) {
-      // If we couldn't fulfill the total request
       throw new Error(`Insufficient quantity. Could not fulfill ${remainingQuantity} of request.`);
     }
 
@@ -1228,17 +1215,19 @@ handleIpc('force-return-withdrawal', async (event, { id, date, returnedQuantity 
       relations: ['batch'],
     });
 
-    const pickValue = (b: Batch) => {
-      if (!b.expiration_date) return Number.MAX_SAFE_INTEGER;
-      return new Date(b.expiration_date).getTime();
-    };
-
-    groupWithdrawals.sort((a, b) => pickValue(b.batch) - pickValue(a.batch));
+    // Latest expiration first: returned stock lands on the freshest batches
+    // rather than rescuing a near-expiry one. The withdrawal carries its
+    // own batch relation; reuse the shared ordering helper by sorting the
+    // batches and remapping back to their withdrawal.
+    const orderedBatches = sortBatchesForForceReturn(groupWithdrawals.map((w) => w.batch));
+    const orderedWithdrawals = orderedBatches.map(
+      (b) => groupWithdrawals.find((w) => w.batch.id === b.id)!,
+    );
 
     const returnDate = new Date(date);
     let remainingToReturn = returnedQuantity;
 
-    for (const w of groupWithdrawals) {
+    for (const w of orderedWithdrawals) {
       if (remainingToReturn <= 0) break;
 
       const alreadyReturned = w.returned_quantity || 0;
