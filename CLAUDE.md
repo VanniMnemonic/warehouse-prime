@@ -83,11 +83,8 @@ Two TypeScript compilation contexts in one repo, glued by Electron IPC:
   data on next launch — assume the local sqlite is throwaway.
 - The DB file lives at `<userData>/prime.sqlite` in installed mode, or
   `<exe-dir>/data/prime.sqlite` in portable Windows mode (see
-  `user-data.ts`). **A `.prime-db-cleared` marker file is checked at
-  startup and the DB is wiped on first run** — this is intentional
-  seed-reset behaviour for the current dev cycle; remove the marker
-  logic in `main.ts` before shipping a release that should preserve
-  user data.
+  `user-data.ts`). The DB is preserved across launches; seeding is
+  opt-in via the `seed-db` IPC (exposed from the Settings page).
 - Two custom protocols are registered in `app.on('ready')`:
   - `app://` serves the Angular build from inside the ASAR archive
     (avoids Windows-specific 404s seen with an HTTP server + ASAR).

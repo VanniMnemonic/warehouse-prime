@@ -369,20 +369,13 @@ app.on('ready', () => {
   });
 
   try {
-    const userDataPath = getDataPath();
-    // Ensure the data directory exists (important for first run in portable mode)
-    fs.mkdirSync(userDataPath, { recursive: true });
-    const dbPath = path.join(userDataPath, 'prime.sqlite');
-    const clearedMarkerPath = path.join(userDataPath, '.prime-db-cleared');
-
-    if (!fs.existsSync(clearedMarkerPath)) {
-      if (fs.existsSync(dbPath)) {
-        fs.rmSync(dbPath, { force: true });
-      }
-      fs.writeFileSync(clearedMarkerPath, '1');
-    }
+    // Ensure the data directory exists (important for first run in portable mode).
+    // The DB file itself is opened by TypeORM (see data-source.ts); we don't
+    // delete it here -- removing the previous `.prime-db-cleared` first-run
+    // wipe so installed copies preserve user data across upgrades.
+    fs.mkdirSync(getDataPath(), { recursive: true });
   } catch (error) {
-    console.error('Failed to clear database file:', error);
+    console.error('Failed to ensure user data directory:', error);
   }
 
   ipcMain.handle('get-app-version', () => {
