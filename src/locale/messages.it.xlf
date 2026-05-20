@@ -1026,6 +1026,38 @@
         <source>Create Batch</source>
         <target>Crea lotto</target>
       </trans-unit>
+      <trans-unit id="backTooltip" datatype="html">
+        <source>Back</source>
+        <target>Indietro</target>
+      </trans-unit>
+      <trans-unit id="userViewDetailsTooltip" datatype="html">
+        <source>View user</source>
+        <target>Visualizza utente</target>
+      </trans-unit>
+      <trans-unit id="userEditTooltip" datatype="html">
+        <source>Edit user</source>
+        <target>Modifica utente</target>
+      </trans-unit>
+      <trans-unit id="batchWithdrawTooltip" datatype="html">
+        <source>Withdraw</source>
+        <target>Preleva</target>
+      </trans-unit>
+      <trans-unit id="batchEditTooltip" datatype="html">
+        <source>Edit batch</source>
+        <target>Modifica lotto</target>
+      </trans-unit>
+      <trans-unit id="batchDeleteTooltip" datatype="html">
+        <source>Delete batch</source>
+        <target>Elimina lotto</target>
+      </trans-unit>
+      <trans-unit id="noteDeleteTooltip" datatype="html">
+        <source>Delete note</source>
+        <target>Elimina nota</target>
+      </trans-unit>
+      <trans-unit id="titleAddTooltip" datatype="html">
+        <source>Add title</source>
+        <target>Aggiungi titolo</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

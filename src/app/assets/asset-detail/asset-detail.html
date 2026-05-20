@@ -162,18 +162,33 @@
                         [rounded]="true"
                         severity="secondary"
                         (onClick)="withdrawBatch(batch)"
+                        pTooltip="Withdraw"
+                        i18n-pTooltip="@@batchWithdrawTooltip"
+                        tooltipPosition="top"
+                        ariaLabel="Withdraw"
+                        i18n-ariaLabel="@@batchWithdrawTooltip"
                       />
                       <p-button
                         icon="pi pi-pencil"
                         [rounded]="true"
                         severity="secondary"
                         (onClick)="editBatch(batch)"
+                        pTooltip="Edit batch"
+                        i18n-pTooltip="@@batchEditTooltip"
+                        tooltipPosition="top"
+                        ariaLabel="Edit batch"
+                        i18n-ariaLabel="@@batchEditTooltip"
                       />
                       <p-button
                         icon="pi pi-trash"
                         [rounded]="true"
                         severity="secondary"
                         (onClick)="deleteBatch(batch)"
+                        pTooltip="Delete batch"
+                        i18n-pTooltip="@@batchDeleteTooltip"
+                        tooltipPosition="top"
+                        ariaLabel="Delete batch"
+                        i18n-ariaLabel="@@batchDeleteTooltip"
                       />
                     </div>
                   </td>

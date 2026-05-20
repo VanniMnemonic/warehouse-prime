@@ -67,15 +67,15 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.html</context>
-          <context context-type="linenumber">170</context>
+          <context context-type="linenumber">180</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">134</context>
+          <context context-type="linenumber">143</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">163</context>
+          <context context-type="linenumber">172</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-return-form/withdrawal-return-form.html</context>
@@ -100,11 +100,38 @@
           <context context-type="linenumber">83,84</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="backTooltip" datatype="html">
+        <source>Back</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/user-detail-page/user-detail-page.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/user-detail-page/user-detail-page.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawal-detail-page/withdrawal-detail-page.html</context>
+          <context context-type="linenumber">10</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawal-detail-page/withdrawal-detail-page.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="assetEditTooltip" datatype="html">
         <source>Edit asset</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.html</context>
-          <context context-type="linenumber">20,21</context>
+          <context context-type="linenumber">30,31</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.html</context>
@@ -115,7 +142,7 @@
         <source>Delete asset</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.html</context>
-          <context context-type="linenumber">30,31</context>
+          <context context-type="linenumber">40,41</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.html</context>
@@ -126,7 +153,7 @@
         <source>Loading...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.html</context>
-          <context context-type="linenumber">39,41</context>
+          <context context-type="linenumber">49,51</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/dashboard/dashboard.html</context>
@@ -142,29 +169,29 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-detail-page/user-detail-page.html</context>
-          <context context-type="linenumber">24,26</context>
+          <context context-type="linenumber">39,41</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-detail-page/withdrawal-detail-page.html</context>
-          <context context-type="linenumber">25,27</context>
+          <context context-type="linenumber">40,42</context>
         </context-group>
       </trans-unit>
       <trans-unit id="assetNotFound" datatype="html">
         <source>Asset not found.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.html</context>
-          <context context-type="linenumber">49,54</context>
+          <context context-type="linenumber">59,64</context>
         </context-group>
       </trans-unit>
       <trans-unit id="editAssetDialogHeader" datatype="html">
         <source>Edit Asset</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/asset-detail-page/asset-detail-page.html</context>
-          <context context-type="linenumber">56,57</context>
+          <context context-type="linenumber">66,67</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">92</context>
+          <context context-type="linenumber">95</context>
         </context-group>
       </trans-unit>
       <trans-unit id="assetDetailTitle" datatype="html">
@@ -182,7 +209,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">97</context>
+          <context context-type="linenumber">100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="editBatchForHeader" datatype="html">
@@ -193,7 +220,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">99</context>
+          <context context-type="linenumber">102</context>
         </context-group>
       </trans-unit>
       <trans-unit id="confirmDeleteAssetHeader" datatype="html">
@@ -204,7 +231,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">172</context>
+          <context context-type="linenumber">175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="confirmDeleteAssetMessage" datatype="html">
@@ -215,7 +242,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">173</context>
+          <context context-type="linenumber">176</context>
         </context-group>
       </trans-unit>
       <trans-unit id="toastSuccessSummary" datatype="html">
@@ -226,7 +253,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">182</context>
+          <context context-type="linenumber">185</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/settings.ts</context>
@@ -261,7 +288,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">183</context>
+          <context context-type="linenumber">186</context>
         </context-group>
       </trans-unit>
       <trans-unit id="toastDeleteAssetActiveWithdrawalsDetail" datatype="html">
@@ -272,7 +299,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">190</context>
+          <context context-type="linenumber">193</context>
         </context-group>
       </trans-unit>
       <trans-unit id="toastDeleteAssetErrorDetail" datatype="html">
@@ -283,7 +310,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">191</context>
+          <context context-type="linenumber">194</context>
         </context-group>
       </trans-unit>
       <trans-unit id="toastErrorSummary" datatype="html">
@@ -294,7 +321,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">194</context>
+          <context context-type="linenumber">197</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/settings/settings.ts</context>
@@ -368,6 +395,39 @@
           <context context-type="linenumber">71,72</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="batchWithdrawTooltip" datatype="html">
+        <source>Withdraw</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
+          <context context-type="linenumber">165,166</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
+          <context context-type="linenumber">168,169</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="batchEditTooltip" datatype="html">
+        <source>Edit batch</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
+          <context context-type="linenumber">176,177</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
+          <context context-type="linenumber">179,180</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="batchDeleteTooltip" datatype="html">
+        <source>Delete batch</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
+          <context context-type="linenumber">187,188</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/assets/asset-detail/asset-detail.html</context>
+          <context context-type="linenumber">190,191</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="assetFormUploadImageChooseLabel" datatype="html">
         <source>Upload Image</source>
         <context-group purpose="location">
@@ -429,15 +489,15 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.html</context>
-          <context context-type="linenumber">176</context>
+          <context context-type="linenumber">186</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">139</context>
+          <context context-type="linenumber">148</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">169</context>
+          <context context-type="linenumber">178</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thDenomination" datatype="html">
@@ -448,7 +508,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">448,449</context>
+          <context context-type="linenumber">453,454</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thPartNumber" datatype="html">
@@ -459,7 +519,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">449,450</context>
+          <context context-type="linenumber">454,455</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thBarcode" datatype="html">
@@ -474,11 +534,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">374,375</context>
+          <context context-type="linenumber">379,380</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">450,451</context>
+          <context context-type="linenumber">455,456</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thMinStock" datatype="html">
@@ -500,6 +560,14 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.html</context>
           <context context-type="linenumber">163,164</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/locations/locations.html</context>
+          <context context-type="linenumber">130,131</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/locations/locations.html</context>
+          <context context-type="linenumber">133,134</context>
         </context-group>
       </trans-unit>
       <trans-unit id="assetWithdrawTooltip" datatype="html">
@@ -524,15 +592,15 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/users.html</context>
-          <context context-type="linenumber">83,84</context>
+          <context context-type="linenumber">93,94</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">363,364</context>
+          <context context-type="linenumber">368,369</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">439,440</context>
+          <context context-type="linenumber">444,445</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
@@ -554,14 +622,14 @@
         <source>Add Asset</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">93</context>
+          <context context-type="linenumber">96</context>
         </context-group>
       </trans-unit>
       <trans-unit id="addBatchForHeader" datatype="html">
         <source>Add Batch for <x id="assetName" equiv-text="assetName"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/assets/assets.ts</context>
-          <context context-type="linenumber">100</context>
+          <context context-type="linenumber">103</context>
         </context-group>
       </trans-unit>
       <trans-unit id="dashboardTitle" datatype="html">
@@ -612,7 +680,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.html</context>
-          <context context-type="linenumber">106,107</context>
+          <context context-type="linenumber">111,112</context>
         </context-group>
       </trans-unit>
       <trans-unit id="dashboardThInefficientQty" datatype="html">
@@ -662,7 +730,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.html</context>
-          <context context-type="linenumber">107,108</context>
+          <context context-type="linenumber">112,113</context>
         </context-group>
       </trans-unit>
       <trans-unit id="dashboardThExpires" datatype="html">
@@ -866,7 +934,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">372,373</context>
+          <context context-type="linenumber">377,378</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thEmail" datatype="html">
@@ -881,84 +949,103 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">373,374</context>
+          <context context-type="linenumber">378,379</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="userViewDetailsTooltip" datatype="html">
+        <source>View user</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/locations/locations.html</context>
+          <context context-type="linenumber">97,98</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/locations/locations.html</context>
+          <context context-type="linenumber">100,101</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/users.html</context>
+          <context context-type="linenumber">57,58</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/users.html</context>
+          <context context-type="linenumber">60,61</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thQty" datatype="html">
         <source>Qty</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.html</context>
-          <context context-type="linenumber">109</context>
+          <context context-type="linenumber">114</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsHierarchyHeader" datatype="html">
         <source>Locations Hierarchy</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.html</context>
-          <context context-type="linenumber">144,145</context>
+          <context context-type="linenumber">154,155</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsHierarchyHelp" datatype="html">
         <source> Drag and drop locations to reorganize the structure. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.html</context>
-          <context context-type="linenumber">146,149</context>
+          <context context-type="linenumber">156,159</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsDialogEditHeader" datatype="html">
         <source>Edit Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.ts</context>
-          <context context-type="linenumber">174</context>
+          <context context-type="linenumber">176</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsDialogAddSubHeader" datatype="html">
         <source>Add Sub-Location to <x id="locationName" equiv-text="denomination"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.ts</context>
-          <context context-type="linenumber">179</context>
+          <context context-type="linenumber">181</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsDialogAddRootHeader" datatype="html">
         <source>Add Root Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.ts</context>
-          <context context-type="linenumber">181</context>
+          <context context-type="linenumber">183</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsMenuAdd" datatype="html">
         <source>Add</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.ts</context>
-          <context context-type="linenumber">367</context>
+          <context context-type="linenumber">369</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsMenuEdit" datatype="html">
         <source>Edit</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.ts</context>
-          <context context-type="linenumber">375</context>
+          <context context-type="linenumber">377</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsMenuMove" datatype="html">
         <source>Move</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.ts</context>
-          <context context-type="linenumber">383</context>
+          <context context-type="linenumber">385</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsMenuUsers" datatype="html">
         <source>Users</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.ts</context>
-          <context context-type="linenumber">391</context>
+          <context context-type="linenumber">393</context>
         </context-group>
       </trans-unit>
       <trans-unit id="locationsMenuBatches" datatype="html">
         <source>Batches</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/locations/locations.ts</context>
-          <context context-type="linenumber">399</context>
+          <context context-type="linenumber">401</context>
         </context-group>
       </trans-unit>
       <trans-unit id="settingsTitle" datatype="html">
@@ -1432,18 +1519,37 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/notes/notes.html</context>
-          <context context-type="linenumber">51,53</context>
+          <context context-type="linenumber">56,58</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="noteDeleteTooltip" datatype="html">
+        <source>Delete note</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/notes/notes.html</context>
+          <context context-type="linenumber">29,30</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/notes/notes.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/notes/notes.html</context>
+          <context context-type="linenumber">75,76</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/notes/notes.html</context>
+          <context context-type="linenumber">78,79</context>
         </context-group>
       </trans-unit>
       <trans-unit id="addNotePlaceholder" datatype="html">
         <source>Add a note...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/notes/notes.html</context>
-          <context context-type="linenumber">39,40</context>
+          <context context-type="linenumber">44,45</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/components/notes/notes.html</context>
-          <context context-type="linenumber">80,81</context>
+          <context context-type="linenumber">90,91</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalUserRole" datatype="html">
@@ -1485,22 +1591,41 @@
           <context context-type="linenumber">42,43</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="userEditTooltip" datatype="html">
+        <source>Edit user</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/user-detail-page/user-detail-page.html</context>
+          <context context-type="linenumber">29,30</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/user-detail-page/user-detail-page.html</context>
+          <context context-type="linenumber">32,33</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/users.html</context>
+          <context context-type="linenumber">68,69</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/users.html</context>
+          <context context-type="linenumber">71,72</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="userNotFound" datatype="html">
         <source>User not found.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-detail-page/user-detail-page.html</context>
-          <context context-type="linenumber">29,34</context>
+          <context context-type="linenumber">44,49</context>
         </context-group>
       </trans-unit>
       <trans-unit id="editUserDialogHeader" datatype="html">
         <source>Edit User</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-detail-page/user-detail-page.html</context>
-          <context context-type="linenumber">36,37</context>
+          <context context-type="linenumber">51,52</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/users.ts</context>
-          <context context-type="linenumber">77</context>
+          <context context-type="linenumber">79</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userDetailTitle" datatype="html">
@@ -1545,39 +1670,50 @@
           <context context-type="linenumber">51,52</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="titleAddTooltip" datatype="html">
+        <source>Add title</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
+          <context context-type="linenumber">60,61</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
+          <context context-type="linenumber">63,64</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="userFormFirstNameLabel" datatype="html">
         <source>First Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">61,62</context>
+          <context context-type="linenumber">70,71</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormFirstNameRequired" datatype="html">
         <source>First Name is required.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">64,66</context>
+          <context context-type="linenumber">73,75</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormLastNameLabel" datatype="html">
         <source>Last Name</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">69,70</context>
+          <context context-type="linenumber">78,79</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormLastNameRequired" datatype="html">
         <source>Last Name is required.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">72,74</context>
+          <context context-type="linenumber">81,83</context>
         </context-group>
       </trans-unit>
       <trans-unit id="nextButton" datatype="html">
         <source>Next</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">80</context>
+          <context context-type="linenumber">89</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
@@ -1592,49 +1728,49 @@
         <source>Email</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">95,96</context>
+          <context context-type="linenumber">104,105</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormEmailInvalid" datatype="html">
         <source>Valid Email is required.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">98,100</context>
+          <context context-type="linenumber">107,109</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormMobileLabel" datatype="html">
         <source>Mobile</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">103,104</context>
+          <context context-type="linenumber">112,113</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormBarcodeLabel" datatype="html">
         <source>Barcode</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">108,109</context>
+          <context context-type="linenumber">117,118</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormLocationLabel" datatype="html">
         <source>Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">113,114</context>
+          <context context-type="linenumber">122,123</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormLocationPlaceholder" datatype="html">
         <source>Select a Location</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">116,117</context>
+          <context context-type="linenumber">125,126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="backButton" datatype="html">
         <source>Back</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">125</context>
+          <context context-type="linenumber">134</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
@@ -1642,21 +1778,21 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">313</context>
+          <context context-type="linenumber">318</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormAddTitleDialogHeader" datatype="html">
         <source>Add New Title</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">149,150</context>
+          <context context-type="linenumber">158,159</context>
         </context-group>
       </trans-unit>
       <trans-unit id="userFormNewTitleLabel" datatype="html">
         <source>Title</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/user-form/user-form.html</context>
-          <context context-type="linenumber">157,158</context>
+          <context context-type="linenumber">166,167</context>
         </context-group>
       </trans-unit>
       <trans-unit id="thTitle" datatype="html">
@@ -1684,32 +1820,40 @@
         <source>Add User</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/users.html</context>
-          <context context-type="linenumber">88,89</context>
+          <context context-type="linenumber">98,99</context>
         </context-group>
       </trans-unit>
       <trans-unit id="addUserDialogHeader" datatype="html">
         <source>Add User</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/users/users.ts</context>
-          <context context-type="linenumber">78</context>
+          <context context-type="linenumber">80</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="returnAssetTooltip" datatype="html">
+        <source>Return asset</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawal-detail-page/withdrawal-detail-page.html</context>
+          <context context-type="linenumber">30,31</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawal-detail-page/withdrawal-detail-page.html</context>
+          <context context-type="linenumber">33,34</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawal-detail-page/withdrawal-detail-page.html</context>
+          <context context-type="linenumber">54,55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
+          <context context-type="linenumber">163,164</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalNotFound" datatype="html">
         <source> Withdrawal not found. </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-detail-page/withdrawal-detail-page.html</context>
-          <context context-type="linenumber">31,35</context>
-        </context-group>
-      </trans-unit>
-      <trans-unit id="returnAssetTooltip" datatype="html">
-        <source>Return Asset</source>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawal-detail-page/withdrawal-detail-page.html</context>
-          <context context-type="linenumber">39,40</context>
-        </context-group>
-        <context-group purpose="location">
-          <context context-type="sourcefile">src/app/withdrawals/withdrawals-table/withdrawals-table.html</context>
-          <context context-type="linenumber">163,164</context>
+          <context context-type="linenumber">46,50</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalDetailTitle" datatype="html">
@@ -1877,6 +2021,14 @@
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
           <context context-type="linenumber">146,147</context>
         </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
+          <context context-type="linenumber">232,233</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
+          <context context-type="linenumber">235,236</context>
+        </context-group>
       </trans-unit>
       <trans-unit id="withdrawalMultipleLocations" datatype="html">
         <source>Multiple Locations</source>
@@ -1903,67 +2055,67 @@
         <source>Quantity</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">240,242</context>
+          <context context-type="linenumber">245,247</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalAvailableInline" datatype="html">
         <source>Available: <x id="INTERPOLATION" equiv-text="{{ selectedBatch?.quantity || selectedAsset?.totalAvailable || 0 }}"/></source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">269,270</context>
+          <context context-type="linenumber">274,275</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalDateLabel" datatype="html">
         <source>Date</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">274,275</context>
+          <context context-type="linenumber">279,280</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalMustReturnLabel" datatype="html">
         <source>Must Return</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">292,295</context>
+          <context context-type="linenumber">297,300</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalExpectedReturnDateLabel" datatype="html">
         <source>Expected Return Date</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">298,300</context>
+          <context context-type="linenumber">303,305</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalConfirmWithdrawalButton" datatype="html">
         <source>Confirm Withdrawal</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">319,320</context>
+          <context context-type="linenumber">324,325</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalSelectUserDialogHeader" datatype="html">
         <source>Select User</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">335,336</context>
+          <context context-type="linenumber">340,341</context>
         </context-group>
       </trans-unit>
       <trans-unit id="selectButton" datatype="html">
         <source>Select</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">399</context>
+          <context context-type="linenumber">404</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">475</context>
+          <context context-type="linenumber">480</context>
         </context-group>
       </trans-unit>
       <trans-unit id="withdrawalSelectAssetDialogHeader" datatype="html">
         <source>Select Asset</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/withdrawals/withdrawal-form/withdrawal-form.html</context>
-          <context context-type="linenumber">411,412</context>
+          <context context-type="linenumber">416,417</context>
         </context-group>
       </trans-unit>
       <trans-unit id="unknownLabel" datatype="html">
