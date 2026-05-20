@@ -2,8 +2,10 @@ import archiver from 'archiver';
 import { dialog } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Database } from 'sqlite3';
 import unzipper from 'unzipper';
+import { AppDataSource } from '../data-source';
+import { Asset } from '../entities/Asset';
+import { User } from '../entities/User';
 import { getDataPath } from '../user-data';
 
 export class BackupService {
@@ -31,12 +33,22 @@ export class BackupService {
 
       archive.pipe(output);
 
-      // Add database file
+      // Database file. SQLite may also have -wal / -shm sidecar files if WAL
+      // mode is in use; include them so the archive captures a consistent
+      // snapshot regardless of journal mode.
       if (fs.existsSync(this.dbPath)) {
         archive.file(this.dbPath, { name: 'prime.sqlite' });
       }
+      const walPath = `${this.dbPath}-wal`;
+      if (fs.existsSync(walPath)) {
+        archive.file(walPath, { name: 'prime.sqlite-wal' });
+      }
+      const shmPath = `${this.dbPath}-shm`;
+      if (fs.existsSync(shmPath)) {
+        archive.file(shmPath, { name: 'prime.sqlite-shm' });
+      }
 
-      // Add images directory
+      // Images directory
       if (fs.existsSync(this.imagesDir)) {
         archive.directory(this.imagesDir, 'images');
       }
@@ -45,6 +57,16 @@ export class BackupService {
     });
   }
 
+  /**
+   * Extract the backup zip and replace the live DB and images directory.
+   *
+   * IMPORTANT: This MUST be called with the TypeORM DataSource destroyed —
+   * otherwise the SQLite file handle is open and the copy fails on Windows
+   * (EBUSY) or leaves the renderer talking to the unlinked inode on
+   * macOS/Linux. The caller (see `import-backup` IPC handler in main.ts)
+   * destroys the DataSource, runs this method, re-initializes the
+   * DataSource, then calls `normalizeImagePaths()`.
+   */
   async importBackup(): Promise<boolean> {
     const { filePaths } = await dialog.showOpenDialog({
       title: 'Import Backup',
@@ -56,125 +78,102 @@ export class BackupService {
 
     const backupPath = filePaths[0];
 
+    const tempExtractPath = path.join(this.userDataPath, 'temp_restore');
     try {
-      // Ensure temp extraction directory exists
-      const tempExtractPath = path.join(this.userDataPath, 'temp_restore');
       if (fs.existsSync(tempExtractPath)) {
         fs.rmSync(tempExtractPath, { recursive: true, force: true });
       }
-      fs.mkdirSync(tempExtractPath);
+      fs.mkdirSync(tempExtractPath, { recursive: true });
 
-      // Extract zip
       await fs
         .createReadStream(backupPath)
         .pipe(unzipper.Extract({ path: tempExtractPath }))
         .promise();
 
-      // Restore DB
+      // Restore DB (plus WAL / SHM sidecars if the archive includes them).
       const extractedDbPath = path.join(tempExtractPath, 'prime.sqlite');
       if (fs.existsSync(extractedDbPath)) {
-        // Close DB connection if possible?
-        // In a real app we might need to close the TypeORM connection first or ensure no locks.
-        // For SQLite, replacing the file while app is running might be risky but often works if no active transaction.
-        // Ideally we should tell the renderer to block UI and maybe restart app after import.
+        // Clear any stale journal files belonging to the previous DB so they
+        // don't get re-applied to the freshly imported one.
+        for (const suffix of ['-wal', '-shm', '-journal']) {
+          const stale = `${this.dbPath}${suffix}`;
+          if (fs.existsSync(stale)) fs.rmSync(stale, { force: true });
+        }
         fs.copyFileSync(extractedDbPath, this.dbPath);
+
+        for (const suffix of ['-wal', '-shm']) {
+          const src = path.join(tempExtractPath, `prime.sqlite${suffix}`);
+          if (fs.existsSync(src)) {
+            fs.copyFileSync(src, `${this.dbPath}${suffix}`);
+          }
+        }
       }
 
-      // Restore Images
+      // Restore Images. fs.cpSync with recursive copies the contents of the
+      // source directory into the destination, creating it if needed and
+      // overwriting matching filenames.
       const extractedImagesDir = path.join(tempExtractPath, 'images');
       if (fs.existsSync(extractedImagesDir)) {
-        if (!fs.existsSync(this.imagesDir)) {
-          fs.mkdirSync(this.imagesDir);
-        }
-        // Copy recursive
-        fs.cpSync(extractedImagesDir, this.imagesDir, { recursive: true, force: true });
+        fs.mkdirSync(this.imagesDir, { recursive: true });
+        fs.cpSync(extractedImagesDir, this.imagesDir, {
+          recursive: true,
+          force: true,
+        });
       }
-
-      // Rewrite image_path values to point to the current machine's imagesDir.
-      // The restored DB may contain absolute paths from a different machine or
-      // OS user account, and will always need forward-slash URLs.
-      await this.normalizeImagePaths();
-
-      // Cleanup
-      fs.rmSync(tempExtractPath, { recursive: true, force: true });
 
       return true;
     } catch (error) {
       console.error('Import failed:', error);
       throw error;
+    } finally {
+      if (fs.existsSync(tempExtractPath)) {
+        fs.rmSync(tempExtractPath, { recursive: true, force: true });
+      }
     }
   }
 
   /**
-   * Rewrites every `image_path` value in the `asset` and `user` tables so that
-   * it points to the current machine's images directory and uses forward slashes
-   * in the `local-resource://` URL (required on Windows).
+   * Rewrite every `image_path` in `asset` and `user` so it points to this
+   * machine's `imagesDir` and uses forward slashes (required by the
+   * `local-resource://` protocol handler on Windows). Safe to call any time
+   * — it's idempotent.
    *
-   * This is called after a backup restore so that images display correctly even
-   * when the backup was created on a different machine or OS user account.
+   * Uses TypeORM repositories (not a raw sqlite3 connection) so it always
+   * goes through the same DB file as the rest of the app.
    */
-  private normalizeImagePaths(): Promise<void> {
-    // Always use forward slashes inside URLs regardless of OS
+  async normalizeImagePaths(): Promise<void> {
     const normalizedImagesDir = this.imagesDir.split(path.sep).join('/');
+    const prefix = `local-resource://${normalizedImagesDir}/`;
 
-    return new Promise<void>((resolve, reject) => {
-      const db = new Database(this.dbPath, (openErr) => {
-        if (openErr) {
-          reject(openErr);
-          return;
-        }
-      });
+    await this.normalizeForEntity(Asset, prefix);
+    await this.normalizeForEntity(User, prefix);
+  }
 
-      const fixTable = (table: string): Promise<void> =>
-        new Promise<void>((res, rej) => {
-          db.all(
-            `SELECT id, image_path FROM "${table}" WHERE image_path IS NOT NULL AND image_path != ''`,
-            (err, rows: Array<{ id: number; image_path: string }>) => {
-              if (err) {
-                rej(err);
-                return;
-              }
+  private async normalizeForEntity(
+    entity: typeof Asset | typeof User,
+    prefix: string,
+  ): Promise<void> {
+    const repo = AppDataSource.getRepository(entity as any);
 
-              const updates = rows.map(
-                (row) =>
-                  new Promise<void>((rs, rj) => {
-                    // Extract the bare filename from whatever absolute path was stored,
-                    // handling both forward and back slash separators.
-                    const bare = row.image_path
-                      .replace(/^local-resource:\/\//, '')
-                      .replace(/\\/g, '/');
-                    const filename = bare.substring(bare.lastIndexOf('/') + 1);
+    // Volume is small (≤ assets + ≤ users on a single SQLite file); fetch all
+    // and filter in JS so we don't have to fight TypeORM's null-handling.
+    const rows = (await repo.find()) as Array<{ id: number; image_path?: string | null }>;
 
-                    if (!filename) {
-                      rs();
-                      return;
-                    }
+    for (const row of rows) {
+      const current = row.image_path;
+      if (!current) continue;
 
-                    const newPath = `local-resource://${normalizedImagesDir}/${filename}`;
-                    db.run(
-                      `UPDATE "${table}" SET image_path = ? WHERE id = ?`,
-                      [newPath, row.id],
-                      (updateErr) => (updateErr ? rj(updateErr) : rs()),
-                    );
-                  }),
-              );
+      const bare = current
+        .replace(/^local-resource:\/\//, '')
+        .replace(/\\/g, '/');
+      const slashIdx = bare.lastIndexOf('/');
+      const filename = slashIdx >= 0 ? bare.substring(slashIdx + 1) : bare;
+      if (!filename) continue;
 
-              Promise.all(updates)
-                .then(() => res())
-                .catch(rej);
-            },
-          );
-        });
-
-      Promise.all([fixTable('asset'), fixTable('user')])
-        .then(() => {
-          db.close();
-          resolve();
-        })
-        .catch((err) => {
-          db.close();
-          reject(err);
-        });
-    });
+      const next = `${prefix}${filename}`;
+      if (next !== current) {
+        await repo.update(row.id, { image_path: next } as any);
+      }
+    }
   }
 }

@@ -451,8 +451,41 @@ app.on('ready', () => {
       return await backupService.exportBackup();
     });
 
+    // Import flow:
+    //   1. Destroy the TypeORM DataSource so the SQLite file handle is
+    //      released — otherwise the copy fails on Windows (EBUSY) and on
+    //      macOS/Linux the connection keeps pointing at the old inode after
+    //      the file is replaced.
+    //   2. Run the file-level restore (DB + images).
+    //   3. Re-initialize the DataSource on the freshly imported DB file.
+    //   4. Rewrite asset/user image_path values so they point to *this*
+    //      machine's imagesDir (idempotent — safe to re-run).
+    // If the restore is cancelled by the user (file dialog dismissed) we
+    // still re-initialize so the app remains usable.
     ipcMain.handle('import-backup', async () => {
-      return await backupService.importBackup();
+      if (AppDataSource.isInitialized) {
+        await AppDataSource.destroy();
+      }
+
+      let restored = false;
+      try {
+        restored = await backupService.importBackup();
+      } catch (err) {
+        if (!AppDataSource.isInitialized) {
+          await AppDataSource.initialize().catch((reinitErr) => {
+            console.error('Failed to reinitialize DataSource after import error:', reinitErr);
+          });
+        }
+        throw err;
+      }
+
+      await AppDataSource.initialize();
+
+      if (restored) {
+        await backupService.normalizeImagePaths();
+      }
+
+      return restored;
     });
 
     createWindow();
