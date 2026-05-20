@@ -11,7 +11,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build:localize": "ng build --localize",
-    "build:electron": "tsc -p tsconfig.electron.json",
+    "build:electron": "tsc -p tsconfig.electron.json && node -e \"require('fs').copyFileSync('src/electron/preload.js','dist-electron/preload.js')\"",
     "dev:localize": "ng build --watch --configuration development --localize --output-hashing=none",
     "extract-i18n": "ng extract-i18n --output-path src/locale",
     "watch": "ng build --watch --configuration development",
