@@ -75,12 +75,11 @@ Two TypeScript compilation contexts in one repo, glued by Electron IPC:
   channel name is the contract — adding a new feature means: add the
   handler in `main.ts`, add a wrapper method in the matching
   `src/app/services/<feature>.service.ts`, call it from the component.
-- `data-source.ts` configures TypeORM with **`synchronize: true`**.
-  There are no migrations — the schema is rebuilt from entity
-  decorators on every start. Entities live in
+- `data-source.ts` configures TypeORM with **`synchronize: false`**
+  and **`migrationsRun: false`**. Schema lifecycle is owned by
+  `bootstrap-db.ts` — see "Schema migrations" below. Entities live in
   `src/electron/entities/` (User, Asset, Batch, Withdrawal, Location,
-  Title, Note). Changing a column shape may silently drop or alter
-  data on next launch — assume the local sqlite is throwaway.
+  Title, Note).
 - The DB file lives at `<userData>/prime.sqlite` in installed mode, or
   `<exe-dir>/data/prime.sqlite` in portable Windows mode (see
   `user-data.ts`). The DB is preserved across launches; seeding is
@@ -110,6 +109,45 @@ activates when `app.isPackaged && !isDevMode()`**. The renderer talks
 to it via three IPC channels: `check-for-updates`, `download-update`,
 `quit-and-install-update`. Publishing target is GitHub Releases (see
 `build.publish` in `package.json`).
+
+### Schema migrations
+
+`src/electron/bootstrap-db.ts` runs **after** `AppDataSource.initialize()`
+on every launch and after every backup import. It decides what to do
+based on whether the `migrations` table already exists in the SQLite
+file:
+
+- **First launch / pre-1.0 synchronize-era DB / backup from a
+  synchronize-era release** → call `AppDataSource.synchronize()` to
+  materialise the schema from the entity decorators, then `INSERT`
+  every migration registered in `data-source.ts` into the
+  `migrations` table as already-applied (the "baseline" pattern).
+  `synchronize()` is idempotent against a schema that already
+  matches, so existing-user upgrade works without a separate code
+  path.
+- **Any subsequent launch** → just `AppDataSource.runMigrations()`,
+  which executes any migration class in the array that's not yet in
+  the table.
+
+**Authoring a new migration** (after 1.0, when an entity changes):
+
+1. Edit the entity under `src/electron/entities/`. Treat this as the
+   forward-only source of truth.
+2. Hand-write a file in `src/electron/migrations/` named
+   `<UnixMillis>-<DescriptiveName>.ts`. Implement TypeORM's
+   `MigrationInterface` with an `up()` (the change) and a `down()`
+   (the inverse — used by `migration:revert` for local dev only;
+   shipped 1.0+ migrations are forward-only in practice).
+3. Append the class to the `migrations: [...]` array in
+   `data-source.ts`. Order matters — TypeORM applies them by the
+   timestamp suffix on the class name.
+4. Test by deleting the local DB and relaunching (fresh-install
+   path), then by relaunching with the previous DB present (upgrade
+   path). The migration should be a no-op on the second run.
+
+For day-one dev iteration on schema changes (pre-1.0), the simpler
+shortcut is to delete `<userData>/prime.sqlite` and relaunch — the
+bootstrap path re-runs `synchronize()` against the new entity shape.
 
 ### Backup / restore lifecycle
 

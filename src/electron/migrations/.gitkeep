@@ -1,0 +1,4 @@
+# Schema migrations live here. See CLAUDE.md ("Schema migrations") for
+# the authoring workflow. The directory is intentionally tracked even
+# though it starts empty, so the import path in data-source.ts always
+# resolves.

@@ -18,6 +18,7 @@ import { NoteService } from './services/note.service';
 import { getDataPath } from './user-data';
 import { EXPIRY_WARNING_DAYS } from './constants';
 import { setupLogger } from './logger';
+import { bootstrapDatabase } from './bootstrap-db';
 
 // Must be called before app.ready so the 'app' scheme is treated as a
 // standard secure origin.  Without this, <script type="module"> tags and
@@ -465,6 +466,7 @@ app.on('ready', () => {
 
   AppDataSource.initialize().then(async () => {
     console.log('Data Source has been initialized!');
+    await bootstrapDatabase();
 
     // Handle Notes
     const noteService = new NoteService();
@@ -495,7 +497,12 @@ app.on('ready', () => {
     //      the file is replaced.
     //   2. Run the file-level restore (DB + images).
     //   3. Re-initialize the DataSource on the freshly imported DB file.
-    //   4. Rewrite asset/user image_path values so they point to *this*
+    //   4. Run `bootstrapDatabase()` so the imported DB is brought to the
+    //      current entity shape: if it came from a pre-1.0 synchronize-era
+    //      backup it gets baselined; if it came from a 1.0+ backup any
+    //      schema migrations that this app has but the backup did not
+    //      run are applied here.
+    //   5. Rewrite asset/user image_path values so they point to *this*
     //      machine's imagesDir (idempotent — safe to re-run).
     // If the restore is cancelled by the user (file dialog dismissed) we
     // still re-initialize so the app remains usable.
@@ -512,11 +519,15 @@ app.on('ready', () => {
           await AppDataSource.initialize().catch((reinitErr) => {
             console.error('Failed to reinitialize DataSource after import error:', reinitErr);
           });
+          await bootstrapDatabase().catch((bootErr) => {
+            console.error('Failed to bootstrap DataSource after import error:', bootErr);
+          });
         }
         throw err;
       }
 
       await AppDataSource.initialize();
+      await bootstrapDatabase();
 
       if (restored) {
         await backupService.normalizeImagePaths();
