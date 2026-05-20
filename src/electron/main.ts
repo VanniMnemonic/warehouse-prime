@@ -17,6 +17,7 @@ import { BackupService } from './services/backup.service';
 import { NoteService } from './services/note.service';
 import { getDataPath } from './user-data';
 import { EXPIRY_WARNING_DAYS } from './constants';
+import { setupLogger } from './logger';
 
 // Must be called before app.ready so the 'app' scheme is treated as a
 // standard secure origin.  Without this, <script type="module"> tags and
@@ -277,6 +278,7 @@ function createWindow() {
 }
 
 app.on('ready', () => {
+  setupLogger();
   initAutoUpdater();
 
   // Serve the Angular build output via the 'app://' scheme.
