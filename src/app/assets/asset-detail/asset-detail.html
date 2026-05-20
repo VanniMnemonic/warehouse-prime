@@ -1,13 +1,13 @@
-@if (asset()) {
+@if (asset(); as a) {
   <div class="flex flex-col gap-6">
     <p-toast />
 
     <div class="flex flex-wrap gap-6 px-6">
       <!-- Column 1: Image -->
       <div class="flex-none">
-        @if (asset().image_path) {
+        @if (a.image_path) {
           <app-image-display
-            [image]="asset().image_path"
+            [image]="a.image_path"
             width="180px"
             height="auto"
             shape="square"
@@ -28,7 +28,7 @@
           <div class="flex flex-col gap-1">
             <span class="text-muted-color text-sm">Part Number</span>
             <div class="flex items-center gap-2">
-              <span class="font-medium text-lg">{{ asset().part_number }}</span>
+              <span class="font-medium text-lg">{{ a.part_number }}</span>
               <p-button
                 icon="pi pi-copy"
                 [text]="true"
@@ -37,14 +37,14 @@
                 size="small"
                 pTooltip="Copy"
                 tooltipPosition="top"
-                (onClick)="copyToClipboard(asset().part_number)"
+                (onClick)="copyToClipboard(a.part_number)"
               />
             </div>
           </div>
           <div class="flex flex-col gap-1">
             <span class="text-muted-color text-sm">Barcode</span>
             <div class="flex items-center gap-2">
-              <span class="font-medium text-lg">{{ asset().barcode }}</span>
+              <span class="font-medium text-lg">{{ a.barcode }}</span>
               <p-button
                 icon="pi pi-copy"
                 [text]="true"
@@ -53,7 +53,7 @@
                 size="small"
                 pTooltip="Copy"
                 tooltipPosition="top"
-                (onClick)="copyToClipboard(asset().barcode)"
+                (onClick)="copyToClipboard(a.barcode)"
               />
             </div>
           </div>
@@ -62,16 +62,16 @@
         <div class="flex flex-col gap-2">
           <div class="flex flex-wrap gap-2">
             <p-tag
-              [value]="asset().total_quantity >= asset().min_stock ? 'In Stock' : 'Low Stock'"
-              [severity]="asset().total_quantity >= asset().min_stock ? 'success' : 'danger'"
+              [value]="a.total_quantity >= a.min_stock ? 'In Stock' : 'Low Stock'"
+              [severity]="a.total_quantity >= a.min_stock ? 'success' : 'danger'"
             />
-            <p-tag [value]="'Total: ' + asset().total_quantity" severity="info" />
-            <p-tag [value]="'Min: ' + asset().min_stock" severity="secondary" />
+            <p-tag [value]="'Total: ' + a.total_quantity" severity="info" />
+            <p-tag [value]="'Min: ' + a.min_stock" severity="secondary" />
           </div>
         </div>
       </div>
 
-      <app-notes entityType="asset" [entityId]="asset().id" [floating]="true" />
+      <app-notes entityType="asset" [entityId]="a.id" [floating]="true" />
     </div>
 
     <p-tabs [(value)]="tabsValue">
@@ -89,8 +89,8 @@
           <div>
             <p-table
               #dt
-              [value]="batches"
-              [loading]="loading"
+              [value]="batches()"
+              [loading]="loading()"
               size="large"
               stripedRows
               [globalFilterFields]="['denomination', 'serial_number', 'location.denomination']"
@@ -205,8 +205,8 @@
 
         <p-tabpanel value="withdrawals">
           <app-withdrawals-table
-            [withdrawals]="withdrawals"
-            [loading]="withdrawalsLoading"
+            [withdrawals]="withdrawals()"
+            [loading]="withdrawalsLoading()"
             [showAddButton]="false"
             [showToolbar]="false"
             (onReturn)="openReturn($event)"
@@ -217,7 +217,8 @@
     </p-tabs>
 
     <p-dialog
-      [(visible)]="returnDrawerVisible"
+      [visible]="returnDrawerVisible()"
+      (visibleChange)="returnDrawerVisible.set($event)"
       header="Return Asset"
       [modal]="true"
       [dismissableMask]="true"
@@ -225,9 +226,9 @@
       [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
     >
       <ng-template pTemplate="content">
-        @if (returnDrawerVisible && selectedWithdrawal) {
+        @if (returnDrawerVisible() && selectedWithdrawal()) {
           <app-withdrawal-return-form
-            [withdrawal]="selectedWithdrawal"
+            [withdrawal]="selectedWithdrawal()"
             (onSave)="onReturnSave()"
             (onCancel)="onReturnCancel()"
           />

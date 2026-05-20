@@ -3,13 +3,13 @@
     <p-toast />
     <div class="flex flex-wrap gap-6 px-6">
       <app-user-full-detail [user]="user()" (copyEmail)="copyToClipboard($event)" class="flex-1" />
-      <app-notes entityType="user" [entityId]="user().id" [floating]="true" />
+      <app-notes entityType="user" [entityId]="user()!.id" [floating]="true" />
     </div>
 
     <div>
       <app-withdrawals-table
-        [withdrawals]="withdrawals"
-        [loading]="loading"
+        [withdrawals]="withdrawals()"
+        [loading]="loading()"
         [showAddButton]="false"
         [showToolbar]="false"
         (onReturn)="openReturn($event)"
@@ -18,7 +18,8 @@
     </div>
 
     <p-dialog
-      [(visible)]="returnDrawerVisible"
+      [visible]="returnDrawerVisible()"
+      (visibleChange)="returnDrawerVisible.set($event)"
       header="Return Asset"
       [modal]="true"
       [dismissableMask]="true"
@@ -26,9 +27,9 @@
       [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
     >
       <ng-template pTemplate="content">
-        @if (returnDrawerVisible && selectedWithdrawal) {
+        @if (returnDrawerVisible() && selectedWithdrawal()) {
           <app-withdrawal-return-form
-            [withdrawal]="selectedWithdrawal"
+            [withdrawal]="selectedWithdrawal()"
             (onSave)="onReturnSave()"
             (onCancel)="onReturnCancel()"
           />

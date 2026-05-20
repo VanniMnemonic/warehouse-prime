@@ -1,4 +1,13 @@
-import { Component, input, inject, ChangeDetectorRef, effect, output, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
@@ -23,6 +32,11 @@ import { DialogModule } from 'primeng/dialog';
 import { WithdrawalReturnForm } from '../../withdrawals/withdrawal-return-form/withdrawal-return-form';
 import { Router } from '@angular/router';
 import { EXPIRY_WARNING_DAYS } from '../../shared/constants';
+import type {
+  AssetWithDetails,
+  Batch,
+  Withdrawal,
+} from '../../../shared/types/models';
 
 @Component({
   selector: 'app-asset-detail',
@@ -49,31 +63,31 @@ import { EXPIRY_WARNING_DAYS } from '../../shared/constants';
   templateUrl: './asset-detail.html',
   styleUrl: './asset-detail.css',
   providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssetDetail {
-  asset = input<any | null>(null);
-  onEdit = output<any>();
-  onEditBatch = output<any>();
-  onWithdrawBatch = output<any>();
+  asset = input<AssetWithDetails | null>(null);
+  onEdit = output<AssetWithDetails>();
+  onEditBatch = output<Batch>();
+  onWithdrawBatch = output<Batch>();
 
-  messageService = inject(MessageService);
-  batchService = inject(BatchService);
-  withdrawalService = inject(WithdrawalService);
-  router = inject(Router);
-  cdr = inject(ChangeDetectorRef);
-  sanitizer = inject(DomSanitizer);
+  private messageService = inject(MessageService);
+  private batchService = inject(BatchService);
+  private withdrawalService = inject(WithdrawalService);
+  private router = inject(Router);
+  private sanitizer = inject(DomSanitizer);
 
-  batches: any[] = [];
-  loading: boolean = true;
+  protected readonly batches = signal<Batch[]>([]);
+  protected readonly loading = signal(true);
   searchValue: string | undefined;
-  withdrawals: any[] = [];
-  withdrawalsLoading: boolean = true;
-  returnDrawerVisible: boolean = false;
-  selectedWithdrawal: any = null;
+  protected readonly withdrawals = signal<Withdrawal[]>([]);
+  protected readonly withdrawalsLoading = signal(true);
+  protected readonly returnDrawerVisible = signal(false);
+  protected readonly selectedWithdrawal = signal<Withdrawal | null>(null);
   tabsValue: string = 'batches';
 
-  // Computed signal for image URL to ensure immediate updates
-  imageUrl = computed(() => {
+  // Sanitized image URL — recomputed when `asset()` changes.
+  protected readonly imageUrl = computed(() => {
     const a = this.asset();
     if (!a?.image_path) return null;
     return this.sanitizer.bypassSecurityTrustUrl(a.image_path);
@@ -83,27 +97,26 @@ export class AssetDetail {
     effect(() => {
       const a = this.asset();
       if (a && a.id) {
-        this.loadBatches(a.id);
-        this.loadWithdrawals(a.id);
+        void this.loadBatches(a.id);
+        void this.loadWithdrawals(a.id);
       } else {
-        this.loading = false;
-        this.batches = [];
-        this.withdrawalsLoading = false;
-        this.withdrawals = [];
-        this.cdr.detectChanges();
+        this.loading.set(false);
+        this.batches.set([]);
+        this.withdrawalsLoading.set(false);
+        this.withdrawals.set([]);
       }
     });
   }
 
-  withdrawBatch(batch: any) {
+  withdrawBatch(batch: Batch) {
     this.onWithdrawBatch.emit(batch);
   }
 
-  editBatch(batch: any) {
+  editBatch(batch: Batch) {
     this.onEditBatch.emit(batch);
   }
 
-  deleteBatch(batch: any) {
+  deleteBatch(batch: Batch) {
     console.log('Delete batch', batch);
   }
 
@@ -129,28 +142,25 @@ export class AssetDetail {
 
   async loadBatches(assetId: number) {
     try {
-      this.loading = true;
-      this.cdr.detectChanges();
-      this.batches = await this.batchService.getByAsset(assetId);
+      this.loading.set(true);
+      this.batches.set(await this.batchService.getByAsset(assetId));
     } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
+      this.loading.set(false);
     }
   }
 
   async loadWithdrawals(assetId: number) {
     try {
-      this.withdrawalsLoading = true;
-      this.cdr.detectChanges();
-      this.withdrawals = await this.withdrawalService.getByAsset(assetId);
+      this.withdrawalsLoading.set(true);
+      this.withdrawals.set(await this.withdrawalService.getByAsset(assetId));
     } finally {
-      this.withdrawalsLoading = false;
-      this.cdr.detectChanges();
+      this.withdrawalsLoading.set(false);
     }
   }
 
-  copyToClipboard(text: string) {
-    navigator.clipboard.writeText(text);
+  copyToClipboard(text: string | null | undefined) {
+    if (!text) return;
+    void navigator.clipboard.writeText(text);
     this.messageService.add({
       severity: 'success',
       summary: 'Copied',
@@ -159,21 +169,22 @@ export class AssetDetail {
   }
 
   edit() {
-    this.onEdit.emit(this.asset());
+    const a = this.asset();
+    if (a) this.onEdit.emit(a);
   }
 
-  openDetails(withdrawal: any) {
+  openDetails(withdrawal: Withdrawal) {
     if (!withdrawal?.id) return;
     this.router.navigate(['/withdrawals', withdrawal.id], { state: { withdrawal } });
   }
 
-  openReturn(withdrawal: any) {
-    this.selectedWithdrawal = withdrawal;
-    this.returnDrawerVisible = true;
+  openReturn(withdrawal: Withdrawal) {
+    this.selectedWithdrawal.set(withdrawal);
+    this.returnDrawerVisible.set(true);
   }
 
   async onReturnSave() {
-    this.returnDrawerVisible = false;
+    this.returnDrawerVisible.set(false);
     const a = this.asset();
     if (a?.id) {
       await Promise.all([this.loadBatches(a.id), this.loadWithdrawals(a.id)]);
@@ -181,6 +192,6 @@ export class AssetDetail {
   }
 
   onReturnCancel() {
-    this.returnDrawerVisible = false;
+    this.returnDrawerVisible.set(false);
   }
 }
