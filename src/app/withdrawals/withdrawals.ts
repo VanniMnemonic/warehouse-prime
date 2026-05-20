@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { WithdrawalService } from '../services/withdrawal.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,6 +25,7 @@ export class Withdrawals implements OnInit {
   route = inject(ActivatedRoute);
   withdrawalService = inject(WithdrawalService);
   cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   withdrawals: any[] = [];
   loading: boolean = true;
@@ -32,7 +34,7 @@ export class Withdrawals implements OnInit {
   selectedWithdrawal: any = null;
 
   ngOnInit() {
-    this.route.queryParamMap.subscribe(() => {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       const action = this.route.snapshot.queryParamMap.get('action');
       if (action === 'add') {
         this.openAddWithdrawal();

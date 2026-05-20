@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
@@ -44,6 +45,7 @@ export class Users implements OnInit {
   cdr = inject(ChangeDetectorRef);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   selectedUser: any;
   searchValue: string | undefined;
@@ -55,7 +57,7 @@ export class Users implements OnInit {
   locationIdFilter: number | null = null;
 
   ngOnInit() {
-    this.route.queryParamMap.subscribe(() => {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       const raw = this.route.snapshot.queryParamMap.get('locationId');
       const id = raw ? Number(raw) : NaN;
       this.locationIdFilter = Number.isFinite(id) ? id : null;
