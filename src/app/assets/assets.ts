@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -61,6 +62,7 @@ export class Assets implements OnInit {
   route = inject(ActivatedRoute);
   confirmationService = inject(ConfirmationService);
   messageService = inject(MessageService);
+  private destroyRef = inject(DestroyRef);
 
   assets: any[] = [];
   loading: boolean = true;
@@ -74,7 +76,7 @@ export class Assets implements OnInit {
   selectedAssetForWithdrawal: any = null;
 
   ngOnInit() {
-    this.route.queryParamMap.subscribe(() => {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       const action = this.route.snapshot.queryParamMap.get('action');
       if (action === 'add') {
         this.openAddAsset();

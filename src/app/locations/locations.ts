@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrganizationChartModule } from 'primeng/organizationchart';
 import { MenuItem, TreeNode } from 'primeng/api';
 import { LocationService } from '../services/location.service';
@@ -43,6 +44,7 @@ export class Locations implements OnInit {
   userService = inject(UserService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('nodeMenu') nodeMenu?: ContextMenu;
   nodeMenuItems = signal<MenuItem[]>([]);
@@ -68,7 +70,7 @@ export class Locations implements OnInit {
   hierarchySaving = signal(false);
 
   ngOnInit() {
-    this.route.queryParamMap.subscribe(() => {
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       const action = this.route.snapshot.queryParamMap.get('action');
       if (action === 'add') {
         this.addRootLocation();
