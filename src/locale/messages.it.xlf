@@ -406,6 +406,26 @@
         <source>Failed to import backup.</source>
         <target>Impossibile importare il backup.</target>
       </trans-unit>
+      <trans-unit id="confirmDeleteAssetHeader" datatype="html">
+        <source>Delete Asset</source>
+        <target>Elimina asset</target>
+      </trans-unit>
+      <trans-unit id="confirmDeleteAssetMessage" datatype="html">
+        <source>Delete &quot;<x id="assetName" equiv-text="name"/>&quot; together with all its batches, withdrawals and notes? This action cannot be undone.</source>
+        <target>Eliminare &quot;<x id="assetName" equiv-text="name"/>&quot; insieme a tutti i lotti, prelievi e note collegati? Questa azione non può essere annullata.</target>
+      </trans-unit>
+      <trans-unit id="toastDeleteAssetSuccessDetail" datatype="html">
+        <source>Asset deleted.</source>
+        <target>Asset eliminato.</target>
+      </trans-unit>
+      <trans-unit id="toastDeleteAssetActiveWithdrawalsDetail" datatype="html">
+        <source>Cannot delete: there are still open withdrawals to return.</source>
+        <target>Impossibile eliminare: ci sono ancora prelievi aperti da restituire.</target>
+      </trans-unit>
+      <trans-unit id="toastDeleteAssetErrorDetail" datatype="html">
+        <source>Failed to delete asset.</source>
+        <target>Impossibile eliminare l'asset.</target>
+      </trans-unit>
       <trans-unit id="Notes" datatype="html">
         <source>Notes</source>
         <target>Note</target>
@@ -829,6 +849,10 @@
       <trans-unit id="assetEditTooltip" datatype="html">
         <source>Edit asset</source>
         <target>Modifica asset</target>
+      </trans-unit>
+      <trans-unit id="assetDeleteTooltip" datatype="html">
+        <source>Delete asset</source>
+        <target>Elimina asset</target>
       </trans-unit>
       <trans-unit id="userFormUploadImageChooseLabel" datatype="html">
         <source>Upload Image</source>

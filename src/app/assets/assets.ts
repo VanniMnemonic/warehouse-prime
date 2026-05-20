@@ -3,7 +3,9 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ImageModule } from 'primeng/image';
@@ -11,6 +13,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { AssetService } from '../services/asset.service';
@@ -40,9 +43,12 @@ import { AssetForm } from './asset-form/asset-form';
     ImageDisplay,
     ToolbarModule,
     TooltipModule,
+    ConfirmDialogModule,
+    ToastModule,
   ],
   templateUrl: './assets.html',
   styleUrl: './assets.css',
+  providers: [ConfirmationService, MessageService],
 })
 export class Assets implements OnInit {
   assetService = inject(AssetService);
@@ -52,6 +58,8 @@ export class Assets implements OnInit {
   sanitizer = inject(DomSanitizer);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  confirmationService = inject(ConfirmationService);
+  messageService = inject(MessageService);
 
   assets: any[] = [];
   loading: boolean = true;
@@ -156,6 +164,40 @@ export class Assets implements OnInit {
     console.log('Edit asset from detail:', asset);
     this.editingAsset = asset;
     this.formDrawerVisible = true;
+  }
+
+  confirmDeleteAsset(asset: any) {
+    const name = asset?.denomination ?? '';
+    this.confirmationService.confirm({
+      header: $localize`:@@confirmDeleteAssetHeader:Delete Asset`,
+      message: $localize`:@@confirmDeleteAssetMessage:Delete "${name}:assetName:" together with all its batches, withdrawals and notes? This action cannot be undone.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: async () => {
+        try {
+          this.loading = true;
+          await this.assetService.delete(asset.id);
+          this.messageService.add({
+            severity: 'success',
+            summary: $localize`:@@toastSuccessSummary:Success`,
+            detail: $localize`:@@toastDeleteAssetSuccessDetail:Asset deleted.`,
+          });
+          await this.loadAssets();
+        } catch (error: any) {
+          console.error('Error deleting asset:', error);
+          const detail =
+            typeof error?.message === 'string' && error.message.includes('active withdrawal')
+              ? $localize`:@@toastDeleteAssetActiveWithdrawalsDetail:Cannot delete: there are still open withdrawals to return.`
+              : $localize`:@@toastDeleteAssetErrorDetail:Failed to delete asset.`;
+          this.messageService.add({
+            severity: 'error',
+            summary: $localize`:@@toastErrorSummary:Error`,
+            detail,
+          });
+          this.loading = false;
+        }
+      },
+    });
   }
 
   openWithdraw(asset: any) {

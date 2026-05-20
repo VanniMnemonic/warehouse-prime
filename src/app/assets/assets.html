@@ -191,6 +191,16 @@
               i18n-pTooltip="@@assetEditTooltip"
               tooltipPosition="top"
             />
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              severity="danger"
+              [text]="true"
+              (onClick)="confirmDeleteAsset(asset)"
+              pTooltip="Delete asset"
+              i18n-pTooltip="@@assetDeleteTooltip"
+              tooltipPosition="top"
+            />
           </div>
         </td>
       </tr>
@@ -276,3 +286,6 @@
     }
   </ng-template>
 </p-dialog>
+
+<p-confirmDialog />
+<p-toast />

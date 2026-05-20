@@ -1,8 +1,12 @@
 import { Component, NgZone, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { AssetService } from '../../services/asset.service';
 import { AssetDetail } from '../asset-detail/asset-detail';
 import { AssetForm } from '../asset-form/asset-form';
@@ -17,6 +21,9 @@ import { Subscription } from 'rxjs';
     CommonModule,
     ButtonModule,
     DialogModule,
+    ConfirmDialogModule,
+    ToastModule,
+    TooltipModule,
     AssetDetail,
     AssetForm,
     AssetBatchForm,
@@ -24,12 +31,15 @@ import { Subscription } from 'rxjs';
   ],
   templateUrl: './asset-detail-page.html',
   styleUrl: './asset-detail-page.css',
+  providers: [ConfirmationService, MessageService],
 })
 export class AssetDetailPage implements OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private assetService = inject(AssetService);
   private withdrawalService = inject(WithdrawalService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
   private zone = inject(NgZone);
 
   asset: any = null;
@@ -116,6 +126,38 @@ export class AssetDetailPage implements OnDestroy {
   openEditAsset(asset: any) {
     this.editingAsset = asset;
     this.formDrawerVisible = true;
+  }
+
+  confirmDeleteAsset(asset: any) {
+    const name = asset?.denomination ?? '';
+    this.confirmationService.confirm({
+      header: $localize`:@@confirmDeleteAssetHeader:Delete Asset`,
+      message: $localize`:@@confirmDeleteAssetMessage:Delete "${name}:assetName:" together with all its batches, withdrawals and notes? This action cannot be undone.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: async () => {
+        try {
+          await this.assetService.delete(asset.id);
+          this.messageService.add({
+            severity: 'success',
+            summary: $localize`:@@toastSuccessSummary:Success`,
+            detail: $localize`:@@toastDeleteAssetSuccessDetail:Asset deleted.`,
+          });
+          this.router.navigate(['/assets']);
+        } catch (error: any) {
+          console.error('Error deleting asset:', error);
+          const detail =
+            typeof error?.message === 'string' && error.message.includes('active withdrawal')
+              ? $localize`:@@toastDeleteAssetActiveWithdrawalsDetail:Cannot delete: there are still open withdrawals to return.`
+              : $localize`:@@toastDeleteAssetErrorDetail:Failed to delete asset.`;
+          this.messageService.add({
+            severity: 'error',
+            summary: $localize`:@@toastErrorSummary:Error`,
+            detail,
+          });
+        }
+      },
+    });
   }
 
   openEditBatch(batch: any) {

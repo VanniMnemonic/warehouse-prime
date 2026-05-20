@@ -19,6 +19,10 @@ export class AssetService {
     return await this.electronService.invoke('update-asset', asset);
   }
 
+  async delete(id: number): Promise<boolean> {
+    return await this.electronService.invoke('delete-asset', id);
+  }
+
   async uploadImage(filePath: string): Promise<string> {
     return await this.electronService.invoke('upload-image', filePath);
   }

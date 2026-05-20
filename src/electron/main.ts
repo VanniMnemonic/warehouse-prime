@@ -9,6 +9,7 @@ import { AppDataSource } from './data-source';
 import { Asset } from './entities/Asset';
 import { Batch } from './entities/Batch';
 import { Location } from './entities/Location';
+import { Note } from './entities/Note';
 import { Title } from './entities/Title';
 import { User } from './entities/User';
 import { Withdrawal } from './entities/Withdrawal';
@@ -778,6 +779,102 @@ ipcMain.handle('add-asset', async (event, assetData: Partial<Asset>) => {
 ipcMain.handle('update-asset', async (event, assetData: Partial<Asset>) => {
   const assetRepository = AppDataSource.getRepository(Asset);
   return await assetRepository.save(assetData);
+});
+
+// Delete an asset and everything that hangs off it. Refuses if any withdrawal
+// against one of the asset's batches is still pending (must_return && !return_date)
+// — losing an open audit trail would corrupt the active-withdrawals count
+// shown on the users list. The image file on disk is removed best-effort
+// after the DB transaction commits.
+ipcMain.handle('delete-asset', async (event, assetId: number) => {
+  const queryRunner = AppDataSource.createQueryRunner();
+  await queryRunner.connect();
+
+  let assetImagePath: string | undefined;
+
+  try {
+    const assetRepo = queryRunner.manager.getRepository(Asset);
+    const batchRepo = queryRunner.manager.getRepository(Batch);
+    const withdrawalRepo = queryRunner.manager.getRepository(Withdrawal);
+    const noteRepo = queryRunner.manager.getRepository(Note);
+
+    const asset = await assetRepo.findOne({ where: { id: assetId } });
+    if (!asset) {
+      throw new Error('Asset not found');
+    }
+    assetImagePath = asset.image_path;
+
+    const batches = await batchRepo.find({ where: { asset_id: assetId } });
+    const batchIds = batches.map((b) => b.id);
+
+    if (batchIds.length > 0) {
+      const activeCount = await withdrawalRepo.count({
+        where: {
+          batch_id: In(batchIds),
+          must_return: true,
+          return_date: IsNull(),
+        },
+      });
+      if (activeCount > 0) {
+        throw new Error(
+          `Cannot delete asset: ${activeCount} active withdrawal(s) must be returned first`,
+        );
+      }
+    }
+
+    await queryRunner.startTransaction();
+    try {
+      const withdrawalsForAsset = batchIds.length
+        ? await withdrawalRepo.find({
+            where: { batch_id: In(batchIds) },
+            select: ['id'],
+          })
+        : [];
+      const withdrawalIds = withdrawalsForAsset.map((w) => w.id);
+
+      if (withdrawalIds.length > 0) {
+        await noteRepo.delete({ withdrawal_id: In(withdrawalIds) });
+      }
+      if (batchIds.length > 0) {
+        await noteRepo.delete({ batch_id: In(batchIds) });
+      }
+      await noteRepo.delete({ asset_id: assetId });
+
+      if (batchIds.length > 0) {
+        await withdrawalRepo.delete({ batch_id: In(batchIds) });
+      }
+      if (batchIds.length > 0) {
+        await batchRepo.delete({ asset_id: assetId });
+      }
+      await assetRepo.delete(assetId);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    }
+  } finally {
+    await queryRunner.release();
+  }
+
+  // Best-effort image cleanup. We restrict deletion to files inside the
+  // managed images directory so a malformed image_path can never delete
+  // an arbitrary file on disk.
+  if (assetImagePath) {
+    try {
+      const bare = assetImagePath.replace(/^local-resource:\/\//, '');
+      const filePath = path.normalize(decodeURIComponent(bare));
+      const imagesDir = path.join(getDataPath(), 'images');
+      const imagesDirWithSep = imagesDir.endsWith(path.sep) ? imagesDir : imagesDir + path.sep;
+      if (filePath.startsWith(imagesDirWithSep) && fs.existsSync(filePath)) {
+        fs.rmSync(filePath, { force: true });
+      }
+    } catch (e) {
+      console.warn('Failed to delete asset image file:', e);
+    }
+  }
+
+  return true;
 });
 
 ipcMain.handle('get-batches-by-asset', async (event, assetId: number) => {
