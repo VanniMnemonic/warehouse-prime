@@ -330,6 +330,15 @@ app.on('ready', () => {
   // By registering the scheme as privileged (non-standard) above and
   // reconstructing the path from both host and pathname we recover the full
   // drive-letter path on Windows while remaining correct on macOS/Linux.
+  // Sandbox `local-resource://` strictly to <userData>/images/. Without this
+  // guard a renderer (which runs with nodeIntegration: true) could craft a URL
+  // like `local-resource:///etc/passwd` and read arbitrary files via fetch().
+  // The `app://` handler above has the equivalent guard; keep them aligned.
+  const localResourceRoot = path.join(getDataPath(), 'images');
+  const localResourceRootWithSep = localResourceRoot.endsWith(path.sep)
+    ? localResourceRoot
+    : localResourceRoot + path.sep;
+
   protocol.handle('local-resource', (request) => {
     try {
       const parsed = new URL(request.url);
@@ -340,6 +349,10 @@ app.on('ready', () => {
       const filePath = path.normalize(
         decodeURIComponent(hostPart + parsed.pathname),
       );
+
+      if (filePath !== localResourceRoot && !filePath.startsWith(localResourceRootWithSep)) {
+        return new Response('Forbidden', { status: 403 });
+      }
 
       if (!fs.existsSync(filePath)) {
         return new Response('Not Found', { status: 404 });
