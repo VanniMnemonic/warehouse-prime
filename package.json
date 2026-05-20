@@ -79,7 +79,8 @@
     "asar": true,
     "publish": [
       {
-        "provider": "github"
+        "provider": "github",
+        "releaseType": "release"
       }
     ],
     "files": [

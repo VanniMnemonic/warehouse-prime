@@ -26,35 +26,25 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Build Windows portable
+      # electron-builder both BUILDS the .exe and PUBLISHES it to the
+      # GitHub Release, including the `latest.yml` manifest +
+      # `*.exe.blockmap` files that electron-updater needs to detect
+      # new versions on installed clients. `--publish always` uploads
+      # whatever the package.json `publish` config points at (github,
+      # `releaseType: release` -> non-draft). Don't add a separate
+      # softprops/action-gh-release step on top — it would race with
+      # this one and overwrite the release without the manifest files.
+      - name: Build and publish Windows portable
         run: |
           npm run build:localize
           npm run build:electron
-          npx electron-builder --win --publish never
+          npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Upload artifacts
+      - name: Upload workflow artifacts (debugging)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: windows-portable
           path: release/
-
-      # electron-updater on Windows fetches `latest.yml` from the latest
-      # release on this repo to detect updates. Without that file the
-      # in-app "Check Updates" button shows "Update error" forever.
-      # Also include the .blockmap so future delta updates have the
-      # signature data they need.
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          files: |
-            release/*.exe
-            release/latest.yml
-            release/*.blockmap
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
