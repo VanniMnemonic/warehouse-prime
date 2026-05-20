@@ -92,10 +92,16 @@ Two TypeScript compilation contexts in one repo, glued by Electron IPC:
     `images/` directory. The Windows drive-letter handling
     (`parsed.host + ':' + parsed.pathname`) is load-bearing — don't
     "simplify" it.
-- `BrowserWindow` runs with `nodeIntegration: true` and
-  `contextIsolation: false`. This is why the renderer can do
-  `(window as any).require('electron')` directly — keep the trade-off
-  in mind when adding third-party content into the window.
+- `BrowserWindow` runs with `contextIsolation: true`,
+  `nodeIntegration: false`, and a preload script
+  (`src/electron/preload.js`) that exposes a minimal API via
+  `contextBridge.exposeInMainWorld('electron', { invoke, getFilePath })`.
+  The renderer reaches the main process exclusively through
+  `window.electron.invoke(channel, ...args)`. **Do not introduce
+  `window.require` or any other Node-in-renderer escape hatch** —
+  it won't resolve, and the model assumes a trusted bridge surface
+  only. To add a new capability for the renderer, extend the
+  preload's exposed object explicitly.
 
 ### Auto-updater
 

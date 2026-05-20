@@ -270,10 +270,18 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false, // Consider contextBridge for production
+      // Strict renderer isolation: the renderer cannot `require` Node
+      // modules. The bridged surface is what `src/electron/preload.js`
+      // exposes via contextBridge (window.electron.invoke + getFilePath).
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false, // preload still needs Node (contextBridge, ipcRenderer)
+      preload: path.join(__dirname, 'preload.js'),
       backgroundThrottling: false,
-      webSecurity: false, // Disabling webSecurity allows loading local resources, but protocol handler is better practice
+      // webSecurity stays on the default `true`. Local resources are
+      // served via the `app://` and `local-resource://` custom protocols
+      // registered with `secure: true` above, so same-origin enforcement
+      // does not get in the way.
     },
   });
 
