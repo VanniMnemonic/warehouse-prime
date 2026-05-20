@@ -1,4 +1,11 @@
-import { Component, DestroyRef, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { WithdrawalService } from '../services/withdrawal.service';
@@ -7,6 +14,7 @@ import { DialogModule } from 'primeng/dialog';
 import { WithdrawalForm } from './withdrawal-form/withdrawal-form';
 import { WithdrawalReturnForm } from './withdrawal-return-form/withdrawal-return-form';
 import { WithdrawalsTable } from './withdrawals-table/withdrawals-table';
+import type { Withdrawal } from '../../shared/types/models';
 
 @Component({
   selector: 'app-withdrawals',
@@ -19,83 +27,83 @@ import { WithdrawalsTable } from './withdrawals-table/withdrawals-table';
   ],
   templateUrl: './withdrawals.html',
   styleUrl: './withdrawals.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Withdrawals implements OnInit {
-  router = inject(Router);
-  route = inject(ActivatedRoute);
-  withdrawalService = inject(WithdrawalService);
-  cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private withdrawalService = inject(WithdrawalService);
   private destroyRef = inject(DestroyRef);
 
-  withdrawals: any[] = [];
-  loading: boolean = true;
-  formDrawerVisible: boolean = false;
-  returnDrawerVisible: boolean = false;
-  selectedWithdrawal: any = null;
+  protected readonly withdrawals = signal<Withdrawal[]>([]);
+  protected readonly loading = signal(true);
+  protected readonly formDrawerVisible = signal(false);
+  protected readonly returnDrawerVisible = signal(false);
+  protected readonly selectedWithdrawal = signal<Withdrawal | null>(null);
 
   ngOnInit() {
-    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      const action = this.route.snapshot.queryParamMap.get('action');
-      if (action === 'add') {
-        this.openAddWithdrawal();
-        this.router.navigate([], {
-          queryParams: { action: null },
-          queryParamsHandling: 'merge',
-          replaceUrl: true,
-        });
-      }
-    });
-    this.loadWithdrawals();
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const action = this.route.snapshot.queryParamMap.get('action');
+        if (action === 'add') {
+          this.openAddWithdrawal();
+          this.router.navigate([], {
+            queryParams: { action: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
+        }
+      });
+    void this.loadWithdrawals();
   }
 
-  openDetails(withdrawal: any) {
+  openDetails(withdrawal: Withdrawal) {
     if (!withdrawal?.id) return;
     this.router.navigate(['/withdrawals', withdrawal.id], { state: { withdrawal } });
   }
 
   async loadWithdrawals() {
     try {
-      this.loading = true;
-      this.withdrawals = await this.withdrawalService.getAll();
+      this.loading.set(true);
+      this.withdrawals.set(await this.withdrawalService.getAll());
     } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
+      this.loading.set(false);
     }
   }
 
   openAddWithdrawal() {
-    this.formDrawerVisible = true;
+    this.formDrawerVisible.set(true);
   }
 
-  openReturn(withdrawal: any) {
-    this.selectedWithdrawal = withdrawal;
-    this.returnDrawerVisible = true;
+  openReturn(withdrawal: Withdrawal) {
+    this.selectedWithdrawal.set(withdrawal);
+    this.returnDrawerVisible.set(true);
   }
 
-  async onFormSave(withdrawalData: any) {
+  async onFormSave(withdrawalData: unknown) {
     try {
-      this.loading = true;
+      this.loading.set(true);
       await this.withdrawalService.create(withdrawalData);
-      this.formDrawerVisible = false;
+      this.formDrawerVisible.set(false);
       await this.loadWithdrawals();
     } catch (error) {
       console.error('Error saving withdrawal:', error);
     } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
+      this.loading.set(false);
     }
   }
 
   onFormCancel() {
-    this.formDrawerVisible = false;
+    this.formDrawerVisible.set(false);
   }
 
   async onReturnSave() {
-    this.returnDrawerVisible = false;
+    this.returnDrawerVisible.set(false);
     await this.loadWithdrawals();
   }
 
   onReturnCancel() {
-    this.returnDrawerVisible = false;
+    this.returnDrawerVisible.set(false);
   }
 }

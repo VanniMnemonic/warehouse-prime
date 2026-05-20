@@ -1,6 +1,6 @@
 <app-withdrawals-table
-  [withdrawals]="withdrawals"
-  [loading]="loading"
+  [withdrawals]="withdrawals()"
+  [loading]="loading()"
   [showAddButton]="true"
   [toolbarFixed]="true"
   (onAdd)="openAddWithdrawal()"
@@ -9,7 +9,8 @@
 />
 
 <p-dialog
-  [(visible)]="formDrawerVisible"
+  [visible]="formDrawerVisible()"
+  (visibleChange)="formDrawerVisible.set($event)"
   header="Add Withdrawal"
   [modal]="true"
   [dismissableMask]="true"
@@ -17,14 +18,15 @@
   [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
   <ng-template pTemplate="content">
-    @if (formDrawerVisible) {
+    @if (formDrawerVisible()) {
       <app-withdrawal-form (onSave)="onFormSave($event)" (onCancel)="onFormCancel()" />
     }
   </ng-template>
 </p-dialog>
 
 <p-dialog
-  [(visible)]="returnDrawerVisible"
+  [visible]="returnDrawerVisible()"
+  (visibleChange)="returnDrawerVisible.set($event)"
   header="Return Asset"
   [modal]="true"
   [dismissableMask]="true"
@@ -32,9 +34,9 @@
   [breakpoints]="{ '960px': '75vw', '640px': '90vw' }"
 >
   <ng-template pTemplate="content">
-    @if (returnDrawerVisible && selectedWithdrawal) {
+    @if (returnDrawerVisible() && selectedWithdrawal()) {
       <app-withdrawal-return-form
-        [withdrawal]="selectedWithdrawal"
+        [withdrawal]="selectedWithdrawal()"
         (onSave)="onReturnSave()"
         (onCancel)="onReturnCancel()"
       />
